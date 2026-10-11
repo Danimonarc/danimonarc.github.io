@@ -35,8 +35,12 @@
   <p id="status">Cargando…</p>
   <div id="who" hidden></div>
   <div id="items"></div>
-  <div class="card" id="mine" hidden><div class="row"><span>Tu parte (aprox.)</span><span class="total" id="total"></span></div>
-    <small>Cuando todos hayan marcado, quien pagó cierra el ticket desde la app y se reparte.</small></div>
+  <div class="card" id="mine" hidden>
+    <div class="row"><span>Tu parte (aprox.)</span><span class="total" id="total"></span></div>
+    <button id="ok" class="on" style="width:100%;margin-top:10px">Confirmar mi parte</button>
+    <p id="saved" style="text-align:center"></p>
+    <small>Hasta que no pulses «Confirmar» no se guarda nada. Cuando todos hayan marcado, quien pagó cierra el ticket desde la app y se reparte.</small>
+  </div>
 </main>
 <script>
 "use strict";
@@ -142,6 +146,18 @@ function esc(s) { var d = document.createElement("div"); d.textContent = s; retu
 function eur(c) { return (Number(c) / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" }); }
 function personName(id) { var p = (S.group.people || []).find(function (x) { return x.id === id; }); return p ? p.name : "?"; }
 
+var draft = {}, dirty = {};
+function server(it) {
+  var a = (S.ticket.claims || {})[it.id] || {}, sb = a.sharedBy || [];
+  return { u: Number((a.units || {})[S.me] || 0), sh: a.shared === true, inn: sb.indexOf(S.me) >= 0 };
+}
+function val(it) { return dirty[it.id] ? draft[it.id] : server(it); }
+function change(id, patchObj) {
+  var it = S.ticket.items.find(function (x) { return x.id === id; });
+  draft[id] = Object.assign({}, val(it), patchObj); dirty[id] = true;
+  $("saved").textContent = ""; render();
+}
+
 function render() {
   $("status").className = ""; $("status").textContent = "Grupo «" + S.group.name + "»";
   $("title").textContent = S.ticket.title || "Ticket";
@@ -150,24 +166,26 @@ function render() {
   $("who").hidden = true;
   var claims = S.ticket.claims || {}, total = 0, html = "";
   (S.ticket.items || []).forEach(function (it) {
-    var a = claims[it.id] || {}, units = a.units || {}, sharedBy = a.sharedBy || [], shared = a.shared === true;
-    var mine = Number(units[S.me] || 0), q = Number(it.quantity) || 1, cents = Number(it.totalCents);
+    var a = claims[it.id] || {}, units = a.units || {}, sharedBy = a.sharedBy || [], d = val(it);
+    var q = Number(it.quantity) || 1, cents = Number(it.totalCents);
     var others = Object.keys(units).reduce(function (n, p) { return n + (p === S.me ? 0 : Number(units[p])); }, 0);
-    var inShare = sharedBy.indexOf(S.me) >= 0;
-    total += shared ? (inShare && sharedBy.length ? Math.round(cents / sharedBy.length) : 0) : Math.round(cents / q) * mine;
+    var shareIds = sharedBy.filter(function (p) { return p !== S.me; }); if (d.inn) shareIds.push(S.me);
+    total += d.sh ? (d.inn && shareIds.length ? Math.round(cents / shareIds.length) : 0) : Math.round(cents / q) * d.u;
     html += '<div class="card"><div class="row"><span><span class="name">' + esc(it.name) + '</span><br><small>' + (q > 1 ? q + " × " + eur(cents / q) : "") + '</small></span><span class="price">' + eur(cents) + '</span></div>';
-    if (!shared) {
+    if (!d.sh) {
       var who = Object.keys(units).filter(function (p) { return p !== S.me; }).map(function (p) { return esc(personName(p)) + " " + units[p]; }).join(", ");
-      html += '<div class="row" style="margin-top:8px"><div class="qty"><button data-a="u" data-i="' + it.id + '" data-d="-1"' + (mine <= 0 ? " disabled" : "") + '>−</button><b>' + mine + '</b><button data-a="u" data-i="' + it.id + '" data-d="1"' + (mine + others >= q ? " disabled" : "") + '>+</button></div>' +
+      html += '<div class="row" style="margin-top:8px"><div class="qty"><button data-a="u" data-i="' + it.id + '" data-d="-1"' + (d.u <= 0 ? " disabled" : "") + '>−</button><b>' + d.u + '</b><button data-a="u" data-i="' + it.id + '" data-d="1"' + (d.u + others >= q ? " disabled" : "") + '>+</button></div>' +
         '<button data-a="s" data-i="' + it.id + '" data-v="1">Compartido</button></div>' + (who ? "<small>También: " + who + "</small>" : "");
     } else {
-      html += '<div class="chips">' + people.map(function (p) { return '<button class="' + (sharedBy.indexOf(p.id) >= 0 ? "on" : "") + '" data-a="c" data-i="' + it.id + '" data-p="' + p.id + '">' + esc(p.name) + "</button>"; }).join("") +
-        '</div><div class="row" style="margin-top:8px"><small>Se divide a partes iguales entre los marcados.</small><button data-a="s" data-i="' + it.id + '" data-v="0">Por unidades</button></div>';
+      var names = shareIds.map(function (p) { return esc(personName(p)); }).join(", ") || "nadie todavía";
+      html += '<div class="row" style="margin-top:8px"><button class="' + (d.inn ? "on" : "") + '" data-a="c" data-i="' + it.id + '">' + (d.inn ? "Yo también ✓" : "Yo también") + '</button>' +
+        '<button data-a="s" data-i="' + it.id + '" data-v="0">Por unidades</button></div><small>Se divide a partes iguales. Compartido con: ' + names + '.</small>';
     }
     html += "</div>";
   });
   $("items").innerHTML = html;
   $("mine").hidden = false; $("total").textContent = eur(total);
+  $("ok").disabled = Object.keys(dirty).length === 0;
 }
 
 function renderWho(people) {
@@ -185,28 +203,37 @@ function renderWho(people) {
 }
 
 document.addEventListener("click", async function (e) {
-  var b = e.target.closest("button[data-a]"); if (!b || S.busy) return;
-  var a = b.dataset.a, tp = "groups/" + S.groupId + "/tickets/" + ticketId, i = b.dataset.i;
+  var b = e.target.closest("button[data-a], #ok"); if (!b || S.busy) return;
+  if (b.id === "ok") return confirmMine(b);
+  var a = b.dataset.a, i = b.dataset.i;
   if (a === "w") { S.me = b.dataset.p; store("distro.me." + S.groupId, S.me); return render(); }
-  S.busy = true;
-  try {
-    if (a === "u") {
-      var cur = Number((((S.ticket.claims || {})[i] || {}).units || {})[S.me] || 0), n = Math.max(0, cur + Number(b.dataset.d));
-      var mask = "claims." + tick(i) + ".units." + tick(S.me), f = {};
-      if (n > 0) f = { claims: mv(kv(i, mv({ units: mv(kv(S.me, int(n))) }))) };
-      await patch(tp, [mask], f);
-    } else if (a === "s") {
-      var on = b.dataset.v === "1";
-      await patch(tp, ["claims." + tick(i) + ".shared"], { claims: mv(kv(i, mv({ shared: { booleanValue: on } }))) });
-      if (on) await listChange(tp, "claims." + tick(i) + ".sharedBy", [int(S.me)], true);
-    } else if (a === "c") {
-      var has = (((S.ticket.claims || {})[i] || {}).sharedBy || []).indexOf(b.dataset.p) >= 0;
-      await listChange(tp, "claims." + tick(i) + ".sharedBy", [int(b.dataset.p)], !has);
-    }
-    await refresh();
-  } catch (err) { fail("No se ha podido guardar. Inténtalo de nuevo."); }
-  S.busy = false;
+  var it = S.ticket.items.find(function (x) { return x.id === i; }), d = val(it);
+  if (a === "u") {
+    var units = (((S.ticket.claims || {})[i] || {}).units) || {}, others = Object.keys(units).reduce(function (n, p) { return n + (p === S.me ? 0 : Number(units[p])); }, 0);
+    change(i, { u: Math.max(0, Math.min(Number(it.quantity) - others, d.u + Number(b.dataset.d))) });
+  } else if (a === "s") change(i, b.dataset.v === "1" ? { sh: true, inn: true } : { sh: false });
+  else if (a === "c") change(i, { inn: !d.inn });
 });
+
+// Guarda de una vez lo que ha cambiado el usuario.
+async function confirmMine(btn) {
+  S.busy = true; btn.disabled = true; $("saved").textContent = "Guardando…";
+  var tp = "groups/" + S.groupId + "/tickets/" + ticketId;
+  try {
+    for (var id in dirty) {
+      var it = S.ticket.items.find(function (x) { return x.id === id; }), now = draft[id], old = server(it);
+      if (now.u !== old.u) {
+        var f = now.u > 0 ? { claims: mv(kv(id, mv({ units: mv(kv(S.me, int(now.u))) }))) } : {};
+        await patch(tp, ["claims." + tick(id) + ".units." + tick(S.me)], f);
+      }
+      if (now.sh !== old.sh) await patch(tp, ["claims." + tick(id) + ".shared"], { claims: mv(kv(id, mv({ shared: { booleanValue: now.sh } }))) });
+      if (now.inn !== old.inn) await listChange(tp, "claims." + tick(id) + ".sharedBy", [int(S.me)], now.inn);
+    }
+    draft = {}; dirty = {};
+    await refresh(); $("saved").textContent = "✓ Guardado. Puedes volver a cambiarlo cuando quieras.";
+  } catch (err) { $("saved").textContent = ""; fail("No se ha podido guardar. Inténtalo de nuevo."); }
+  S.busy = false; render();
+}
 
 start();
 </script>
