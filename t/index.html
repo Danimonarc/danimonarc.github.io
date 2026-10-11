@@ -36,6 +36,7 @@
   .bar button#ok { width:100%; padding:13px; font-size:1.05rem; }
   .total { font-size:1.25rem; font-weight:800; }
   #saved { margin:4px 0 0; text-align:center; min-height:1.4em; }
+  .me { margin:14px 4px 0; } .me a { color:var(--green); font-weight:700; }
   .ad { margin:16px 0; border:1px dashed var(--line); border-radius:14px; padding:8px 12px 12px; text-align:center; background:var(--soft); }
   .ad small { display:block; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; margin:0 0 4px; }
   .ad b { display:block; } .ad span { color:var(--muted); font-size:.9rem; }
@@ -76,7 +77,7 @@ var q = new URLSearchParams(location.search);
 var code = (q.get("c") || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 var ticketId = (q.get("t") || "").replace(/\D/g, "");
 var $ = function (id) { return document.getElementById(id); };
-var S = { uid: null, token: null, group: null, groupId: null, ticket: null, me: null, busy: false };
+var S = { last: null, uid: null, token: null, group: null, groupId: null, ticket: null, me: null, busy: false };
 
 function fail(msg) { $("status").textContent = msg; $("status").className = "err"; }
 function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
@@ -151,7 +152,7 @@ async function start() {
   S.groupId = inv.groupId;
   try { await listChange("groups/" + S.groupId, "memberUids", [{ stringValue: S.uid }], true); }
   catch (e) { return fail("No se ha podido entrar en el grupo."); }
-  S.me = load("distro.me." + S.groupId);
+  S.last = load("distro.me." + S.groupId);
   await refresh();
   setInterval(function () { if (!S.busy) refresh(); }, 4000);
 }
@@ -188,7 +189,8 @@ function render() {
   var people = S.group.people || [];
   if (!S.me || !people.some(function (p) { return p.id === S.me; })) return renderWho(people);
   $("who").hidden = true; $("ad").hidden = false;
-  var claims = S.ticket.claims || {}, total = 0, html = "";
+  html = '<p class="me">Marcas como <b>' + esc(personName(S.me)) + '</b> · <a href="#" data-a="chg">cambiar</a></p>';
+  var claims = S.ticket.claims || {}, total = 0, html;
   (S.ticket.items || []).forEach(function (it) {
     var a = claims[it.id] || {}, units = a.units || {}, sharedBy = a.sharedBy || [], d = val(it);
     var q = Number(it.quantity) || 1, cents = Number(it.totalCents);
@@ -215,19 +217,20 @@ function render() {
 function renderWho(people) {
   $("items").innerHTML = ""; $("mine").hidden = true;
   var w = $("who"); w.hidden = false;
-  w.innerHTML = '<div class="card"><p><b>¿Quién eres?</b></p><div class="chips">' +
-    people.map(function (p) { return '<button data-a="w" data-p="' + p.id + '">' + esc(p.name) + "</button>"; }).join("") +
+  w.innerHTML = '<div class="card"><p><b>¿Quién eres?</b> Elige tu nombre para marcar lo tuyo.</p><div class="chips">' +
+    people.map(function (p) { return '<button class="' + (p.id === S.last ? 'on' : '') + '" data-a="w" data-p="' + p.id + '">' + esc(p.name) + "</button>"; }).join("") +
     '</div><p>¿No estás en la lista?</p><input id="newname" maxlength="30" placeholder="Tu nombre"><button id="addme">Añadirme</button></div>';
   $("addme").onclick = async function () {
     var name = $("newname").value.trim(); if (!name) return;
     var id = (BigInt(Math.floor(Math.random() * 2 ** 30)) << 32n | BigInt(crypto.getRandomValues(new Uint32Array(1))[0])).toString();
     await listChange("groups/" + S.groupId, "people", [{ mapValue: { fields: { id: int(id), name: { stringValue: name } } } }], true).catch(function () { fail("No se ha podido añadirte."); });
-    S.me = id; store("distro.me." + S.groupId, id); refresh();
+    S.me = id; S.last = id; store("distro.me." + S.groupId, id); refresh();
   };
 }
 
 document.addEventListener("click", async function (e) {
-  var b = e.target.closest("button[data-a], #ok"); if (!b || S.busy) return;
+  var b = e.target.closest("button[data-a], a[data-a], #ok"); if (!b || S.busy) return;
+  if (b.dataset && b.dataset.a === "chg") { e.preventDefault(); S.last = S.me; S.me = null; draft = {}; dirty = {}; $("saved").textContent = ""; return render(); }
   if (b.id === "ok") return confirmMine(b);
   var a = b.dataset.a, i = b.dataset.i;
   if (a === "w") { S.me = b.dataset.p; store("distro.me." + S.groupId, S.me); return render(); }
