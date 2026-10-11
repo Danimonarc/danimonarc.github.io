@@ -6,42 +6,66 @@
 <meta name="robots" content="noindex">
 <title>Marcar un ticket en Distro</title>
 <style>
-  :root { --bg:#f6faf7; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#1f7a4d; --on:#fff; --line:#d9e5dd; --bad:#b3261e; }
+  :root { --bg:#f6faf7; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#2f8f0a; --green2:#1b5e05; --on:#fff; --line:#dde8e0; --bad:#b3261e; --soft:#eaf4e4; --shadow:0 1px 3px rgba(20,60,20,.10); }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#101612; --card:#18211b; --ink:#e7efe9; --muted:#9db0a4; --green:#5fc08c; --on:#0b1a10; --line:#2a382f; --bad:#f2b8b5; }
+    :root { --bg:#0f1511; --card:#18211b; --ink:#e7efe9; --muted:#9db0a4; --green:#6fcf45; --green2:#1b5e05; --on:#0b1a10; --line:#2a382f; --bad:#f2b8b5; --soft:#223326; --shadow:none; }
   }
   * { box-sizing: border-box; }
-  body { margin:0; padding:16px; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width:520px; margin:0 auto; }
-  h1 { margin:0 0 4px; font-size:1.3rem; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .hero { background:linear-gradient(135deg,#37b00a,var(--green2)); color:#fff; padding:18px 20px 26px; border-radius:0 0 28px 28px; }
+  .hero .brand { font-weight:800; letter-spacing:.02em; opacity:.85; }
+  .hero h1 { margin:14px 0 2px; font-size:1.7rem; line-height:1.15; }
+  .hero p { margin:0; color:rgba(255,255,255,.85); }
+  main { max-width:520px; margin:0 auto; padding:4px 16px 120px; }
   p, small { color:var(--muted); margin:6px 0; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin:12px 0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:14px 16px; margin:12px 0; box-shadow:var(--shadow); }
   .row { display:flex; align-items:center; gap:10px; justify-content:space-between; }
-  .name { font-weight:700; } .price { font-variant-numeric:tabular-nums; }
-  button, input { font:inherit; border-radius:12px; border:1px solid var(--green); padding:10px 14px; }
+  .name { font-weight:700; font-size:1.05rem; } .price { font-variant-numeric:tabular-nums; font-weight:700; }
+  button, input { font:inherit; border-radius:999px; border:1.5px solid var(--green); padding:9px 16px; }
   button { background:transparent; color:var(--green); font-weight:700; cursor:pointer; }
   button.on { background:var(--green); color:var(--on); }
-  button:disabled { opacity:.4; }
-  input { background:var(--card); color:var(--ink); width:100%; margin:8px 0; border-color:var(--line); }
+  button:disabled { opacity:.35; cursor:default; }
+  input { background:var(--card); color:var(--ink); width:100%; margin:8px 0; border-color:var(--line); border-radius:14px; }
   .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .qty { display:flex; align-items:center; gap:12px; } .qty b { min-width:1.5em; text-align:center; }
+  .qty { display:flex; align-items:center; gap:14px; } .qty b { min-width:1.5em; text-align:center; font-size:1.2rem; }
+  .qty button { width:42px; height:42px; padding:0; font-size:1.3rem; line-height:1; }
   .err { color:var(--bad); }
-  .total { font-size:1.2rem; font-weight:800; }
+  #status { margin:14px 4px 0; }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--line); padding:10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .bar > div { max-width:520px; margin:0 auto; }
+  .bar button#ok { width:100%; padding:13px; font-size:1.05rem; }
+  .total { font-size:1.25rem; font-weight:800; }
+  #saved { margin:4px 0 0; text-align:center; min-height:1.4em; }
+  .ad { margin:16px 0; border:1px dashed var(--line); border-radius:14px; padding:8px 12px 12px; text-align:center; background:var(--soft); }
+  .ad small { display:block; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; margin:0 0 4px; }
+  .ad b { display:block; } .ad span { color:var(--muted); font-size:.9rem; }
 </style>
 </head>
 <body>
+<header class="hero">
+  <div class="brand">distro</div>
+  <h1 id="title">Tu ticket</h1>
+  <p id="group">&nbsp;</p>
+</header>
 <main>
-  <h1 id="title">Distro</h1>
   <p id="status">Cargando…</p>
   <div id="who" hidden></div>
   <div id="items"></div>
-  <div class="card" id="mine" hidden>
-    <div class="row"><span>Tu parte (aprox.)</span><span class="total" id="total"></span></div>
-    <button id="ok" class="on" style="width:100%;margin-top:10px">Confirmar mi parte</button>
-    <p id="saved" style="text-align:center"></p>
-    <small>Hasta que no pulses «Confirmar» no se guarda nada. Cuando todos hayan marcado, quien pagó cierra el ticket desde la app y se reparte.</small>
+  <!-- Hueco del banner. Por ahora es publicidad propia; aquí iría el código del anuncio de AdSense (con el aviso de cookies). -->
+  <div class="ad" id="ad" hidden>
+    <small>Publicidad</small>
+    <b>Distro: reparte los gastos sin hacer cuentas</b>
+    <span>Escanea el ticket y cada uno marca lo suyo.</span>
   </div>
+  <p style="text-align:center"><small>Quien pagó cierra el ticket desde la app y se reparte.</small></p>
 </main>
+<div class="bar" id="mine" hidden>
+  <div>
+    <div class="row"><span>Tu parte <small>(aprox.)</small></span><span class="total" id="total"></span></div>
+    <button id="ok" class="on" style="margin-top:8px">Confirmar mi parte</button>
+    <p id="saved"></p>
+  </div>
+</div>
 <script>
 "use strict";
 // Clave pública de la app web de Firebase: no es un secreto; los datos los protegen las reglas de Firestore.
@@ -159,11 +183,11 @@ function change(id, patchObj) {
 }
 
 function render() {
-  $("status").className = ""; $("status").textContent = "Grupo «" + S.group.name + "»";
+  $("status").className = ""; $("status").textContent = ""; $("group").textContent = "Grupo «" + S.group.name + "»";
   $("title").textContent = S.ticket.title || "Ticket";
   var people = S.group.people || [];
   if (!S.me || !people.some(function (p) { return p.id === S.me; })) return renderWho(people);
-  $("who").hidden = true;
+  $("who").hidden = true; $("ad").hidden = false;
   var claims = S.ticket.claims || {}, total = 0, html = "";
   (S.ticket.items || []).forEach(function (it) {
     var a = claims[it.id] || {}, units = a.units || {}, sharedBy = a.sharedBy || [], d = val(it);
