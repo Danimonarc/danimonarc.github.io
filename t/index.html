@@ -2,44 +2,69 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#2f8f0a">
 <title>Marcar un ticket en Distro</title>
 <style>
-  :root { --bg:#f6faf7; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#2f8f0a; --green2:#1b5e05; --on:#fff; --line:#dde8e0; --bad:#b3261e; --soft:#eaf4e4; --shadow:0 1px 3px rgba(20,60,20,.10); }
+  :root { --bg:#f4f8f5; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#2f8f0a; --green2:#1b5e05; --on:#fff; --line:#dde8e0; --bad:#b3261e; --soft:#eaf4e4; --warn:#8a5a00; --warnbg:#fff4d6; --shadow:0 1px 3px rgba(20,60,20,.10); }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#0f1511; --card:#18211b; --ink:#e7efe9; --muted:#9db0a4; --green:#6fcf45; --green2:#1b5e05; --on:#0b1a10; --line:#2a382f; --bad:#f2b8b5; --soft:#223326; --shadow:none; }
+    :root { --bg:#0f1511; --card:#18211b; --ink:#e7efe9; --muted:#9db0a4; --green:#6fcf45; --green2:#1b5e05; --on:#0b1a10; --line:#2a382f; --bad:#f2b8b5; --soft:#223326; --warn:#f3d27a; --warnbg:#3a2f12; --shadow:none; }
   }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .hero { background:linear-gradient(135deg,#37b00a,var(--green2)); color:#fff; padding:18px 20px 26px; border-radius:0 0 28px 28px; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust:100%; }
+  :focus-visible { outline:3px solid var(--green); outline-offset:2px; }
+  .hero { background:linear-gradient(135deg,#37b00a,var(--green2)); color:#fff; padding:max(18px, env(safe-area-inset-top)) 20px 22px; border-radius:0 0 28px 28px; }
   .hero .brand { font-weight:800; letter-spacing:.02em; opacity:.85; }
-  .hero h1 { margin:14px 0 2px; font-size:1.7rem; line-height:1.15; }
+  .hero h1 { margin:12px 0 2px; font-size:1.7rem; line-height:1.15; overflow-wrap:anywhere; }
   .hero p { margin:0; color:rgba(255,255,255,.85); }
-  main { max-width:520px; margin:0 auto; padding:4px 16px 120px; }
+  .prog { margin-top:14px; } .prog .txt { display:flex; justify-content:space-between; font-size:.9rem; color:rgba(255,255,255,.92); }
+  .track { height:8px; border-radius:99px; background:rgba(255,255,255,.28); margin-top:6px; overflow:hidden; }
+  .track i { display:block; height:100%; width:0; background:#fff; border-radius:99px; transition:width .35s ease; }
+  main { max-width:520px; margin:0 auto; padding:4px 16px 150px; }
   p, small { color:var(--muted); margin:6px 0; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:14px 16px; margin:12px 0; box-shadow:var(--shadow); }
+  .card { background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:14px 16px; margin:12px 0; box-shadow:var(--shadow); transition:border-color .2s, background .2s; }
+  .card.mine { border-color:var(--green); background:linear-gradient(0deg,var(--soft),var(--soft)), var(--card); }
   .row { display:flex; align-items:center; gap:10px; justify-content:space-between; }
-  .name { font-weight:700; font-size:1.05rem; } .price { font-variant-numeric:tabular-nums; font-weight:700; }
-  button, input { font:inherit; border-radius:999px; border:1.5px solid var(--green); padding:9px 16px; }
-  button { background:transparent; color:var(--green); font-weight:700; cursor:pointer; }
+  .name { font-weight:700; font-size:1.05rem; overflow-wrap:anywhere; } .price { font-variant-numeric:tabular-nums; font-weight:700; white-space:nowrap; }
+  button, input { font:inherit; border-radius:999px; border:1.5px solid var(--green); padding:9px 16px; min-height:44px; }
+  button { background:transparent; color:var(--green); font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  button:active:not(:disabled) { transform:scale(.97); }
   button.on { background:var(--green); color:var(--on); }
-  button:disabled { opacity:.35; cursor:default; }
+  button:disabled { opacity:.4; cursor:default; }
   input { background:var(--card); color:var(--ink); width:100%; margin:8px 0; border-color:var(--line); border-radius:14px; }
-  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .qty { display:flex; align-items:center; gap:14px; } .qty b { min-width:1.5em; text-align:center; font-size:1.2rem; }
-  .qty button { width:42px; height:42px; padding:0; font-size:1.3rem; line-height:1; }
+  input:focus { border-color:var(--green); }
+  .seg { display:grid; grid-template-columns:1fr 1fr; background:var(--bg); border:1.5px solid var(--line); border-radius:999px; padding:3px; margin-top:10px; }
+  .seg button { border:0; min-height:38px; padding:6px 10px; color:var(--muted); font-size:.92rem; }
+  .seg button.on { background:var(--green); color:var(--on); }
+  .qty { display:flex; align-items:center; gap:14px; } .qty b { min-width:1.5em; text-align:center; font-size:1.3rem; font-variant-numeric:tabular-nums; }
+  .qty button { width:46px; height:46px; padding:0; font-size:1.4rem; line-height:1; }
+  .take { width:100%; margin-top:10px; }
+  .who { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .tag { background:var(--soft); color:var(--ink); border-radius:99px; padding:2px 10px; font-size:.85rem; }
+  .mypart { color:var(--green); font-weight:700; font-size:.92rem; margin:8px 0 0; }
   .err { color:var(--bad); }
-  #status { margin:14px 4px 0; }
-  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--line); padding:10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .note { border-radius:14px; padding:10px 14px; margin:14px 0 4px; background:var(--soft); color:var(--ink); }
+  .note.warn { background:var(--warnbg); color:var(--warn); }
+  .note.bad { background:transparent; border:1.5px solid var(--bad); color:var(--bad); }
+  .note button { margin-top:8px; }
+  .me { margin:14px 4px 0; display:flex; align-items:center; gap:10px; } .me a { color:var(--green); font-weight:700; padding:8px 4px; }
+  .av { width:40px; height:40px; border-radius:50%; background:var(--green); color:var(--on); display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex:none; }
+  .pick { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border-radius:16px; margin:8px 0; padding:8px 14px; color:var(--ink); border-color:var(--line); background:var(--card); }
+  .pick.on { border-color:var(--green); background:var(--soft); }
+  .pick small { margin:0; display:block; font-weight:400; }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--line); padding:10px 16px calc(10px + env(safe-area-inset-bottom)); box-shadow:0 -4px 14px rgba(0,0,0,.06); }
   .bar > div { max-width:520px; margin:0 auto; }
-  .bar button#ok { width:100%; padding:13px; font-size:1.05rem; }
-  .total { font-size:1.25rem; font-weight:800; }
-  #saved { margin:4px 0 0; text-align:center; min-height:1.4em; }
-  .me { margin:14px 4px 0; } .me a { color:var(--green); font-weight:700; }
+  .bar button#ok { width:100%; padding:13px; font-size:1.05rem; margin-top:8px; }
+  .total { font-size:1.4rem; font-weight:800; font-variant-numeric:tabular-nums; }
+  #saved { margin:4px 0 0; text-align:center; min-height:1.4em; font-size:.92rem; }
+  #saved.dirty { color:var(--warn); font-weight:600; } #saved.okmsg { color:var(--green); font-weight:700; }
   .ad { margin:16px 0; border:1px dashed var(--line); border-radius:14px; padding:8px 12px 12px; text-align:center; background:var(--soft); }
   .ad small { display:block; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; margin:0 0 4px; }
   .ad b { display:block; } .ad span { color:var(--muted); font-size:.9rem; }
+  .sk { height:84px; border-radius:20px; margin:12px 0; background:linear-gradient(90deg,var(--line),var(--soft),var(--line)); background-size:200% 100%; animation:sh 1.2s linear infinite; }
+  @keyframes sh { to { background-position:-200% 0; } }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body>
@@ -47,9 +72,14 @@
   <div class="brand">distro</div>
   <h1 id="title">Tu ticket</h1>
   <p id="group">&nbsp;</p>
+  <div class="prog" id="prog" hidden>
+    <div class="txt"><span id="progtxt"></span><span id="ticktotal"></span></div>
+    <div class="track"><i id="progbar"></i></div>
+  </div>
 </header>
 <main>
-  <p id="status">Cargando…</p>
+  <div id="status" role="status" aria-live="polite"></div>
+  <div id="skel"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   <div id="who" hidden></div>
   <div id="items"></div>
   <!-- Hueco del banner. Por ahora es publicidad propia; aquí iría el código del anuncio de AdSense (con el aviso de cookies). -->
@@ -58,13 +88,13 @@
     <b>Distro: reparte los gastos sin hacer cuentas</b>
     <span>Escanea el ticket y cada uno marca lo suyo.</span>
   </div>
-  <p style="text-align:center"><small>Quien pagó cierra el ticket desde la app y se reparte.</small></p>
+  <p style="text-align:center" id="foot" hidden><small>Quien pagó cierra el ticket desde la app y se reparte.</small></p>
 </main>
 <div class="bar" id="mine" hidden>
   <div>
     <div class="row"><span>Tu parte <small>(aprox.)</small></span><span class="total" id="total"></span></div>
-    <button id="ok" class="on" style="margin-top:8px">Confirmar mi parte</button>
-    <p id="saved"></p>
+    <button id="ok" class="on">Confirmar mi parte</button>
+    <p id="saved" role="status" aria-live="polite"></p>
   </div>
 </div>
 <script>
@@ -79,7 +109,7 @@ var ticketId = (q.get("t") || "").replace(/\D/g, "");
 var $ = function (id) { return document.getElementById(id); };
 var S = { last: null, uid: null, token: null, group: null, groupId: null, ticket: null, me: null, busy: false };
 
-function fail(msg) { $("status").textContent = msg; $("status").className = "err"; }
+function fail(msg, retry) { $("skel").hidden = true; var n = $("status"); n.className = "note bad"; n.textContent = msg; if (retry) { var r = document.createElement("button"); r.id = "retry"; r.textContent = "Reintentar"; n.appendChild(document.createElement("br")); n.appendChild(r); } }
 function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
@@ -146,12 +176,12 @@ async function listChange(path, field, values, add) {
 // --- Arranque ---
 async function start() {
   if (code.length !== 6 || !ticketId) return fail("Este enlace no es válido. Pídele a quien te lo envió que lo mande otra vez.");
-  try { await auth(); } catch (e) { return fail("No se ha podido conectar. Inténtalo de nuevo."); }
+  try { await auth(); } catch (e) { return fail("No se ha podido conectar. Revisa tu conexión.", true); }
   var inv = await getDoc("invites/" + code).catch(function () { return null; });
   if (!inv || !inv.groupId) return fail("El enlace ha caducado. Pídele a quien te lo envió que lo mande otra vez.");
   S.groupId = inv.groupId;
   try { await listChange("groups/" + S.groupId, "memberUids", [{ stringValue: S.uid }], true); }
-  catch (e) { return fail("No se ha podido entrar en el grupo."); }
+  catch (e) { return fail("No se ha podido entrar en el grupo.", true); }
   S.last = load("distro.me." + S.groupId);
   await refresh();
   setInterval(function () { if (!S.busy) refresh(); }, 4000);
@@ -161,17 +191,19 @@ async function refresh() {
   try {
     var g = await getDoc("groups/" + S.groupId), t = await getDoc("groups/" + S.groupId + "/tickets/" + ticketId);
     if (!g) return fail("El grupo ya no existe.");
-    if (!t) return fail("Este ticket ya se ha cerrado. Quien pagó lo apuntó como gasto en Distro.");
-    S.group = g; S.ticket = t; render();
-  } catch (e) { fail("Sin conexión; reintentando…"); }
+    if (!t) { return fail("Este ticket ya está cerrado: quien pagó lo apuntó como gasto en Distro. ¡Gracias por marcar lo tuyo!"); }
+    S.group = g; S.ticket = t; offline(false); render();
+  } catch (e) { if (S.ticket) offline(true); else fail("Sin conexión; reintentando…"); }
 }
+function offline(on) { var n = $("status"); if (S.ticket) { n.className = on ? "note warn" : ""; n.textContent = on ? "Sin conexión: tus cambios se guardarán cuando vuelva." : ""; } }
 
 // --- Pantalla ---
 function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 function eur(c) { return (Number(c) / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" }); }
 function personName(id) { var p = (S.group.people || []).find(function (x) { return x.id === id; }); return p ? p.name : "?"; }
+function initial(n) { return esc((n || "?").trim().charAt(0).toUpperCase() || "?"); }
 
-var draft = {}, dirty = {};
+var draft = {}, dirty = {}, hasSaved = false;
 function server(it) {
   var a = (S.ticket.claims || {})[it.id] || {}, sb = a.sharedBy || [];
   return { u: Number((a.units || {})[S.me] || 0), sh: a.shared === true, inn: sb.indexOf(S.me) >= 0 };
@@ -180,57 +212,91 @@ function val(it) { return dirty[it.id] ? draft[it.id] : server(it); }
 function change(id, patchObj) {
   var it = S.ticket.items.find(function (x) { return x.id === id; });
   draft[id] = Object.assign({}, val(it), patchObj); dirty[id] = true;
-  $("saved").textContent = ""; render();
+  hasSaved = false; render();
 }
+function pending() { return Object.keys(dirty).length; }
+window.addEventListener("beforeunload", function (e) { if (pending()) { e.preventDefault(); e.returnValue = ""; } });
 
 function render() {
-  $("status").className = ""; $("status").textContent = ""; $("group").textContent = "Grupo «" + S.group.name + "»";
-  $("title").textContent = S.ticket.title || "Ticket";
+  $("skel").hidden = true; $("foot").hidden = false;
+  $("group").textContent = "Grupo «" + S.group.name + "»";
+  $("title").textContent = S.ticket.title || "Ticket"; document.title = (S.ticket.title || "Ticket") + " · Distro";
   var people = S.group.people || [];
   if (!S.me || !people.some(function (p) { return p.id === S.me; })) return renderWho(people);
   $("who").hidden = true; $("ad").hidden = false;
-  html = '<p class="me">Marcas como <b>' + esc(personName(S.me)) + '</b> · <a href="#" data-a="chg">cambiar</a></p>';
-  var claims = S.ticket.claims || {}, total = 0, html;
-  (S.ticket.items || []).forEach(function (it) {
+  var claims = S.ticket.claims || {}, total = 0, ticketTotal = 0, assigned = 0, list = S.ticket.items || [], cards = "";
+  list.forEach(function (it) {
     var a = claims[it.id] || {}, units = a.units || {}, sharedBy = a.sharedBy || [], d = val(it);
-    var q = Number(it.quantity) || 1, cents = Number(it.totalCents);
+    var q = Number(it.quantity) || 1, cents = Number(it.totalCents); ticketTotal += cents;
     var others = Object.keys(units).reduce(function (n, p) { return n + (p === S.me ? 0 : Number(units[p])); }, 0);
     var shareIds = sharedBy.filter(function (p) { return p !== S.me; }); if (d.inn) shareIds.push(S.me);
-    total += d.sh ? (d.inn && shareIds.length ? Math.round(cents / shareIds.length) : 0) : Math.round(cents / q) * d.u;
-    html += '<div class="card"><div class="row"><span><span class="name">' + esc(it.name) + '</span><br><small>' + (q > 1 ? q + " × " + eur(cents / q) : "") + '</small></span><span class="price">' + eur(cents) + '</span></div>';
+    var mine = d.sh ? (d.inn && shareIds.length ? Math.round(cents / shareIds.length) : 0) : Math.round(cents / q) * d.u;
+    total += mine;
+    var anyone = d.sh ? shareIds.length > 0 : (others + d.u) > 0; if (anyone) assigned++;
+    var h = '<div class="card' + (mine > 0 ? " mine" : "") + '"><div class="row"><span><span class="name">' + esc(it.name) + '</span>' +
+      (q > 1 ? '<br><small>' + q + " × " + eur(cents / q) + '</small>' : "") + '</span><span class="price">' + eur(cents) + '</span></div>' +
+      '<div class="seg" role="group" aria-label="Cómo se reparte">' +
+      '<button class="' + (d.sh ? "" : "on") + '" data-a="s" data-i="' + it.id + '" data-v="0" aria-pressed="' + !d.sh + '">' + (q > 1 ? "Por unidades" : "Solo mío") + '</button>' +
+      '<button class="' + (d.sh ? "on" : "") + '" data-a="s" data-i="' + it.id + '" data-v="1" aria-pressed="' + d.sh + '">A medias</button></div>';
     if (!d.sh) {
-      var who = Object.keys(units).filter(function (p) { return p !== S.me; }).map(function (p) { return esc(personName(p)) + " " + units[p]; }).join(", ");
-      html += '<div class="row" style="margin-top:8px"><div class="qty"><button data-a="u" data-i="' + it.id + '" data-d="-1"' + (d.u <= 0 ? " disabled" : "") + '>−</button><b>' + d.u + '</b><button data-a="u" data-i="' + it.id + '" data-d="1"' + (d.u + others >= q ? " disabled" : "") + '>+</button></div>' +
-        '<button data-a="s" data-i="' + it.id + '" data-v="1">Compartido</button></div>' + (who ? "<small>También: " + who + "</small>" : "");
+      var who = Object.keys(units).filter(function (p) { return p !== S.me && Number(units[p]) > 0; }).map(function (p) { return '<span class="tag">' + esc(personName(p)) + (q > 1 ? " · " + units[p] : "") + '</span>'; }).join("");
+      if (q > 1) {
+        h += '<div class="row" style="margin-top:10px"><div class="qty"><button aria-label="Quitar una unidad" data-a="u" data-i="' + it.id + '" data-d="-1"' + (d.u <= 0 ? " disabled" : "") + '>−</button><b aria-live="polite">' + d.u + '</b><button aria-label="Añadir una unidad" data-a="u" data-i="' + it.id + '" data-d="1"' + (d.u + others >= q ? " disabled" : "") + '>+</button></div>' +
+          '<small>' + (d.u + others >= q ? "Ya están repartidas" : "Quedan " + (q - others - d.u)) + '</small></div>';
+      } else {
+        var taken = others >= 1 && d.u < 1;
+        h += '<button class="take ' + (d.u ? "on" : "") + '" data-a="t" data-i="' + it.id + '"' + (taken ? " disabled" : "") + '>' + (d.u ? "✓ Es mío" : taken ? "Ya lo tiene otra persona" : "Es mío") + '</button>';
+      }
+      if (who) h += '<div class="who">' + who + '</div>';
     } else {
-      var names = shareIds.map(function (p) { return esc(personName(p)); }).join(", ") || "nadie todavía";
-      html += '<div class="row" style="margin-top:8px"><button class="' + (d.inn ? "on" : "") + '" data-a="c" data-i="' + it.id + '">' + (d.inn ? "Yo también ✓" : "Yo también") + '</button>' +
-        '<button data-a="s" data-i="' + it.id + '" data-v="0">Por unidades</button></div><small>Se divide a partes iguales. Compartido con: ' + names + '.</small>';
+      var names = shareIds.map(function (p) { return '<span class="tag">' + esc(personName(p)) + '</span>'; }).join("");
+      h += '<button class="take ' + (d.inn ? "on" : "") + '" data-a="c" data-i="' + it.id + '">' + (d.inn ? "✓ Yo también" : "Yo también") + '</button>' +
+        '<div class="who">' + (names || '<small>Nadie todavía</small>') + '</div><small>Se divide a partes iguales entre quienes se apuntan.</small>';
     }
-    html += "</div>";
+    if (mine > 0) h += '<p class="mypart">Tu parte: ' + eur(mine) + '</p>';
+    cards += h + "</div>";
   });
+  var left = list.length - assigned, nm = esc(personName(S.me));
+  var html = '<div class="me"><span class="av" aria-hidden="true">' + initial(personName(S.me)) + '</span><span>Marcas como <b>' + nm + '</b><br><a href="#" data-a="chg">No soy yo</a></span></div>' +
+    (left > 0 ? '<div class="note warn">Faltan por asignar <b>' + left + '</b> de ' + list.length + ' artículos. Revisa que no se quede nada sin dueño.</div>'
+      : '<div class="note">✓ Todos los artículos tienen dueño.</div>') + cards;
   $("items").innerHTML = html;
+  $("prog").hidden = false; $("progtxt").textContent = assigned + " de " + list.length + " repartidos"; $("ticktotal").textContent = eur(ticketTotal);
+  $("progbar").style.width = (list.length ? Math.round(assigned * 100 / list.length) : 0) + "%";
   $("mine").hidden = false; $("total").textContent = eur(total);
-  $("ok").disabled = Object.keys(dirty).length === 0;
+  var n = pending(), ok = $("ok"), sv = $("saved");
+  ok.disabled = n === 0 || S.busy;
+  ok.textContent = n ? "Confirmar mi parte" : hasSaved ? "✓ Tu parte está guardada" : "Confirmar mi parte";
+  if (n) { sv.className = "dirty"; sv.textContent = "Tienes cambios sin guardar."; }
+  else if (hasSaved) { sv.className = "okmsg"; sv.textContent = "Puedes volver a cambiarlo cuando quieras."; }
+  else { sv.className = ""; sv.textContent = "Marca lo tuyo y pulsa Confirmar."; }
 }
 
 function renderWho(people) {
-  $("items").innerHTML = ""; $("mine").hidden = true;
+  $("items").innerHTML = ""; $("mine").hidden = true; $("prog").hidden = true; $("ad").hidden = true;
   var w = $("who"); w.hidden = false;
-  w.innerHTML = '<div class="card"><p><b>¿Quién eres?</b> Elige tu nombre para marcar lo tuyo.</p><div class="chips">' +
-    people.map(function (p) { return '<button class="' + (p.id === S.last ? 'on' : '') + '" data-a="w" data-p="' + p.id + '">' + esc(p.name) + "</button>"; }).join("") +
-    '</div><p>¿No estás en la lista?</p><input id="newname" maxlength="30" placeholder="Tu nombre"><button id="addme">Añadirme</button></div>';
-  $("addme").onclick = async function () {
-    var name = $("newname").value.trim(); if (!name) return;
+  w.innerHTML = '<div class="card"><p style="margin-top:0"><b style="color:var(--ink);font-size:1.1rem">¿Quién eres?</b><br>Elige tu nombre para marcar lo tuyo.</p>' +
+    people.map(function (p) { return '<button class="pick ' + (p.id === S.last ? 'on' : '') + '" data-a="w" data-p="' + p.id + '"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span>' + esc(p.name) + (p.id === S.last ? '<small>La última vez fuiste tú</small>' : "") + '</span></button>'; }).join("") +
+    '<p style="margin-bottom:0">¿No estás en la lista?</p><form id="addform"><input id="newname" maxlength="30" autocomplete="given-name" placeholder="Escribe tu nombre"><button id="addme" class="on" type="submit" style="width:100%">Añadirme al grupo</button></form><p id="adderr" class="err" role="alert" style="margin:6px 0 0"></p></div>';
+  $("addform").onsubmit = async function (ev) {
+    ev.preventDefault();
+    var name = $("newname").value.trim(); if (!name) return $("newname").focus();
+    var btn = $("addme"); btn.disabled = true; btn.textContent = "Añadiendo…"; $("adderr").textContent = "";
     var id = (BigInt(Math.floor(Math.random() * 2 ** 30)) << 32n | BigInt(crypto.getRandomValues(new Uint32Array(1))[0])).toString();
-    await listChange("groups/" + S.groupId, "people", [{ mapValue: { fields: { id: int(id), name: { stringValue: name } } } }], true).catch(function () { fail("No se ha podido añadirte."); });
+    try { await listChange("groups/" + S.groupId, "people", [{ mapValue: { fields: { id: int(id), name: { stringValue: name } } } }], true); }
+    catch (e) { btn.disabled = false; btn.textContent = "Añadirme al grupo"; $("adderr").textContent = "No se ha podido añadirte. Inténtalo de nuevo."; return; }
     S.me = id; S.last = id; store("distro.me." + S.groupId, id); refresh();
   };
 }
 
 document.addEventListener("click", async function (e) {
+  if (e.target.closest("#retry")) return location.reload();
   var b = e.target.closest("button[data-a], a[data-a], #ok"); if (!b || S.busy) return;
-  if (b.dataset && b.dataset.a === "chg") { e.preventDefault(); S.last = S.me; S.me = null; draft = {}; dirty = {}; $("saved").textContent = ""; return render(); }
+  if (b.dataset && b.dataset.a === "chg") {
+    e.preventDefault();
+    if (pending() && !confirm("Tienes cambios sin guardar. ¿Descartarlos?")) return;
+    S.last = S.me; S.me = null; draft = {}; dirty = {}; hasSaved = false; return render();
+  }
   if (b.id === "ok") return confirmMine(b);
   var a = b.dataset.a, i = b.dataset.i;
   if (a === "w") { S.me = b.dataset.p; store("distro.me." + S.groupId, S.me); return render(); }
@@ -238,13 +304,14 @@ document.addEventListener("click", async function (e) {
   if (a === "u") {
     var units = (((S.ticket.claims || {})[i] || {}).units) || {}, others = Object.keys(units).reduce(function (n, p) { return n + (p === S.me ? 0 : Number(units[p])); }, 0);
     change(i, { u: Math.max(0, Math.min(Number(it.quantity) - others, d.u + Number(b.dataset.d))) });
-  } else if (a === "s") change(i, b.dataset.v === "1" ? { sh: true, inn: true } : { sh: false });
+  } else if (a === "t") change(i, { u: d.u ? 0 : 1 });
+  else if (a === "s") { if ((b.dataset.v === "1") !== d.sh) change(i, b.dataset.v === "1" ? { sh: true, inn: true } : { sh: false }); }
   else if (a === "c") change(i, { inn: !d.inn });
 });
 
 // Guarda de una vez lo que ha cambiado el usuario.
 async function confirmMine(btn) {
-  S.busy = true; btn.disabled = true; $("saved").textContent = "Guardando…";
+  S.busy = true; btn.disabled = true; btn.textContent = "Guardando…"; $("saved").className = ""; $("saved").textContent = "";
   var tp = "groups/" + S.groupId + "/tickets/" + ticketId;
   try {
     for (var id in dirty) {
@@ -256,9 +323,11 @@ async function confirmMine(btn) {
       if (now.sh !== old.sh) await patch(tp, ["claims." + tick(id) + ".shared"], { claims: mv(kv(id, mv({ shared: { booleanValue: now.sh } }))) });
       if (now.inn !== old.inn) await listChange(tp, "claims." + tick(id) + ".sharedBy", [int(S.me)], now.inn);
     }
-    draft = {}; dirty = {};
-    await refresh(); $("saved").textContent = "✓ Guardado. Puedes volver a cambiarlo cuando quieras.";
-  } catch (err) { $("saved").textContent = ""; fail("No se ha podido guardar. Inténtalo de nuevo."); }
+    draft = {}; dirty = {}; hasSaved = true;
+    S.busy = false; await refresh();
+    if (navigator.vibrate) navigator.vibrate(30);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) { S.busy = false; $("saved").className = "dirty"; $("saved").textContent = "No se ha podido guardar. Inténtalo de nuevo."; }
   S.busy = false; render();
 }
 
