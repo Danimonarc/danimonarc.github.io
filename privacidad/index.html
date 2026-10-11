@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de privacidad de Distro</title>
+<style>
+  :root { --bg:#f6faf7; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#1f7a4d; --on:#fff; --line:#d9e5dd; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#101612; --card:#18211b; --ink:#e7efe9; --muted:#9db0a4; --green:#5fc08c; --on:#0b1a10; --line:#2a382f; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:16px; background:var(--bg); color:var(--ink);
+         font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { width:100%; max-width:720px; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:28px 24px; }
+  h1 { margin:0 0 4px; font-size:1.4rem; }
+  p { margin:8px 0; color:var(--muted); }
+  .code { margin:20px 0 8px; font-size:2.4rem; font-weight:800; letter-spacing:.2em; padding-left:.2em; }
+  .btn { display:block; width:100%; margin-top:12px; padding:14px; border-radius:14px; border:1px solid var(--green);
+         font:inherit; font-weight:700; text-decoration:none; cursor:pointer; }
+  .primary, .primary:visited { background:var(--green); color:var(--on); }
+  .ghost { background:transparent; color:var(--green); }
+  small { display:block; margin-top:16px; color:var(--muted); }
+  .bad { color:#b3261e; }
+
+  h2 { font-size:1.1rem; margin:24px 0 4px; } li { color:var(--muted); margin:4px 0; } p { color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Política de privacidad</h1>
+<p>Última actualización: octubre de 2026. Responsable: Monarc (en adelante, «yo»). Contacto: <strong>monarca.globaln@gmail.com</strong>.</p>
+<p>Distro es una app para repartir los gastos de un grupo y escanear tickets. Esta política explica qué datos trata y para qué.</p>
+<h2>Datos que trata</h2>
+<ul>
+<li><strong>Cuenta:</strong> un identificador anónimo o, si entras con Google, tu correo y nombre de la cuenta. Lo gestiona Firebase Authentication (Google).</li>
+<li><strong>Tu nombre en los grupos</strong> y los de las personas que añadas, los <strong>gastos, importes, tickets y saldos</strong>. Se guardan en Cloud Firestore (Google) y los ven los miembros del grupo.</li>
+<li><strong>Fotos de tickets:</strong> el texto se lee en tu móvil con ML Kit y las fotos no se envían a ningún servidor mío. Solo se guarda el texto/los artículos que confirmes.</li>
+<li><strong>Notificaciones:</strong> si las permites, la app te avisa de tickets pendientes de repartir.</li>
+<li><strong>Anuncios:</strong> la app muestra banners de Google AdMob. AdMob puede usar el identificador de publicidad de tu dispositivo y datos técnicos. En el Espacio Económico Europeo se te pide tu consentimiento antes de mostrar anuncios y puedes cambiarlo cuando quieras en los ajustes de anuncios de tu dispositivo. Quien compra «Quitar anuncios» deja de verlos.</li>
+<li><strong>Compra:</strong> los pagos los gestiona Google Play; yo no recibo datos de tu tarjeta.</li>
+</ul>
+<h2>Para qué</h2>
+<p>Para que el grupo comparta los gastos y los saldos, para iniciar sesión, para avisarte y para mostrar publicidad que financie la app. No vendo tus datos ni hago perfiles.</p>
+<h2>Con quién se comparten</h2>
+<p>Con los miembros de tus grupos (lo que añadas al grupo) y con los proveedores que hacen funcionar la app: Google (Firebase, Google Play, AdMob). Pueden tratar datos fuera de la UE con las garantías de Google.</p>
+<h2>Cuánto tiempo</h2>
+<p>Mientras exista tu cuenta o el grupo. Los códigos de invitación caducan a los 7 días.</p>
+<h2>Tus derechos y cómo borrar tus datos</h2>
+<p>Puedes acceder, rectificar, borrar tus datos y oponerte escribiendo al correo de contacto. Puedes borrar tu cuenta tú mismo desde la app (Cuenta → Eliminar mi cuenta); más detalles en <a href="/borrar-cuenta/">cómo borrar tu cuenta</a>. Puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
+<h2>Menores</h2>
+<p>Distro no está dirigida a menores de 14 años.</p>
+<h2>Cambios</h2>
+<p>Si cambia esta política, se actualizará aquí con la fecha.</p>
+</main>
+</body>
+</html>

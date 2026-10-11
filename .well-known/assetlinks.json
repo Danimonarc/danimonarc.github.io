@@ -1,11 +1,26 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.example.distro",
       "sha256_cert_fingerprints": [
         "F6:95:2A:87:E8:6A:E7:C6:74:25:8F:21:65:82:93:3C:FE:AC:E8:CA:8C:47:BC:84:6C:37:C4:A3:93:92:2E:95"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "es.monarc.distro",
+      "sha256_cert_fingerprints": [
+        "F6:95:2A:87:E8:6A:E7:C6:74:25:8F:21:65:82:93:3C:FE:AC:E8:CA:8C:47:BC:84:6C:37:C4:A3:93:92:2E:95",
+        "60:8E:2F:CC:63:B5:2A:43:B9:56:54:F6:DE:5E:6F:D1:70:0C:D8:5F:AF:F5:D0:10:FB:1F:C2:91:85:1D:93:0A"
       ]
     }
   }
