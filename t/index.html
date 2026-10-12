@@ -34,9 +34,26 @@
   button:disabled { opacity:.4; cursor:default; }
   input { background:var(--card); color:var(--ink); width:100%; margin:8px 0; border-color:var(--line); border-radius:14px; }
   input:focus { border-color:var(--green); }
-  .seg { display:grid; grid-template-columns:1fr 1fr; background:var(--bg); border:1.5px solid var(--line); border-radius:999px; padding:3px; margin-top:10px; }
-  .seg button { border:0; min-height:38px; padding:6px 10px; color:var(--muted); font-size:.92rem; }
-  .seg button.on { background:var(--green); color:var(--on); }
+  .filters { display:flex; gap:8px; margin:14px 0 0; overflow-x:auto; padding-bottom:2px; }
+  .filters button { min-height:36px; padding:4px 14px; font-size:.9rem; white-space:nowrap; border-color:var(--line); color:var(--muted); }
+  .filters button.on { border-color:var(--green); color:var(--on); }
+  .card.item { padding:12px 14px; margin:8px 0; }
+  .item .top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; cursor:pointer; }
+  .item .sub { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:4px; }
+  .item .line { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 8px; margin-top:6px; }
+  .item .line .sub { margin:0; flex:1 1 110px; }
+  .item .acts { display:flex; gap:8px; flex:0 0 auto; }
+  .card.mine .tag { background:var(--card); }
+  .card.mine .tag.me, .tag.me { background:var(--green); color:var(--on); }
+  .item .acts button { min-height:40px; padding:6px 14px; }
+  .item .more { display:none; margin-top:10px; border-top:1px dashed var(--line); padding-top:10px; }
+  .item.open .more { display:block; }
+  .item .lbl { font-weight:700; margin:0 0 6px; color:var(--ink); font-size:.95rem; }
+  .slot { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 0; }
+  .slot span { overflow-wrap:anywhere; }
+  .tag.free { background:var(--warnbg); color:var(--warn); }
+  .tag.me { background:var(--green); color:var(--on); }
+  .chev { color:var(--muted); font-size:.85rem; }
   .qty { display:flex; align-items:center; gap:14px; } .qty b { min-width:1.5em; text-align:center; font-size:1.3rem; font-variant-numeric:tabular-nums; }
   .qty button { width:46px; height:46px; padding:0; font-size:1.4rem; line-height:1; }
   .take { width:100%; margin-top:10px; }
@@ -48,7 +65,7 @@
   .note.warn { background:var(--warnbg); color:var(--warn); }
   .note.bad { background:transparent; border:1.5px solid var(--bad); color:var(--bad); }
   .note button { margin-top:8px; }
-  .me { margin:14px 4px 0; display:flex; align-items:center; gap:10px; } .me a { color:var(--green); font-weight:700; padding:8px 4px; }
+  .me { margin:10px 4px 0; display:flex; align-items:center; gap:10px; } .me a { color:var(--green); font-weight:700; padding:8px 4px; }
   .av { width:40px; height:40px; border-radius:50%; background:var(--green); color:var(--on); display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex:none; }
   .pick { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border-radius:16px; margin:8px 0; padding:8px 14px; color:var(--ink); border-color:var(--line); background:var(--card); }
   .pick.on { border-color:var(--green); background:var(--soft); }
@@ -81,6 +98,7 @@
   <div id="status" role="status" aria-live="polite"></div>
   <div id="skel"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   <div id="who" hidden></div>
+  <div class="filters" id="filters" hidden></div>
   <div id="items"></div>
   <!-- Hueco del banner. Por ahora es publicidad propia; aquí iría el código del anuncio de AdSense (con el aviso de cookies). -->
   <div class="ad" id="ad" hidden>
@@ -187,36 +205,99 @@ async function start() {
   setInterval(function () { if (!S.busy) refresh(); }, 4000);
 }
 
-async function refresh() {
+async function refresh(force) {
   try {
     var g = await getDoc("groups/" + S.groupId), t = await getDoc("groups/" + S.groupId + "/tickets/" + ticketId);
     if (!g) return fail("El grupo ya no existe.");
-    if (!t) { return fail("Este ticket ya está cerrado: quien pagó lo apuntó como gasto en Distro. ¡Gracias por marcar lo tuyo!"); }
-    S.group = g; S.ticket = t; offline(false); render();
+    if (!t) return fail("Este ticket ya está cerrado: quien pagó lo apuntó como gasto en Distro. ¡Gracias por marcar lo tuyo!");
+    offline(false);
+    var sig = JSON.stringify([g, t]);
+    if (!force && sig === S.sig) return; // nada nuevo: no se repinta (evita parpadeos y toques perdidos)
+    S.sig = sig; S.group = g; S.ticket = t; render();
   } catch (e) { if (S.ticket) offline(true); else fail("Sin conexión; reintentando…"); }
 }
 function offline(on) { var n = $("status"); if (S.ticket) { n.className = on ? "note warn" : ""; n.textContent = on ? "Sin conexión: tus cambios se guardarán cuando vuelva." : ""; } }
 
-// --- Pantalla ---
+// --- Utilidades ---
 function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 function eur(c) { return (Number(c) / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" }); }
 function personName(id) { var p = (S.group.people || []).find(function (x) { return x.id === id; }); return p ? p.name : "?"; }
 function initial(n) { return esc((n || "?").trim().charAt(0).toUpperCase() || "?"); }
+function nameList(ids) { // «Tú, Sara y Gonzalo»
+  var order = (S.group.people || []).map(function (p) { return p.id; });
+  ids = ids.slice().sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
+  var n = ids.map(function (p) { return p === S.me ? "Tú" : personName(p); });
+  return n.length > 1 ? n.slice(0, -1).join(", ") + " y " + n[n.length - 1] : (n[0] || "");
+}
 
+// --- Reparto: mismo cálculo que la app (SplitCalculator.kt), con el método del mayor resto ---
+function splitCents(total, w) {
+  var sum = w.reduce(function (a, b) { return a + b; }, 0);
+  if (sum <= 0) return w.map(function () { return 0; });
+  var res = w.map(function (x) { return Math.floor(total * x / sum); });
+  var rem = total - res.reduce(function (a, b) { return a + b; }, 0);
+  var order = w.map(function (_, i) { return i; }).sort(function (a, b) { return ((total * w[b]) % sum) - ((total * w[a]) % sum); });
+  for (var k = 0; k < order.length && rem > 0; k++) { if (w[order[k]] === 0) continue; res[order[k]]++; rem--; }
+  return res;
+}
+// v = { units:{pid:n}, slots:[[pid..]..] (por id de porción), sh, sharedBy:[pid] }  ->  { by:{pid:cents}, un:cents, free:n }
+function compute(it, v) {
+  var people = S.group.people || [], by = {}, cents = Number(it.totalCents), q = Number(it.quantity) || 1;
+  people.forEach(function (p) { by[p.id] = 0; });
+  if (v.sh) {
+    var sharers = people.filter(function (p) { return v.sharedBy.indexOf(p.id) >= 0; });
+    if (!sharers.length) return { by: by, un: cents, free: q };
+    var parts = splitCents(cents, sharers.map(function () { return 1; }));
+    sharers.forEach(function (p, i) { by[p.id] += parts[i]; });
+    return { by: by, un: 0, free: 0 };
+  }
+  var cl = people.filter(function (p) { return (v.units[p.id] || 0) > 0; });
+  var sl = v.slots.map(function (ids) { return people.filter(function (p) { return ids.indexOf(p.id) >= 0; }); }).filter(function (s) { return s.length; });
+  var claimed = cl.reduce(function (n, p) { return n + v.units[p.id]; }, 0) + sl.length, free = Math.max(0, q - claimed);
+  var w = cl.map(function (p) { return v.units[p.id]; }).concat(sl.map(function () { return 1; }), [free]);
+  var ps = splitCents(cents, w);
+  cl.forEach(function (p, i) { by[p.id] += ps[i]; });
+  sl.forEach(function (s, k) { var e = splitCents(ps[cl.length + k], s.map(function () { return 1; })); s.forEach(function (p, i) { by[p.id] += e[i]; }); });
+  return { by: by, un: ps[ps.length - 1], free: free, over: claimed > q };
+}
+
+// --- Estado del artículo: lo que hay en el servidor y mi borrador encima ---
 var draft = {}, dirty = {}, hasSaved = false;
+function claim(it) { return (S.ticket.claims || {})[it.id] || {}; }
+function serverSlots(it) { // { slotId: [pid] } sin porciones vacías, ordenadas por id
+  var s = claim(it).slots || {}, o = {};
+  Object.keys(s).sort(function (a, b) { return Number(a) - Number(b); }).forEach(function (k) { if ((s[k] || []).length) o[k] = s[k]; });
+  return o;
+}
 function server(it) {
-  var a = (S.ticket.claims || {})[it.id] || {}, sb = a.sharedBy || [];
-  return { u: Number((a.units || {})[S.me] || 0), sh: a.shared === true, inn: sb.indexOf(S.me) >= 0 };
+  var a = claim(it), sb = a.sharedBy || [], sl = serverSlots(it);
+  return { u: Number((a.units || {})[S.me] || 0), sh: a.shared === true, inn: sb.indexOf(S.me) >= 0,
+    sl: Object.keys(sl).filter(function (k) { return sl[k].indexOf(S.me) >= 0; }) };
 }
 function val(it) { return dirty[it.id] ? draft[it.id] : server(it); }
-function change(id, patchObj) {
-  var it = S.ticket.items.find(function (x) { return x.id === id; });
-  draft[id] = Object.assign({}, val(it), patchObj); dirty[id] = true;
-  hasSaved = false; render();
+// Vista completa del artículo con mi borrador aplicado.
+function view(it) {
+  var a = claim(it), d = val(it), units = {}, i, k;
+  for (k in (a.units || {})) if (k !== S.me) units[k] = Number(a.units[k]);
+  if (d.u > 0) units[S.me] = d.u;
+  var sl = serverSlots(it), all = {};
+  for (k in sl) all[k] = sl[k].filter(function (p) { return p !== S.me; });
+  d.sl.forEach(function (k) { all[k] = (all[k] || []).concat([S.me]); });
+  var ids = Object.keys(all).filter(function (k) { return all[k].length; }).sort(function (x, y) { return Number(x) - Number(y); });
+  var sb = (a.sharedBy || []).filter(function (p) { return p !== S.me; }); if (d.inn) sb.push(S.me);
+  return { units: units, slotIds: ids, slots: ids.map(function (k) { return all[k]; }), sh: d.sh, sharedBy: sb };
+}
+function change(id, fn) {
+  var it = S.ticket.items.find(function (x) { return x.id === id; }), d = val(it);
+  var nd = { u: d.u, sh: d.sh, inn: d.inn, sl: d.sl.slice() }; fn(nd, view(it), it);
+  if (JSON.stringify(nd) === JSON.stringify(d)) return;
+  draft[id] = nd; dirty[id] = true; hasSaved = false; render();
 }
 function pending() { return Object.keys(dirty).length; }
 window.addEventListener("beforeunload", function (e) { if (pending()) { e.preventDefault(); e.returnValue = ""; } });
 
+// --- Pantalla ---
+S.filter = "all"; S.open = null;
 function render() {
   $("skel").hidden = true; $("foot").hidden = false;
   $("group").textContent = "Grupo «" + S.group.name + "»";
@@ -224,45 +305,28 @@ function render() {
   var people = S.group.people || [];
   if (!S.me || !people.some(function (p) { return p.id === S.me; })) return renderWho(people);
   $("who").hidden = true; $("ad").hidden = false;
-  var claims = S.ticket.claims || {}, total = 0, ticketTotal = 0, assigned = 0, list = S.ticket.items || [], cards = "";
+  var list = S.ticket.items || [], total = 0, ticketTotal = 0, done = 0, rows = [], counts = { all: list.length, free: 0, mine: 0 };
   list.forEach(function (it) {
-    var a = claims[it.id] || {}, units = a.units || {}, sharedBy = a.sharedBy || [], d = val(it);
-    var q = Number(it.quantity) || 1, cents = Number(it.totalCents); ticketTotal += cents;
-    var others = Object.keys(units).reduce(function (n, p) { return n + (p === S.me ? 0 : Number(units[p])); }, 0);
-    var shareIds = sharedBy.filter(function (p) { return p !== S.me; }); if (d.inn) shareIds.push(S.me);
-    var mine = d.sh ? (d.inn && shareIds.length ? Math.round(cents / shareIds.length) : 0) : Math.round(cents / q) * d.u;
-    total += mine;
-    var anyone = d.sh ? shareIds.length > 0 : (others + d.u) > 0; if (anyone) assigned++;
-    var h = '<div class="card' + (mine > 0 ? " mine" : "") + '"><div class="row"><span><span class="name">' + esc(it.name) + '</span>' +
-      (q > 1 ? '<br><small>' + q + " × " + eur(cents / q) + '</small>' : "") + '</span><span class="price">' + eur(cents) + '</span></div>' +
-      '<div class="seg" role="group" aria-label="Cómo se reparte">' +
-      '<button class="' + (d.sh ? "" : "on") + '" data-a="s" data-i="' + it.id + '" data-v="0" aria-pressed="' + !d.sh + '">' + (q > 1 ? "Por unidades" : "Solo mío") + '</button>' +
-      '<button class="' + (d.sh ? "on" : "") + '" data-a="s" data-i="' + it.id + '" data-v="1" aria-pressed="' + d.sh + '">A medias</button></div>';
-    if (!d.sh) {
-      var who = Object.keys(units).filter(function (p) { return p !== S.me && Number(units[p]) > 0; }).map(function (p) { return '<span class="tag">' + esc(personName(p)) + (q > 1 ? " · " + units[p] : "") + '</span>'; }).join("");
-      if (q > 1) {
-        h += '<div class="row" style="margin-top:10px"><div class="qty"><button aria-label="Quitar una unidad" data-a="u" data-i="' + it.id + '" data-d="-1"' + (d.u <= 0 ? " disabled" : "") + '>−</button><b aria-live="polite">' + d.u + '</b><button aria-label="Añadir una unidad" data-a="u" data-i="' + it.id + '" data-d="1"' + (d.u + others >= q ? " disabled" : "") + '>+</button></div>' +
-          '<small>' + (d.u + others >= q ? "Ya están repartidas" : "Quedan " + (q - others - d.u)) + '</small></div>';
-      } else {
-        var taken = others >= 1 && d.u < 1;
-        h += '<button class="take ' + (d.u ? "on" : "") + '" data-a="t" data-i="' + it.id + '"' + (taken ? " disabled" : "") + '>' + (d.u ? "✓ Es mío" : taken ? "Ya lo tiene otra persona" : "Es mío") + '</button>';
-      }
-      if (who) h += '<div class="who">' + who + '</div>';
-    } else {
-      var names = shareIds.map(function (p) { return '<span class="tag">' + esc(personName(p)) + '</span>'; }).join("");
-      h += '<button class="take ' + (d.inn ? "on" : "") + '" data-a="c" data-i="' + it.id + '">' + (d.inn ? "✓ Yo también" : "Yo también") + '</button>' +
-        '<div class="who">' + (names || '<small>Nadie todavía</small>') + '</div><small>Se divide a partes iguales entre quienes se apuntan.</small>';
-    }
-    if (mine > 0) h += '<p class="mypart">Tu parte: ' + eur(mine) + '</p>';
-    cards += h + "</div>";
+    var v = view(it), r = compute(it, v), q = Number(it.quantity) || 1, cents = Number(it.totalCents), d = val(it);
+    var mine = r.by[S.me] || 0, isFree = r.free > 0; total += mine; ticketTotal += cents;
+    if (!isFree) done++; else counts.free++;
+    if (mine > 0) counts.mine++;
+    rows.push({ it: it, v: v, r: r, q: q, cents: cents, d: d, mine: mine, isFree: isFree });
   });
-  var left = list.length - assigned, nm = esc(personName(S.me));
-  var html = '<div class="me"><span class="av" aria-hidden="true">' + initial(personName(S.me)) + '</span><span>Marcas como <b>' + nm + '</b><br><a href="#" data-a="chg">No soy yo</a></span></div>' +
-    (left > 0 ? '<div class="note warn">Faltan por asignar <b>' + left + '</b> de ' + list.length + ' artículos. Revisa que no se quede nada sin dueño.</div>'
-      : '<div class="note">✓ Todos los artículos tienen dueño.</div>') + cards;
-  $("items").innerHTML = html;
-  $("prog").hidden = false; $("progtxt").textContent = assigned + " de " + list.length + " repartidos"; $("ticktotal").textContent = eur(ticketTotal);
-  $("progbar").style.width = (list.length ? Math.round(assigned * 100 / list.length) : 0) + "%";
+  var shown = rows.filter(function (x) { return S.filter === "all" || (S.filter === "free" ? x.isFree : x.mine > 0); });
+  var html = "";
+  if (S.filter !== "all" && !shown.length) html = '<p style="text-align:center">' + (S.filter === "free" ? "No queda nada sin asignar. 🎉" : "Todavía no has marcado nada.") + "</p>";
+  shown.forEach(function (x) { html += itemHtml(x); });
+  var left = list.length - done;
+  var head = '<div class="me"><span class="av" aria-hidden="true">' + initial(personName(S.me)) + '</span><span>Marcas como <b>' + esc(personName(S.me)) + '</b><br><a href="#" data-a="chg">No soy yo</a></span></div>' +
+    (left > 0 ? '<div class="note warn">Faltan por asignar <b>' + left + '</b> de ' + list.length + ' artículos.</div>' : '<div class="note">✓ Todo tiene dueño.</div>');
+  $("items").innerHTML = head + html;
+  var f = $("filters"); f.hidden = list.length < 5;
+  f.innerHTML = [["all", "Todos", counts.all], ["free", "Sin asignar", counts.free], ["mine", "Lo mío", counts.mine]].map(function (c) {
+    return '<button class="' + (S.filter === c[0] ? "on" : "") + '" data-a="f" data-f="' + c[0] + '" aria-pressed="' + (S.filter === c[0]) + '">' + c[1] + " · " + c[2] + "</button>";
+  }).join("");
+  $("prog").hidden = false; $("progtxt").textContent = done + " de " + list.length + " repartidos"; $("ticktotal").textContent = eur(ticketTotal);
+  $("progbar").style.width = (list.length ? Math.round(done * 100 / list.length) : 0) + "%";
   $("mine").hidden = false; $("total").textContent = eur(total);
   var n = pending(), ok = $("ok"), sv = $("saved");
   ok.disabled = n === 0 || S.busy;
@@ -272,8 +336,59 @@ function render() {
   else { sv.className = ""; sv.textContent = "Marca lo tuyo y pulsa Confirmar."; }
 }
 
+// Quién tiene qué, en etiquetas cortas.
+function tagsHtml(x) {
+  var v = x.v, t = [];
+  if (v.sh) {
+    if (v.sharedBy.length) t.push('<span class="tag' + (v.sharedBy.indexOf(S.me) >= 0 ? " me" : "") + '">Entre ' + esc(nameList(v.sharedBy)) + '</span>');
+  } else {
+    (S.group.people || []).forEach(function (p) {
+      var n = v.units[p.id] || 0; if (n > 0) t.push('<span class="tag' + (p.id === S.me ? " me" : "") + '">' + (p.id === S.me ? "Tú" : esc(p.name)) + (x.q > 1 ? " ×" + n : "") + '</span>');
+    });
+    v.slots.forEach(function (ids) { t.push('<span class="tag' + (ids.indexOf(S.me) >= 0 ? " me" : "") + '">' + esc(nameList(ids)) + ' a medias</span>'); });
+  }
+  if (x.isFree) t.push('<span class="tag free">' + (x.q > 1 && x.r.free < x.q ? "Quedan " + x.r.free : "Sin asignar") + '</span>');
+  return t.join("");
+}
+
+function itemHtml(x) {
+  var it = x.it, id = it.id, open = S.open === id, v = x.v, d = x.d, q = x.q;
+  var mineUnits = v.units[S.me] || 0, othersUnits = Object.keys(v.units).reduce(function (n, p) { return n + (p === S.me ? 0 : v.units[p]); }, 0);
+  var h = '<div class="card item' + (x.mine > 0 ? " mine" : "") + (open ? " open" : "") + '"><div class="top" data-a="o" data-i="' + id + '"><span><span class="name">' + esc(it.name) + '</span>' +
+    (q > 1 ? '<br><small>' + q + " × " + eur(x.cents / q) + '</small>' : "") + '</span><span style="text-align:right"><span class="price">' + eur(x.cents) + '</span>' +
+    (x.mine > 0 ? '<br><small style="color:var(--green);font-weight:700">Tu parte ' + eur(x.mine) + '</small>' : "") + '</span></div>' +
+    '<div class="line"><div class="sub">' + tagsHtml(x) + '</div><div class="acts">';
+  if (q === 1 && !v.sh) {
+    var taken = x.r.free <= 0 && !mineUnits;
+    h += '<button class="' + (mineUnits ? "on" : "") + '" data-a="t" data-i="' + id + '"' + (taken ? " disabled" : "") + '>' + (mineUnits ? "✓ Es mío" : taken ? "Ya está repartido" : "Es mío") + '</button>';
+  }
+  h += '<button data-a="o" data-i="' + id + '" aria-expanded="' + open + '">' + (open ? "Cerrar" : q > 1 || v.sh ? "Repartir ▾" : "Compartir ▾") + '</button></div></div>';
+  // Opciones (solo se pintan con el artículo abierto: tickets largos pesan menos)
+  if (!open) return h + "</div>";
+  h += '<div class="more">';
+  if (v.sh) {
+    var inn = v.sharedBy.indexOf(S.me) >= 0;
+    h += '<p class="lbl">Todo el artículo se divide a partes iguales</p><div class="slot"><span>' + (v.sharedBy.length ? esc(nameList(v.sharedBy)) : "Nadie todavía") + '</span>' +
+      '<button class="' + (inn ? "" : "on") + '" data-a="c" data-i="' + id + '">' + (inn ? "Quitarme" : "Apuntarme") + '</button></div>' +
+      '<button data-a="ns" data-i="' + id + '" style="margin-top:6px">Repartir por unidades o porciones</button>';
+  } else {
+    if (q > 1) {
+      h += '<p class="lbl">Para mí solo</p><div class="row"><div class="qty"><button aria-label="Quitar una unidad" data-a="u" data-i="' + id + '" data-d="-1"' + (mineUnits <= 0 ? " disabled" : "") + '>−</button><b aria-live="polite">' + mineUnits + '</b>' +
+        '<button aria-label="Añadir una unidad" data-a="u" data-i="' + id + '" data-d="1"' + (x.r.free <= 0 ? " disabled" : "") + '>+</button></div><small>' + (x.r.free > 0 ? "Quedan " + x.r.free + " sin asignar" : "Ya están repartidas") + '</small></div>';
+    }
+    h += '<p class="lbl" style="margin-top:12px">' + (q > 1 ? "A medias con otros" : "Compartirlo") + '</p>';
+    if (!v.slots.length) h += '<small>' + (q > 1 ? "Si algunas unidades las compartís, ábrelas aquí: cada una se divide entre quienes se apuntan." : "Si lo compartís, ábrelo aquí y que se apunte quien lo ha tomado.") + '</small>';
+    v.slots.forEach(function (ids, k) {
+      var inn = ids.indexOf(S.me) >= 0;
+      h += '<div class="slot"><span>' + (q > 1 ? "1 unidad: " : "") + esc(nameList(ids)) + '</span><button class="' + (inn ? "" : "on") + '" data-a="sl" data-i="' + id + '" data-s="' + v.slotIds[k] + '">' + (inn ? "Quitarme" : "Apuntarme") + '</button></div>';
+    });
+    h += '<button data-a="ns2" data-i="' + id + '" style="margin-top:6px"' + (x.r.free <= 0 ? " disabled" : "") + '>+ ' + (q > 1 ? "Compartir una unidad con otros" : "Compartirlo con otros") + '</button>';
+  }
+  return h + "</div></div>";
+}
+
 function renderWho(people) {
-  $("items").innerHTML = ""; $("mine").hidden = true; $("prog").hidden = true; $("ad").hidden = true;
+  $("items").innerHTML = ""; $("filters").hidden = true; $("mine").hidden = true; $("prog").hidden = true; $("ad").hidden = true;
   var w = $("who"); w.hidden = false;
   w.innerHTML = '<div class="card"><p style="margin-top:0"><b style="color:var(--ink);font-size:1.1rem">¿Quién eres?</b><br>Elige tu nombre para marcar lo tuyo.</p>' +
     people.map(function (p) { return '<button class="pick ' + (p.id === S.last ? 'on' : '') + '" data-a="w" data-p="' + p.id + '"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span>' + esc(p.name) + (p.id === S.last ? '<small>La última vez fuiste tú</small>' : "") + '</span></button>'; }).join("") +
@@ -285,28 +400,37 @@ function renderWho(people) {
     var id = (BigInt(Math.floor(Math.random() * 2 ** 30)) << 32n | BigInt(crypto.getRandomValues(new Uint32Array(1))[0])).toString();
     try { await listChange("groups/" + S.groupId, "people", [{ mapValue: { fields: { id: int(id), name: { stringValue: name } } } }], true); }
     catch (e) { btn.disabled = false; btn.textContent = "Añadirme al grupo"; $("adderr").textContent = "No se ha podido añadirte. Inténtalo de nuevo."; return; }
-    S.me = id; S.last = id; store("distro.me." + S.groupId, id); refresh();
+    S.me = id; S.last = id; store("distro.me." + S.groupId, id); refresh(true);
   };
 }
 
 document.addEventListener("click", async function (e) {
   if (e.target.closest("#retry")) return location.reload();
-  var b = e.target.closest("button[data-a], a[data-a], #ok"); if (!b || S.busy) return;
-  if (b.dataset && b.dataset.a === "chg") {
+  var b = e.target.closest("[data-a], #ok"); if (!b || S.busy) return;
+  var a = b.dataset.a, i = b.dataset.i;
+  if (a === "chg") {
     e.preventDefault();
     if (pending() && !confirm("Tienes cambios sin guardar. ¿Descartarlos?")) return;
-    S.last = S.me; S.me = null; draft = {}; dirty = {}; hasSaved = false; return render();
+    S.last = S.me; S.me = null; draft = {}; dirty = {}; hasSaved = false; S.open = null; return render();
   }
   if (b.id === "ok") return confirmMine(b);
-  var a = b.dataset.a, i = b.dataset.i;
   if (a === "w") { S.me = b.dataset.p; store("distro.me." + S.groupId, S.me); return render(); }
-  var it = S.ticket.items.find(function (x) { return x.id === i; }), d = val(it);
-  if (a === "u") {
-    var units = (((S.ticket.claims || {})[i] || {}).units) || {}, others = Object.keys(units).reduce(function (n, p) { return n + (p === S.me ? 0 : Number(units[p])); }, 0);
-    change(i, { u: Math.max(0, Math.min(Number(it.quantity) - others, d.u + Number(b.dataset.d))) });
-  } else if (a === "t") change(i, { u: d.u ? 0 : 1 });
-  else if (a === "s") { if ((b.dataset.v === "1") !== d.sh) change(i, b.dataset.v === "1" ? { sh: true, inn: true } : { sh: false }); }
-  else if (a === "c") change(i, { inn: !d.inn });
+  if (a === "f") { S.filter = b.dataset.f; return render(); }
+  if (a === "o") { if (e.target.closest("button[data-a]:not([data-a=o])")) return; S.open = S.open === i ? null : i; return render(); }
+  if (!S.ticket.items.some(function (x) { return x.id === i; })) return;
+  if (a === "u") change(i, function (nd, v, it) {
+    var others = Object.keys(v.units).reduce(function (n, p) { return n + (p === S.me ? 0 : v.units[p]); }, 0) + v.slots.length;
+    nd.u = Math.max(0, Math.min(Number(it.quantity) - others, nd.u + Number(b.dataset.d)));
+  });
+  else if (a === "t") change(i, function (nd) { nd.u = nd.u ? 0 : 1; });
+  else if (a === "c") change(i, function (nd) { nd.inn = !nd.inn; });
+  else if (a === "ns") change(i, function (nd) { nd.sh = false; });
+  else if (a === "sl") change(i, function (nd) { var k = b.dataset.s, j = nd.sl.indexOf(k); if (j >= 0) nd.sl.splice(j, 1); else nd.sl.push(k); });
+  else if (a === "ns2") change(i, function (nd, v, it) {
+    var used = Object.keys(v.units).reduce(function (n, p) { return n + v.units[p]; }, 0) + v.slots.length;
+    if (used >= Number(it.quantity)) return;
+    nd.sl.push(String(Math.floor(Math.random() * 2 ** 50) + 1));
+  });
 });
 
 // Guarda de una vez lo que ha cambiado el usuario.
@@ -322,9 +446,14 @@ async function confirmMine(btn) {
       }
       if (now.sh !== old.sh) await patch(tp, ["claims." + tick(id) + ".shared"], { claims: mv(kv(id, mv({ shared: { booleanValue: now.sh } }))) });
       if (now.inn !== old.inn) await listChange(tp, "claims." + tick(id) + ".sharedBy", [int(S.me)], now.inn);
+      var ids = now.sl.concat(old.sl.filter(function (k) { return now.sl.indexOf(k) < 0; }));
+      for (var n = 0; n < ids.length; n++) {
+        var k = ids[n], was = old.sl.indexOf(k) >= 0, is = now.sl.indexOf(k) >= 0;
+        if (was !== is) await listChange(tp, "claims." + tick(id) + ".slots." + tick(k), [int(S.me)], is);
+      }
     }
     draft = {}; dirty = {}; hasSaved = true;
-    S.busy = false; await refresh();
+    S.busy = false; await refresh(true);
     if (navigator.vibrate) navigator.vibrate(30);
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) { S.busy = false; $("saved").className = "dirty"; $("saved").textContent = "No se ha podido guardar. Inténtalo de nuevo."; }
