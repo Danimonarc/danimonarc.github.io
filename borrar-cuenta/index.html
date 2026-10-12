@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Política de privacidad de Distro</title>
+<title>Borrar tu cuenta de Distro</title>
 <style>
   :root { --bg:#f6faf7; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#1f7a4d; --on:#fff; --line:#d9e5dd; }
   @media (prefers-color-scheme: dark) {
@@ -28,6 +28,7 @@
 </head>
 <body>
 <main>
+<div class="l" lang="es" data-title="Borrar tu cuenta de Distro">
 <h1>Borrar tu cuenta de Distro</h1>
 <p>Para borrar tu cuenta y tus datos de Distro:</p>
 <ol>
@@ -36,6 +37,29 @@
 </ol>
 <p>Al confirmar, sales de todos tus grupos y se eliminan tu cuenta y tu perfil. Los grupos en los que solo estás tú se borran por completo; en los demás, el resto de miembros conserva el grupo y los gastos. Si quieres que se borre algo concreto de un grupo compartido, escribe a <strong>monarca.globaln@gmail.com</strong>.</p>
 <p>Si ya no tienes la app instalada, escribe a ese correo desde el correo de tu cuenta y la borraré. Más información en la <a href="/privacidad/">política de privacidad</a>.</p>
+</div>
+<div class="l" lang="en" data-title="Delete your Distro account" hidden>
+<h1>Delete your Distro account</h1>
+<p>To delete your account and your data from Distro:</p>
+<ol>
+<li>Open the app and tap your avatar (top right) to go to <strong>Account</strong>.</li>
+<li>Scroll down to <strong>Delete my account</strong> and confirm.</li>
+</ol>
+<p>When you confirm, you leave all your groups and your account and profile are deleted. Groups where you are the only member are deleted completely; in the others, the remaining members keep the group and the expenses. If you want something specific removed from a shared group, write to <strong>monarca.globaln@gmail.com</strong>.</p>
+<p>If you no longer have the app installed, write to that address from your account's email and I'll delete it. More information in the <a href="/privacidad/">privacy policy</a>.</p>
+</div>
+<p style="text-align:center"><small><a href="#" id="sw"></a></small></p>
+<script>
+  var q = new URLSearchParams(location.search).get("lang");
+  var L = (q || navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+  function show(l) {
+    L = l; document.documentElement.lang = l;
+    [].forEach.call(document.querySelectorAll(".l"), function (n) { n.hidden = n.lang !== l; if (n.lang === l && n.dataset.title) document.title = n.dataset.title; });
+    document.getElementById("sw").textContent = l === "es" ? "English" : "Español";
+  }
+  document.getElementById("sw").onclick = function (e) { e.preventDefault(); show(L === "es" ? "en" : "es"); };
+  show(L);
+</script>
 </main>
 </body>
 </html>

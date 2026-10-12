@@ -28,6 +28,7 @@
 </head>
 <body>
 <main>
+<div class="l" lang="es" data-title="Política de privacidad de Distro">
 <h1>Política de privacidad</h1>
 <p>Última actualización: octubre de 2026. Responsable: Monarc (en adelante, «yo»). Contacto: <strong>monarca.globaln@gmail.com</strong>.</p>
 <p>Distro es una app para repartir los gastos de un grupo y escanear tickets. Esta política explica qué datos trata y para qué.</p>
@@ -53,6 +54,46 @@
 <p>Distro no está dirigida a menores de 14 años.</p>
 <h2>Cambios</h2>
 <p>Si cambia esta política, se actualizará aquí con la fecha.</p>
+</div>
+<div class="l" lang="en" data-title="Distro privacy policy" hidden>
+<h1>Privacy policy</h1>
+<p>Last updated: October 2026. Controller: Monarc (“I”). Contact: <strong>monarca.globaln@gmail.com</strong>.</p>
+<p>Distro is an app for splitting group expenses and scanning receipts. This policy explains what data it processes and why.</p>
+<h2>Data processed</h2>
+<ul>
+<li><strong>Account:</strong> an anonymous identifier or, if you sign in with Google, your email and account name. Handled by Firebase Authentication (Google).</li>
+<li><strong>Your name in groups</strong> and the names of the people you add, plus <strong>expenses, amounts, receipts and balances</strong>. They are stored in Cloud Firestore (Google) and are visible to the members of the group.</li>
+<li><strong>Receipt photos:</strong> the text is read on your phone with ML Kit and the photos are not sent to any server of mine. Only the text/items you confirm are saved.</li>
+<li><strong>Web page for marking a receipt:</strong> if someone sends you a receipt link and you open it in your browser, an anonymous session is created and an identifier and who you are in that group are saved in your browser (local storage). You join the group as a member using the code in the link.</li>
+<li><strong>Notifications:</strong> if you allow them, the app notifies you about receipts waiting to be split.</li>
+<li><strong>Ads:</strong> the app shows Google AdMob banners. AdMob may use your device's advertising identifier and technical data. In the European Economic Area you are asked for consent before ads are shown, and you can change it at any time in your device's ad settings. Anyone who buys “Remove ads” stops seeing them.</li>
+<li><strong>Purchases:</strong> payments are handled by Google Play; I don't receive your card details.</li>
+</ul>
+<h2>Why</h2>
+<p>So the group can share expenses and balances, to sign you in, to notify you and to show advertising that funds the app. I don't sell your data or build profiles.</p>
+<h2>Who it is shared with</h2>
+<p>With the members of your groups (whatever you add to the group) and with the providers that make the app work: Google (Firebase, Google Play, AdMob). They may process data outside the EU with Google's safeguards.</p>
+<h2>How long</h2>
+<p>As long as your account or the group exists. Invitation codes expire after 7 days.</p>
+<h2>Your rights and how to delete your data</h2>
+<p>You can access, correct and delete your data and object to its processing by writing to the contact email. You can delete your account yourself from the app (Account → Delete my account); more details in <a href="/borrar-cuenta/">how to delete your account</a>. You can lodge a complaint with your data protection authority (in Spain, the AEPD, aepd.es).</p>
+<h2>Children</h2>
+<p>Distro is not aimed at children under 14.</p>
+<h2>Changes</h2>
+<p>If this policy changes, it will be updated here with the date.</p>
+</div>
+<p style="text-align:center"><small><a href="#" id="sw"></a></small></p>
+<script>
+  var q = new URLSearchParams(location.search).get("lang");
+  var L = (q || navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+  function show(l) {
+    L = l; document.documentElement.lang = l;
+    [].forEach.call(document.querySelectorAll(".l"), function (n) { n.hidden = n.lang !== l; if (n.lang === l && n.dataset.title) document.title = n.dataset.title; });
+    document.getElementById("sw").textContent = l === "es" ? "English" : "Español";
+  }
+  document.getElementById("sw").onclick = function (e) { e.preventDefault(); show(L === "es" ? "en" : "es"); };
+  show(L);
+</script>
 </main>
 </body>
 </html>

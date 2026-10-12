@@ -88,7 +88,7 @@
 <body>
 <header class="hero">
   <div class="brand">distro</div>
-  <h1 id="title">Tu ticket</h1>
+  <h1 id="title" data-tr="title_default">Tu ticket</h1>
   <p id="group">&nbsp;</p>
   <div class="prog" id="prog" hidden>
     <div class="txt"><span id="progtxt"></span><span id="ticktotal"></span></div>
@@ -103,16 +103,16 @@
   <div id="items"></div>
   <!-- Hueco del banner. Por ahora es publicidad propia; aquí iría el código del anuncio de AdSense (con el aviso de cookies). -->
   <div class="ad" id="ad" hidden>
-    <small>Publicidad</small>
-    <b>Distro: reparte los gastos sin hacer cuentas</b>
-    <span>Escanea el ticket y cada uno marca lo suyo.</span>
+    <small data-tr="ad_label">Publicidad</small>
+    <b data-tr="ad_title">Distro: reparte los gastos sin hacer cuentas</b>
+    <span data-tr="ad_text">Escanea el ticket y cada uno marca lo suyo.</span>
   </div>
-  <p style="text-align:center" id="foot" hidden><small>Quien pagó cierra el ticket desde la app y se reparte.</small></p>
+  <p style="text-align:center" id="foot" hidden><small data-tr="foot">Quien pagó cierra el ticket desde la app y se reparte.</small></p>
 </main>
 <div class="bar" id="mine" hidden>
   <div>
-    <div class="row"><span>Tu parte <small>(aprox.)</small></span><span class="total" id="total"></span></div>
-    <button id="ok" class="on">Confirmar mi parte</button>
+    <div class="row"><span><span data-tr="your_share">Tu parte</span> <small data-tr="approx">(aprox.)</small></span><span class="total" id="total"></span></div>
+    <button id="ok" class="on" data-tr="confirm">Confirmar mi parte</button>
     <p id="saved" role="status" aria-live="polite"></p>
   </div>
 </div>
@@ -128,7 +128,7 @@ var ticketId = (q.get("t") || "").replace(/\D/g, "");
 var $ = function (id) { return document.getElementById(id); };
 var S = { last: null, uid: null, token: null, group: null, groupId: null, ticket: null, me: null, busy: false };
 
-function fail(msg, retry) { $("skel").hidden = true; var n = $("status"); n.className = "note bad"; n.textContent = msg; if (retry) { var r = document.createElement("button"); r.id = "retry"; r.textContent = "Reintentar"; n.appendChild(document.createElement("br")); n.appendChild(r); } }
+function fail(msg, retry) { $("skel").hidden = true; var n = $("status"); n.className = "note bad"; n.textContent = msg; if (retry) { var r = document.createElement("button"); r.id = "retry"; r.textContent = tr("retry"); n.appendChild(document.createElement("br")); n.appendChild(r); } }
 function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
@@ -192,15 +192,26 @@ async function listChange(path, field, values, add) {
   if (!r.ok) throw new Error("commit " + r.status);
 }
 
+// --- Idioma: español o inglés según el navegador (o ?lang=es / ?lang=en) ---
+var LANG = (new URLSearchParams(location.search).get("lang") || navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+var LOC = LANG === "es" ? "es-ES" : "en-IE";
+var TX = {"page_title": {"es": "Marcar un ticket en Distro", "en": "Mark your items on Distro"}, "title_default": {"es": "Tu ticket", "en": "Your receipt"}, "ad_label": {"es": "Publicidad", "en": "Advertisement"}, "ad_title": {"es": "Distro: reparte los gastos sin hacer cuentas", "en": "Distro: split expenses without the math"}, "ad_text": {"es": "Escanea el ticket y cada uno marca lo suyo.", "en": "Scan the receipt and everyone marks their own."}, "foot": {"es": "Quien pagó cierra el ticket desde la app y se reparte.", "en": "Whoever paid closes the receipt from the app and it gets split."}, "your_share": {"es": "Tu parte", "en": "Your share"}, "approx": {"es": "(aprox.)", "en": "(approx.)"}, "confirm": {"es": "Confirmar mi parte", "en": "Confirm my share"}, "retry": {"es": "Reintentar", "en": "Retry"}, "e_link": {"es": "Este enlace no es válido. Pídele a quien te lo envió que lo mande otra vez.", "en": "This link isn't valid. Ask whoever sent it to send it again."}, "e_conn": {"es": "No se ha podido conectar. Revisa tu conexión.", "en": "Couldn't connect. Check your connection."}, "e_expired": {"es": "El enlace ha caducado. Pídele a quien te lo envió que lo mande otra vez.", "en": "The link has expired. Ask whoever sent it to send it again."}, "e_join": {"es": "No se ha podido entrar en el grupo.", "en": "Couldn't join the group."}, "e_gone": {"es": "El grupo ya no existe.", "en": "The group no longer exists."}, "e_closed": {"es": "Este ticket ya está cerrado: quien pagó lo apuntó como gasto en Distro. ¡Gracias por marcar lo tuyo!", "en": "This receipt is already closed: whoever paid saved it as an expense in Distro. Thanks for marking yours!"}, "e_retrying": {"es": "Sin conexión; reintentando…", "en": "Offline; retrying…"}, "e_offline": {"es": "Sin conexión: tus cambios se guardarán cuando vuelva.", "en": "Offline: your changes will be saved when it's back."}, "group_label": {"es": "Grupo «{0}»", "en": "Group “{0}”"}, "you": {"es": "Tú", "en": "You"}, "and": {"es": " y ", "en": " and "}, "missing": {"es": "Faltan por asignar <b>{0}</b> de {1} artículos.", "en": "<b>{0}</b> of {1} items still unassigned."}, "all_owned": {"es": "✓ Todo tiene dueño.", "en": "✓ Everything has an owner."}, "marking_as": {"es": "Marcas como <b>{0}</b>", "en": "Marking as <b>{0}</b>"}, "not_me": {"es": "No soy yo", "en": "That's not me"}, "f_all": {"es": "Todos", "en": "All"}, "f_free": {"es": "Sin asignar", "en": "Unassigned"}, "f_mine": {"es": "Lo mío", "en": "Mine"}, "none_free": {"es": "No queda nada sin asignar. 🎉", "en": "Nothing left unassigned. 🎉"}, "none_mine": {"es": "Todavía no has marcado nada.", "en": "You haven't marked anything yet."}, "progress": {"es": "{0} de {1} repartidos", "en": "{0} of {1} assigned"}, "saved_btn": {"es": "✓ Tu parte está guardada", "en": "✓ Your share is saved"}, "dirty": {"es": "Tienes cambios sin guardar.", "en": "You have unsaved changes."}, "saved_hint": {"es": "Puedes volver a cambiarlo cuando quieras.", "en": "You can change it again any time."}, "mark_hint": {"es": "Marca lo tuyo y pulsa Confirmar.", "en": "Mark yours and tap Confirm."}, "saving": {"es": "Guardando…", "en": "Saving…"}, "save_fail": {"es": "No se ha podido guardar. Inténtalo de nuevo.", "en": "Couldn't save. Please try again."}, "discard_q": {"es": "Tienes cambios sin guardar. ¿Descartarlos?", "en": "You have unsaved changes. Discard them?"}, "between": {"es": "Entre {0}", "en": "Between {0}"}, "shared_by": {"es": "{0} a medias", "en": "{0} (shared)"}, "left_n": {"es": "Quedan {0}", "en": "{0} left"}, "unassigned": {"es": "Sin asignar", "en": "Unassigned"}, "mine_btn": {"es": "Es mío", "en": "Mine"}, "mine_on": {"es": "✓ Es mío", "en": "✓ Mine"}, "taken": {"es": "Ya está repartido", "en": "Already taken"}, "split_btn": {"es": "Repartir ▾", "en": "Split ▾"}, "share_btn": {"es": "Compartir ▾", "en": "Share ▾"}, "close": {"es": "Cerrar", "en": "Close"}, "whole_equal": {"es": "Todo el artículo se divide a partes iguales", "en": "The whole item is split equally"}, "nobody": {"es": "Nadie todavía", "en": "Nobody yet"}, "remove_me": {"es": "Quitarme", "en": "Remove me"}, "join_me": {"es": "Apuntarme", "en": "Count me in"}, "to_units": {"es": "Repartir por unidades o porciones", "en": "Split by units or portions"}, "just_me": {"es": "Para mí solo", "en": "Just for me"}, "rm_unit": {"es": "Quitar una unidad", "en": "Remove one"}, "add_unit": {"es": "Añadir una unidad", "en": "Add one"}, "left_unassigned": {"es": "Quedan {0} sin asignar", "en": "{0} unassigned"}, "all_taken": {"es": "Ya están repartidas", "en": "All taken"}, "with_others": {"es": "A medias con otros", "en": "Shared with others"}, "sharing_it": {"es": "Compartirlo", "en": "Sharing it"}, "hint_multi": {"es": "Si algunas unidades las compartís, ábrelas aquí: cada una se divide entre quienes se apuntan.", "en": "If you share some units, open them here: each one is split among whoever joins."}, "hint_single": {"es": "Si lo compartís, ábrelo aquí y que se apunte quien lo ha tomado.", "en": "If you share it, open it here and let whoever had it join."}, "one_unit": {"es": "1 unidad: ", "en": "1 unit: "}, "share_unit": {"es": "+ Compartir una unidad con otros", "en": "+ Share one unit with others"}, "share_with": {"es": "+ Compartirlo con otros", "en": "+ Share it with others"}, "who_title": {"es": "¿Quién eres?", "en": "Who are you?"}, "who_hint": {"es": "Elige tu nombre para marcar lo tuyo.", "en": "Pick your name to mark your items."}, "last_you": {"es": "La última vez fuiste tú", "en": "That was you last time"}, "not_listed": {"es": "¿No estás en la lista?", "en": "Not on the list?"}, "name_ph": {"es": "Escribe tu nombre", "en": "Type your name"}, "add_me": {"es": "Añadirme al grupo", "en": "Add me to the group"}, "adding": {"es": "Añadiendo…", "en": "Adding…"}, "add_fail": {"es": "No se ha podido añadirte. Inténtalo de nuevo.", "en": "Couldn't add you. Please try again."}, "your_part": {"es": "Tu parte", "en": "Your share"}};
+function tr(k) { var s = (TX[k] || {})[LANG] || k; for (var i = 1; i < arguments.length; i++) s = s.split("{" + (i - 1) + "}").join(arguments[i]); return s; }
+function applyStatic() {
+  document.documentElement.lang = LANG; document.title = tr("page_title");
+  [].forEach.call(document.querySelectorAll("[data-tr]"), function (n) { n.textContent = tr(n.getAttribute("data-tr")); });
+}
+
 // --- Arranque ---
 async function start() {
-  if (code.length !== 6 || !ticketId) return fail("Este enlace no es válido. Pídele a quien te lo envió que lo mande otra vez.");
-  try { await auth(); } catch (e) { return fail("No se ha podido conectar. Revisa tu conexión.", true); }
+  applyStatic();
+  if (code.length !== 6 || !ticketId) return fail(tr("e_link"));
+  try { await auth(); } catch (e) { return fail(tr("e_conn"), true); }
   var inv = await getDoc("invites/" + code).catch(function () { return null; });
-  if (!inv || !inv.groupId) return fail("El enlace ha caducado. Pídele a quien te lo envió que lo mande otra vez.");
+  if (!inv || !inv.groupId) return fail(tr("e_expired"));
   S.groupId = inv.groupId;
   try { await listChange("groups/" + S.groupId, "memberUids", [{ stringValue: S.uid }], true); }
-  catch (e) { return fail("No se ha podido entrar en el grupo.", true); }
+  catch (e) { return fail(tr("e_join"), true); }
   S.last = load("distro.me." + S.groupId);
   await refresh();
   setInterval(function () { if (!S.busy) refresh(); }, 4000);
@@ -209,26 +220,26 @@ async function start() {
 async function refresh(force) {
   try {
     var g = await getDoc("groups/" + S.groupId), t = await getDoc("groups/" + S.groupId + "/tickets/" + ticketId);
-    if (!g) return fail("El grupo ya no existe.");
-    if (!t) return fail("Este ticket ya está cerrado: quien pagó lo apuntó como gasto en Distro. ¡Gracias por marcar lo tuyo!");
+    if (!g) return fail(tr("e_gone"));
+    if (!t) return fail(tr("e_closed"));
     offline(false);
     var sig = JSON.stringify([g, t]);
     if (!force && sig === S.sig) return; // nada nuevo: no se repinta (evita parpadeos y toques perdidos)
     S.sig = sig; S.group = g; S.ticket = t; render();
-  } catch (e) { if (S.ticket) offline(true); else fail("Sin conexión; reintentando…"); }
+  } catch (e) { if (S.ticket) offline(true); else fail(tr("e_retrying")); }
 }
-function offline(on) { var n = $("status"); if (S.ticket) { n.className = on ? "note warn" : ""; n.textContent = on ? "Sin conexión: tus cambios se guardarán cuando vuelva." : ""; } }
+function offline(on) { var n = $("status"); if (S.ticket) { n.className = on ? "note warn" : ""; n.textContent = on ? tr("e_offline") : ""; } }
 
 // --- Utilidades ---
 function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-function eur(c) { return (Number(c) / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" }); }
+function eur(c) { return (Number(c) / 100).toLocaleString(LOC, { style: "currency", currency: "EUR" }); }
 function personName(id) { var p = (S.group.people || []).find(function (x) { return x.id === id; }); return p ? p.name : "?"; }
 function initial(n) { return esc((n || "?").trim().charAt(0).toUpperCase() || "?"); }
 function nameList(ids) { // «Tú, Sara y Gonzalo»
   var order = (S.group.people || []).map(function (p) { return p.id; });
   ids = ids.slice().sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
-  var n = ids.map(function (p) { return p === S.me ? "Tú" : personName(p); });
-  return n.length > 1 ? n.slice(0, -1).join(", ") + " y " + n[n.length - 1] : (n[0] || "");
+  var n = ids.map(function (p) { return p === S.me ? tr("you") : personName(p); });
+  return n.length > 1 ? n.slice(0, -1).join(", ") + tr("and") + n[n.length - 1] : (n[0] || "");
 }
 
 // --- Reparto: mismo cálculo que la app (SplitCalculator.kt), con el método del mayor resto ---
@@ -301,7 +312,7 @@ window.addEventListener("beforeunload", function (e) { if (pending()) { e.preven
 S.filter = "all"; S.open = null;
 function render() {
   $("skel").hidden = true; $("foot").hidden = false;
-  $("group").textContent = "Grupo «" + S.group.name + "»";
+  $("group").textContent = tr("group_label", S.group.name);
   $("title").textContent = S.ticket.title || "Ticket"; document.title = (S.ticket.title || "Ticket") + " · Distro";
   var people = S.group.people || [];
   if (!S.me || !people.some(function (p) { return p.id === S.me; })) return renderWho(people);
@@ -316,39 +327,39 @@ function render() {
   });
   var shown = rows.filter(function (x) { return S.filter === "all" || (S.filter === "free" ? x.isFree : x.mine > 0); });
   var html = "";
-  if (S.filter !== "all" && !shown.length) html = '<p style="text-align:center">' + (S.filter === "free" ? "No queda nada sin asignar. 🎉" : "Todavía no has marcado nada.") + "</p>";
+  if (S.filter !== "all" && !shown.length) html = '<p style="text-align:center">' + (S.filter === "free" ? tr("none_free") : tr("none_mine")) + "</p>";
   shown.forEach(function (x) { html += itemHtml(x); });
   var left = list.length - done;
-  var head = '<div class="me"><span class="av" aria-hidden="true">' + initial(personName(S.me)) + '</span><span>Marcas como <b>' + esc(personName(S.me)) + '</b><br><a href="#" data-a="chg">No soy yo</a></span></div>' +
-    (left > 0 ? '<div class="note warn">Faltan por asignar <b>' + left + '</b> de ' + list.length + ' artículos.</div>' : '<div class="note">✓ Todo tiene dueño.</div>');
+  var head = '<div class="me"><span class="av" aria-hidden="true">' + initial(personName(S.me)) + '</span><span>' + tr("marking_as", esc(personName(S.me))) + '<br><a href="#" data-a="chg">' + tr("not_me") + '</a></span></div>' +
+    (left > 0 ? '<div class="note warn">' + tr("missing", left, list.length) + '</div>' : '<div class="note">' + tr("all_owned") + '</div>');
   $("items").innerHTML = head + html;
   var f = $("filters"); f.hidden = list.length < 5;
-  f.innerHTML = [["all", "Todos", counts.all], ["free", "Sin asignar", counts.free], ["mine", "Lo mío", counts.mine]].map(function (c) {
+  f.innerHTML = [["all", tr("f_all"), counts.all], ["free", tr("f_free"), counts.free], ["mine", tr("f_mine"), counts.mine]].map(function (c) {
     return '<button class="' + (S.filter === c[0] ? "on" : "") + '" data-a="f" data-f="' + c[0] + '" aria-pressed="' + (S.filter === c[0]) + '">' + c[1] + " · " + c[2] + "</button>";
   }).join("");
-  $("prog").hidden = false; $("progtxt").textContent = done + " de " + list.length + " repartidos"; $("ticktotal").textContent = eur(ticketTotal);
+  $("prog").hidden = false; $("progtxt").textContent = tr("progress", done, list.length); $("ticktotal").textContent = eur(ticketTotal);
   $("progbar").style.width = (list.length ? Math.round(done * 100 / list.length) : 0) + "%";
   $("mine").hidden = false; $("total").textContent = eur(total);
   var n = pending(), ok = $("ok"), sv = $("saved");
   ok.disabled = n === 0 || S.busy;
-  ok.textContent = n ? "Confirmar mi parte" : hasSaved ? "✓ Tu parte está guardada" : "Confirmar mi parte";
-  if (n) { sv.className = "dirty"; sv.textContent = "Tienes cambios sin guardar."; }
-  else if (hasSaved) { sv.className = "okmsg"; sv.textContent = "Puedes volver a cambiarlo cuando quieras."; }
-  else { sv.className = ""; sv.textContent = "Marca lo tuyo y pulsa Confirmar."; }
+  ok.textContent = n ? tr("confirm") : hasSaved ? tr("saved_btn") : tr("confirm");
+  if (n) { sv.className = "dirty"; sv.textContent = tr("dirty"); }
+  else if (hasSaved) { sv.className = "okmsg"; sv.textContent = tr("saved_hint"); }
+  else { sv.className = ""; sv.textContent = tr("mark_hint"); }
 }
 
 // Quién tiene qué, en etiquetas cortas.
 function tagsHtml(x) {
   var v = x.v, t = [];
   if (v.sh) {
-    if (v.sharedBy.length) t.push('<span class="tag' + (v.sharedBy.indexOf(S.me) >= 0 ? " me" : "") + '">Entre ' + esc(nameList(v.sharedBy)) + '</span>');
+    if (v.sharedBy.length) t.push('<span class="tag' + (v.sharedBy.indexOf(S.me) >= 0 ? " me" : "") + '">' + tr("between", esc(nameList(v.sharedBy))) + '</span>');
   } else {
     (S.group.people || []).forEach(function (p) {
-      var n = v.units[p.id] || 0; if (n > 0) t.push('<span class="tag' + (p.id === S.me ? " me" : "") + '">' + (p.id === S.me ? "Tú" : esc(p.name)) + (x.q > 1 ? " ×" + n : "") + '</span>');
+      var n = v.units[p.id] || 0; if (n > 0) t.push('<span class="tag' + (p.id === S.me ? " me" : "") + '">' + (p.id === S.me ? tr("you") : esc(p.name)) + (x.q > 1 ? " ×" + n : "") + '</span>');
     });
-    v.slots.forEach(function (ids) { t.push('<span class="tag' + (ids.indexOf(S.me) >= 0 ? " me" : "") + '">' + esc(nameList(ids)) + ' a medias</span>'); });
+    v.slots.forEach(function (ids) { t.push('<span class="tag' + (ids.indexOf(S.me) >= 0 ? " me" : "") + '">' + tr("shared_by", esc(nameList(ids))) + '</span>'); });
   }
-  if (x.isFree) t.push('<span class="tag free">' + (x.q > 1 && x.r.free < x.q ? "Quedan " + x.r.free : "Sin asignar") + '</span>');
+  if (x.isFree) t.push('<span class="tag free">' + (x.q > 1 && x.r.free < x.q ? tr("left_n", x.r.free) : tr("unassigned")) + '</span>');
   return t.join("");
 }
 
@@ -357,33 +368,33 @@ function itemHtml(x) {
   var mineUnits = v.units[S.me] || 0, othersUnits = Object.keys(v.units).reduce(function (n, p) { return n + (p === S.me ? 0 : v.units[p]); }, 0);
   var h = '<div class="card item' + (x.mine > 0 ? " mine" : "") + (open ? " open" : "") + '"><div class="top" data-a="o" data-i="' + id + '"><span><span class="name">' + esc(it.name) + '</span>' +
     (q > 1 ? '<br><small>' + q + " × " + eur(x.cents / q) + '</small>' : "") + '</span><span style="text-align:right"><span class="price">' + eur(x.cents) + '</span>' +
-    (x.mine > 0 ? '<br><small style="color:var(--green);font-weight:700">Tu parte ' + eur(x.mine) + '</small>' : "") + '</span></div>' +
+    (x.mine > 0 ? '<br><small style="color:var(--green);font-weight:700">' + tr("your_part") + ' ' + eur(x.mine) + '</small>' : "") + '</span></div>' +
     '<div class="line"><div class="sub">' + tagsHtml(x) + '</div><div class="acts">';
   if (q === 1 && !v.sh) {
     var taken = x.r.free <= 0 && !mineUnits;
-    h += '<button class="' + (mineUnits ? "on" : "") + '" data-a="t" data-i="' + id + '"' + (taken ? " disabled" : "") + '>' + (mineUnits ? "✓ Es mío" : taken ? "Ya está repartido" : "Es mío") + '</button>';
+    h += '<button class="' + (mineUnits ? "on" : "") + '" data-a="t" data-i="' + id + '"' + (taken ? " disabled" : "") + '>' + (mineUnits ? tr("mine_on") : taken ? tr("taken") : tr("mine_btn")) + '</button>';
   }
-  h += '<button data-a="o" data-i="' + id + '" aria-expanded="' + open + '">' + (open ? "Cerrar" : q > 1 || v.sh ? "Repartir ▾" : "Compartir ▾") + '</button></div></div>';
+  h += '<button data-a="o" data-i="' + id + '" aria-expanded="' + open + '">' + (open ? tr("close") : q > 1 || v.sh ? tr("split_btn") : tr("share_btn")) + '</button></div></div>';
   // Opciones (solo se pintan con el artículo abierto: tickets largos pesan menos)
   if (!open) return h + "</div>";
   h += '<div class="more">';
   if (v.sh) {
     var inn = v.sharedBy.indexOf(S.me) >= 0;
-    h += '<p class="lbl">Todo el artículo se divide a partes iguales</p><div class="slot"><span>' + (v.sharedBy.length ? esc(nameList(v.sharedBy)) : "Nadie todavía") + '</span>' +
-      '<button class="' + (inn ? "" : "on") + '" data-a="c" data-i="' + id + '">' + (inn ? "Quitarme" : "Apuntarme") + '</button></div>' +
-      '<button data-a="ns" data-i="' + id + '" style="margin-top:6px">Repartir por unidades o porciones</button>';
+    h += '<p class="lbl">' + tr("whole_equal") + '</p><div class="slot"><span>' + (v.sharedBy.length ? esc(nameList(v.sharedBy)) : tr("nobody")) + '</span>' +
+      '<button class="' + (inn ? "" : "on") + '" data-a="c" data-i="' + id + '">' + (inn ? tr("remove_me") : tr("join_me")) + '</button></div>' +
+      '<button data-a="ns" data-i="' + id + '" style="margin-top:6px">' + tr("to_units") + '</button>';
   } else {
     if (q > 1) {
-      h += '<p class="lbl">Para mí solo</p><div class="row"><div class="qty"><button aria-label="Quitar una unidad" data-a="u" data-i="' + id + '" data-d="-1"' + (mineUnits <= 0 ? " disabled" : "") + '>−</button><b aria-live="polite">' + mineUnits + '</b>' +
-        '<button aria-label="Añadir una unidad" data-a="u" data-i="' + id + '" data-d="1"' + (x.r.free <= 0 ? " disabled" : "") + '>+</button></div><small>' + (x.r.free > 0 ? "Quedan " + x.r.free + " sin asignar" : "Ya están repartidas") + '</small></div>';
+      h += '<p class="lbl">' + tr("just_me") + '</p><div class="row"><div class="qty"><button aria-label="' + tr("rm_unit") + '" data-a="u" data-i="' + id + '" data-d="-1"' + (mineUnits <= 0 ? " disabled" : "") + '>−</button><b aria-live="polite">' + mineUnits + '</b>' +
+        '<button aria-label="' + tr("add_unit") + '" data-a="u" data-i="' + id + '" data-d="1"' + (x.r.free <= 0 ? " disabled" : "") + '>+</button></div><small>' + (x.r.free > 0 ? tr("left_unassigned", x.r.free) : tr("all_taken")) + '</small></div>';
     }
-    h += '<p class="lbl" style="margin-top:12px">' + (q > 1 ? "A medias con otros" : "Compartirlo") + '</p>';
-    if (!v.slots.length) h += '<p style="margin:0 0 4px"><small>' + (q > 1 ? "Si algunas unidades las compartís, ábrelas aquí: cada una se divide entre quienes se apuntan." : "Si lo compartís, ábrelo aquí y que se apunte quien lo ha tomado.") + '</small></p>';
+    h += '<p class="lbl" style="margin-top:12px">' + (q > 1 ? tr("with_others") : tr("sharing_it")) + '</p>';
+    if (!v.slots.length) h += '<p style="margin:0 0 4px"><small>' + (q > 1 ? tr("hint_multi") : tr("hint_single")) + '</small></p>';
     v.slots.forEach(function (ids, k) {
       var inn = ids.indexOf(S.me) >= 0;
-      h += '<div class="slot"><span>' + (q > 1 ? "1 unidad: " : "") + esc(nameList(ids)) + '</span><button class="' + (inn ? "" : "on") + '" data-a="sl" data-i="' + id + '" data-s="' + v.slotIds[k] + '">' + (inn ? "Quitarme" : "Apuntarme") + '</button></div>';
+      h += '<div class="slot"><span>' + (q > 1 ? tr("one_unit") : "") + esc(nameList(ids)) + '</span><button class="' + (inn ? "" : "on") + '" data-a="sl" data-i="' + id + '" data-s="' + v.slotIds[k] + '">' + (inn ? tr("remove_me") : tr("join_me")) + '</button></div>';
     });
-    h += '<button data-a="ns2" data-i="' + id + '" style="margin-top:6px"' + (x.r.free <= 0 ? " disabled" : "") + '>+ ' + (q > 1 ? "Compartir una unidad con otros" : "Compartirlo con otros") + '</button>';
+    h += '<button data-a="ns2" data-i="' + id + '" style="margin-top:6px"' + (x.r.free <= 0 ? " disabled" : "") + '>+ ' + (q > 1 ? tr("share_unit").slice(2) : tr("share_with").slice(2)) + '</button>';
   }
   return h + "</div></div>";
 }
@@ -391,16 +402,16 @@ function itemHtml(x) {
 function renderWho(people) {
   $("items").innerHTML = ""; $("filters").hidden = true; $("mine").hidden = true; $("prog").hidden = true; $("ad").hidden = true;
   var w = $("who"); w.hidden = false;
-  w.innerHTML = '<div class="card"><p style="margin-top:0"><b style="color:var(--ink);font-size:1.1rem">¿Quién eres?</b><br>Elige tu nombre para marcar lo tuyo.</p>' +
-    people.map(function (p) { return '<button class="pick ' + (p.id === S.last ? 'on' : '') + '" data-a="w" data-p="' + p.id + '"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span>' + esc(p.name) + (p.id === S.last ? '<small>La última vez fuiste tú</small>' : "") + '</span></button>'; }).join("") +
-    '<p style="margin-bottom:0">¿No estás en la lista?</p><form id="addform"><input id="newname" maxlength="30" autocomplete="given-name" placeholder="Escribe tu nombre"><button id="addme" class="on" type="submit" style="width:100%">Añadirme al grupo</button></form><p id="adderr" class="err" role="alert" style="margin:6px 0 0"></p></div>';
+  w.innerHTML = '<div class="card"><p style="margin-top:0"><b style="color:var(--ink);font-size:1.1rem">' + tr("who_title") + '</b><br>' + tr("who_hint") + '</p>' +
+    people.map(function (p) { return '<button class="pick ' + (p.id === S.last ? 'on' : '') + '" data-a="w" data-p="' + p.id + '"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span>' + esc(p.name) + (p.id === S.last ? '<small>' + tr("last_you") + '</small>' : "") + '</span></button>'; }).join("") +
+    '<p style="margin-bottom:0">' + tr("not_listed") + '</p><form id="addform"><input id="newname" maxlength="30" autocomplete="given-name" placeholder="' + tr("name_ph") + '"><button id="addme" class="on" type="submit" style="width:100%">' + tr("add_me") + '</button></form><p id="adderr" class="err" role="alert" style="margin:6px 0 0"></p></div>';
   $("addform").onsubmit = async function (ev) {
     ev.preventDefault();
     var name = $("newname").value.trim(); if (!name) return $("newname").focus();
-    var btn = $("addme"); btn.disabled = true; btn.textContent = "Añadiendo…"; $("adderr").textContent = "";
+    var btn = $("addme"); btn.disabled = true; btn.textContent = tr("adding"); $("adderr").textContent = "";
     var id = (BigInt(Math.floor(Math.random() * 2 ** 30)) << 32n | BigInt(crypto.getRandomValues(new Uint32Array(1))[0])).toString();
     try { await listChange("groups/" + S.groupId, "people", [{ mapValue: { fields: { id: int(id), name: { stringValue: name } } } }], true); }
-    catch (e) { btn.disabled = false; btn.textContent = "Añadirme al grupo"; $("adderr").textContent = "No se ha podido añadirte. Inténtalo de nuevo."; return; }
+    catch (e) { btn.disabled = false; btn.textContent = tr("add_me"); $("adderr").textContent = tr("add_fail"); return; }
     S.me = id; S.last = id; store("distro.me." + S.groupId, id); refresh(true);
   };
 }
@@ -411,7 +422,7 @@ document.addEventListener("click", async function (e) {
   var a = b.dataset.a, i = b.dataset.i;
   if (a === "chg") {
     e.preventDefault();
-    if (pending() && !confirm("Tienes cambios sin guardar. ¿Descartarlos?")) return;
+    if (pending() && !confirm(tr("discard_q"))) return;
     S.last = S.me; S.me = null; draft = {}; dirty = {}; hasSaved = false; S.open = null; return render();
   }
   if (b.id === "ok") return confirmMine(b);
@@ -436,7 +447,7 @@ document.addEventListener("click", async function (e) {
 
 // Guarda de una vez lo que ha cambiado el usuario.
 async function confirmMine(btn) {
-  S.busy = true; btn.disabled = true; btn.textContent = "Guardando…"; $("saved").className = ""; $("saved").textContent = "";
+  S.busy = true; btn.disabled = true; btn.textContent = tr("saving"); $("saved").className = ""; $("saved").textContent = "";
   var tp = "groups/" + S.groupId + "/tickets/" + ticketId;
   try {
     for (var id in dirty) {
@@ -457,7 +468,7 @@ async function confirmMine(btn) {
     S.busy = false; await refresh(true);
     if (navigator.vibrate) navigator.vibrate(30);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  } catch (err) { S.busy = false; $("saved").className = "dirty"; $("saved").textContent = "No se ha podido guardar. Inténtalo de nuevo."; }
+  } catch (err) { S.busy = false; $("saved").className = "dirty"; $("saved").textContent = tr("save_fail"); }
   S.busy = false; render();
 }
 
