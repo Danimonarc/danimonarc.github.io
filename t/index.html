@@ -48,6 +48,7 @@
   .item .acts button { min-height:40px; padding:6px 14px; }
   .item .more { display:none; margin-top:10px; border-top:1px dashed var(--line); padding-top:10px; }
   .item.open .more { display:block; }
+  .item .more > button { display:block; margin-top:8px; }
   .item .lbl { font-weight:700; margin:0 0 6px; color:var(--ink); font-size:.95rem; }
   .slot { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 0; }
   .slot span { overflow-wrap:anywhere; }
@@ -377,7 +378,7 @@ function itemHtml(x) {
         '<button aria-label="Añadir una unidad" data-a="u" data-i="' + id + '" data-d="1"' + (x.r.free <= 0 ? " disabled" : "") + '>+</button></div><small>' + (x.r.free > 0 ? "Quedan " + x.r.free + " sin asignar" : "Ya están repartidas") + '</small></div>';
     }
     h += '<p class="lbl" style="margin-top:12px">' + (q > 1 ? "A medias con otros" : "Compartirlo") + '</p>';
-    if (!v.slots.length) h += '<small>' + (q > 1 ? "Si algunas unidades las compartís, ábrelas aquí: cada una se divide entre quienes se apuntan." : "Si lo compartís, ábrelo aquí y que se apunte quien lo ha tomado.") + '</small>';
+    if (!v.slots.length) h += '<p style="margin:0 0 4px"><small>' + (q > 1 ? "Si algunas unidades las compartís, ábrelas aquí: cada una se divide entre quienes se apuntan." : "Si lo compartís, ábrelo aquí y que se apunte quien lo ha tomado.") + '</small></p>';
     v.slots.forEach(function (ids, k) {
       var inn = ids.indexOf(S.me) >= 0;
       h += '<div class="slot"><span>' + (q > 1 ? "1 unidad: " : "") + esc(nameList(ids)) + '</span><button class="' + (inn ? "" : "on") + '" data-a="sl" data-i="' + id + '" data-s="' + v.slotIds[k] + '">' + (inn ? "Quitarme" : "Apuntarme") + '</button></div>';
