@@ -232,7 +232,12 @@ function offline(on) { var n = $("status"); if (S.ticket) { n.className = on ? "
 
 // --- Utilidades ---
 function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-function eur(c) { return (Number(c) / 100).toLocaleString(LOC, { style: "currency", currency: "EUR" }); }
+function eur(c) {
+  // Moneda del grupo (si falta o no es válida, euros).
+  var cur = S.group && /^[A-Z]{3}$/.test(S.group.currency || "") ? S.group.currency : "EUR";
+  try { return (Number(c) / 100).toLocaleString(LOC, { style: "currency", currency: cur }); }
+  catch (e) { return (Number(c) / 100).toLocaleString(LOC, { style: "currency", currency: "EUR" }); }
+}
 function personName(id) { var p = (S.group.people || []).find(function (x) { return x.id === id; }); return p ? p.name : "?"; }
 function initial(n) { return esc((n || "?").trim().charAt(0).toUpperCase() || "?"); }
 function nameList(ids) { // «Tú, Sara y Gonzalo»
