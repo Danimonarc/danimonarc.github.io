@@ -20,7 +20,8 @@
       "package_name": "es.monarc.distro",
       "sha256_cert_fingerprints": [
         "F6:95:2A:87:E8:6A:E7:C6:74:25:8F:21:65:82:93:3C:FE:AC:E8:CA:8C:47:BC:84:6C:37:C4:A3:93:92:2E:95",
-        "60:8E:2F:CC:63:B5:2A:43:B9:56:54:F6:DE:5E:6F:D1:70:0C:D8:5F:AF:F5:D0:10:FB:1F:C2:91:85:1D:93:0A"
+        "60:8E:2F:CC:63:B5:2A:43:B9:56:54:F6:DE:5E:6F:D1:70:0C:D8:5F:AF:F5:D0:10:FB:1F:C2:91:85:1D:93:0A",
+        "96:B5:D0:7B:BA:6C:E6:C2:67:72:2B:1F:C6:AE:A1:86:D6:C0:92:7D:F0:F6:1C:BE:62:B7:AF:88:29:A8:18:69"
       ]
     }
   }
