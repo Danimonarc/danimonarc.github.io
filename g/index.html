@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2f8f0a">
+<title>Distro</title>
+<meta name="description" content="Reparte los gastos del grupo: mira los saldos, apunta gastos y marca lo que ya has pagado.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Distro">
+<meta property="og:title" content="Distro en la web">
+<meta property="og:description" content="Mira los saldos de tu grupo y apunta gastos desde el navegador.">
+<meta property="og:image" content="https://montarc.es/og.png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="500">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Distro">
+<style>
+  :root { --bg:#f4f8f5; --card:#fff; --ink:#18231d; --muted:#5b6b62; --green:#2f8f0a; --green2:#1b5e05; --on:#fff; --line:#dde8e0; --bad:#b3261e; --soft:#eaf4e4; --warn:#8a5a00; --warnbg:#fff4d6; --shadow:0 1px 3px rgba(20,60,20,.10); }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1511; --card:#18211b; --ink:#e7efe9; --muted:#9db0a4; --green:#6fcf45; --green2:#1b5e05; --on:#0b1a10; --line:#2a382f; --bad:#f2b8b5; --soft:#223326; --warn:#f3d27a; --warnbg:#3a2f12; --shadow:none; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust:100%; }
+  :focus-visible { outline:3px solid var(--green); outline-offset:2px; }
+  .hero { background:linear-gradient(135deg,#37b00a,var(--green2)); color:#fff; padding:max(14px, env(safe-area-inset-top)) 20px 20px; border-radius:0 0 28px 28px; }
+  .hero .top { display:flex; align-items:center; justify-content:space-between; gap:10px; max-width:520px; margin:0 auto; }
+  .hero .brand { font-weight:800; letter-spacing:.02em; opacity:.85; color:#fff; text-decoration:none; padding:8px 0; }
+  .hero .acct { background:rgba(255,255,255,.18); border:0; color:#fff; min-height:36px; padding:4px 14px; font-weight:600; font-size:.9rem; }
+  .hero .in { max-width:520px; margin:0 auto; }
+  .hero h1 { margin:8px 0 2px; font-size:1.7rem; line-height:1.15; overflow-wrap:anywhere; }
+  .hero p { margin:0; color:rgba(255,255,255,.88); }
+  main { max-width:520px; margin:0 auto; padding:4px 16px 120px; }
+  p, small { color:var(--muted); margin:6px 0; }
+  h2 { font-size:1.1rem; margin:22px 4px 6px; }
+  .card { background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:14px 16px; margin:12px 0; box-shadow:var(--shadow); }
+  .row { display:flex; align-items:center; gap:10px; justify-content:space-between; }
+  .grow { flex:1; min-width:0; }
+  .name { font-weight:700; overflow-wrap:anywhere; }
+  .amt { font-variant-numeric:tabular-nums; font-weight:700; white-space:nowrap; }
+  .pos { color:var(--green); } .neg { color:var(--bad); }
+  button, input, select { font:inherit; border-radius:999px; border:1.5px solid var(--green); padding:9px 16px; min-height:44px; }
+  button { background:transparent; color:var(--green); font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  button:active:not(:disabled) { transform:scale(.97); }
+  button.on, .btn.on { background:var(--green); color:var(--on); }
+  button:disabled { opacity:.45; cursor:default; }
+  .btn { display:block; width:100%; margin-top:10px; padding:13px; text-align:center; text-decoration:none; border-radius:14px; border:1.5px solid var(--green); color:var(--green); font-weight:700; }
+  button.btn { border-radius:14px; }
+  input, select { background:var(--card); color:var(--ink); width:100%; margin:6px 0; border-color:var(--line); border-radius:14px; }
+  input:focus, select:focus { border-color:var(--green); outline:none; }
+  label { display:block; font-weight:600; margin-top:12px; }
+  .btn.google { background:#fff; color:#1f1f1f; border-color:#dadce0; }
+  .note { border-radius:14px; padding:10px 14px; margin:14px 0 4px; background:var(--soft); color:var(--ink); }
+  .note.warn { background:var(--warnbg); color:var(--warn); }
+  .note.bad { background:transparent; border:1.5px solid var(--bad); color:var(--bad); }
+  .note button { margin-top:8px; }
+  .av { width:40px; height:40px; border-radius:50%; background:var(--green); color:var(--on); display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex:none; font-size:1.1rem; }
+  .av.emoji { background:var(--soft); font-size:1.4rem; }
+  .pick { display:flex; align-items:center; gap:12px; width:100%; text-align:left; border-radius:16px; margin:8px 0; padding:8px 14px; color:var(--ink); border-color:var(--line); background:var(--card); font-weight:600; }
+  .pick small { margin:0; display:block; font-weight:400; }
+  a.pick { text-decoration:none; border:1.5px solid var(--line); min-height:60px; }
+  .tabs { display:flex; gap:8px; margin:14px 0 4px; }
+  .tabs button { flex:1; min-height:40px; padding:4px 14px; border-color:var(--line); color:var(--muted); }
+  .tabs button[aria-selected="true"] { background:var(--green); border-color:var(--green); color:var(--on); }
+  .exp { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .exp:last-child { border-bottom:0; }
+  .exp small { display:block; margin:0; }
+  .tr { padding:10px 0; border-bottom:1px solid var(--line); }
+  .tr:last-child { border-bottom:0; }
+  .tr .acts { display:flex; justify-content:flex-end; margin-top:6px; }
+  .tr .acts button { min-height:38px; padding:4px 14px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0; }
+  .chips button { min-height:38px; padding:4px 14px; border-color:var(--line); color:var(--ink); font-weight:600; }
+  .chips button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:var(--on); }
+  .fab { position:fixed; right:max(16px, calc(50% - 244px)); bottom:calc(18px + env(safe-area-inset-bottom)); padding:14px 22px; background:var(--green); color:var(--on); border:0; box-shadow:0 4px 14px rgba(0,0,0,.18); font-size:1.02rem; }
+  .sheet { position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:flex-end; justify-content:center; z-index:5; }
+  .sheet > form { background:var(--card); width:100%; max-width:520px; max-height:92vh; overflow:auto; border-radius:24px 24px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom)); }
+  .sheet h2 { margin:0 0 4px; }
+  .split { display:flex; gap:8px; }
+  .split > * { flex:1; }
+  .or { text-align:center; margin:16px 0 4px; }
+  .sk { height:72px; border-radius:20px; margin:12px 0; background:linear-gradient(90deg,var(--line),var(--soft),var(--line)); background-size:200% 100%; animation:sh 1.2s linear infinite; }
+  @keyframes sh { to { background-position:-200% 0; } }
+  .center { text-align:center; }
+  .link { background:none; border:0; color:var(--green); padding:8px 4px; min-height:0; font-weight:700; text-decoration:underline; }
+  .menu { position:absolute; right:16px; top:calc(max(14px, env(safe-area-inset-top)) + 46px); background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:16px; padding:8px; box-shadow:0 6px 20px rgba(0,0,0,.18); z-index:6; min-width:220px; }
+  .menu small { display:block; padding:4px 10px 8px; overflow-wrap:anywhere; }
+  .menu button { display:block; width:100%; text-align:left; border:0; border-radius:10px; color:var(--ink); font-weight:600; }
+  .menu button.danger { color:var(--bad); }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="top">
+    <a class="brand" href="#/">distro</a>
+    <button class="acct" id="acct" type="button" hidden aria-haspopup="true" aria-expanded="false"></button>
+  </div>
+  <div class="in">
+    <h1 id="h1"></h1>
+    <p id="sub">&nbsp;</p>
+  </div>
+</header>
+<div class="menu" id="menu" hidden role="menu"></div>
+<main>
+  <div id="status" role="status" aria-live="polite"></div>
+  <div id="skel"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  <div id="view"></div>
+</main>
+<button class="fab" id="fab" type="button" hidden></button>
+<div class="sheet" id="sheet" hidden></div>
+<script type="module" src="app.js"></script>
+<script>
+  // Si no carga Firebase (sin conexión o bloqueado), se dice en vez de dejar la página en blanco.
+  setTimeout(function () {
+    if (window.distroReady) return;
+    var l = (navigator.language || "en").toLowerCase();
+    document.getElementById("skel").hidden = true;
+    var n = document.getElementById("status");
+    n.className = "note bad";
+    n.textContent = l.indexOf("ca") === 0 ? "No s'ha pogut carregar. Revisa la connexió i torna a obrir la pàgina." : l.indexOf("es") === 0 ? "No se ha podido cargar. Revisa tu conexión y vuelve a abrir la página." : "Couldn't load. Check your connection and reopen the page.";
+  }, 12000);
+  if ("serviceWorker" in navigator) addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+</script>
+</body>
+</html>

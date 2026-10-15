@@ -1,0 +1,16 @@
+{
+  "name": "Distro",
+  "short_name": "Distro",
+  "description": "Reparte los gastos del grupo: saldos, gastos y pagos.",
+  "id": "/g/",
+  "start_url": "/g/",
+  "scope": "/g/",
+  "display": "minimal-ui",
+  "background_color": "#f4f8f5",
+  "theme_color": "#2f8f0a",
+  "lang": "es",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

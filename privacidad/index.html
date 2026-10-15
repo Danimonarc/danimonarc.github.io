@@ -34,9 +34,10 @@
 <p>Distro es una app para repartir los gastos de un grupo y escanear tickets. Esta política explica qué datos trata y para qué.</p>
 <h2>Datos que trata</h2>
 <ul>
-<li><strong>Cuenta:</strong> un identificador anónimo o, si entras con Google, tu correo y nombre de la cuenta. Lo gestiona Firebase Authentication (Google).</li>
+<li><strong>Cuenta:</strong> un identificador anónimo o, si entras con Google, tu correo y nombre de la cuenta. Si entras en la web con un enlace por correo, tu dirección de correo. Lo gestiona Firebase Authentication (Google).</li>
 <li><strong>Tu nombre en los grupos</strong> y los de las personas que añadas, los <strong>gastos, importes, tickets y saldos</strong>. Se guardan en Cloud Firestore (Google) y los ven los miembros del grupo.</li>
 <li><strong>Fotos de tickets:</strong> el texto se lee en tu móvil con ML Kit y las fotos no se envían a ningún servidor mío. Solo se guarda el texto/los artículos que confirmes.</li>
+<li><strong>Distro en la web (montarc.es/g/):</strong> para ver tus grupos desde el navegador hay que entrar con Google o con un enlace por correo. Tu navegador guarda la sesión (almacenamiento local) y, si la instalas, una copia de la página para que abra más rápido.</li>
 <li><strong>Página web para marcar un ticket:</strong> si alguien te envía un enlace de ticket y lo abres en el navegador, se crea una sesión anónima y se guarda en tu navegador (almacenamiento local) un identificador y quién eres en ese grupo. Entras como miembro del grupo con el código del enlace.</li>
 <li><strong>Notificaciones:</strong> si las permites, la app te avisa de tickets pendientes de repartir.</li>
 <li><strong>Tipos de cambio:</strong> al añadir un gasto en otra moneda, la app consulta el tipo de cambio de hoy a servicios públicos (Frankfurter, con datos del Banco Central Europeo, y una API pública servida por jsDelivr/Cloudflare). Solo se envían los dos códigos de moneda; esos servicios ven tu dirección IP como en cualquier página web.</li>
@@ -62,9 +63,10 @@
 <p>Distro is an app for splitting group expenses and scanning receipts. This policy explains what data it processes and why.</p>
 <h2>Data processed</h2>
 <ul>
-<li><strong>Account:</strong> an anonymous identifier or, if you sign in with Google, your email and account name. Handled by Firebase Authentication (Google).</li>
+<li><strong>Account:</strong> an anonymous identifier or, if you sign in with Google, your email and account name. If you sign in on the web with an email link, your email address. Handled by Firebase Authentication (Google).</li>
 <li><strong>Your name in groups</strong> and the names of the people you add, plus <strong>expenses, amounts, receipts and balances</strong>. They are stored in Cloud Firestore (Google) and are visible to the members of the group.</li>
 <li><strong>Receipt photos:</strong> the text is read on your phone with ML Kit and the photos are not sent to any server of mine. Only the text/items you confirm are saved.</li>
+<li><strong>Distro on the web (montarc.es/g/):</strong> to see your groups in the browser you sign in with Google or an email link. Your browser keeps the session (local storage) and, if you install it, a copy of the page so it opens faster.</li>
 <li><strong>Web page for marking a receipt:</strong> if someone sends you a receipt link and you open it in your browser, an anonymous session is created and an identifier and who you are in that group are saved in your browser (local storage). You join the group as a member using the code in the link.</li>
 <li><strong>Notifications:</strong> if you allow them, the app notifies you about receipts waiting to be split.</li>
 <li><strong>Exchange rates:</strong> when you add an expense in another currency, the app asks public services for today's exchange rate (Frankfurter, with European Central Bank data, and a public API served through jsDelivr/Cloudflare). Only the two currency codes are sent; those services see your IP address like on any web page.</li>
