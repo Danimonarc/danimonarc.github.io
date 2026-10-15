@@ -210,7 +210,8 @@ function toGroup(id, d) {
   };
 }
 function toExpense(id, d) {
-  if (d.payerId == null || d.amountCents == null) return null;
+  // Los gastos borrados se quedan marcados (borrado suave de la app) y no cuentan.
+  if (d.deleted === true || d.payerId == null || d.amountCents == null) return null;
   const shares = {};
   Object.keys(d.shares || {}).forEach((k) => { shares[k] = Number(d.shares[k]); });
   return { id, title: d.title || "", payerId: String(d.payerId), amountCents: Number(d.amountCents), shares, createdAt: Number(d.createdAt || 0), isTransfer: !!d.isTransfer };
