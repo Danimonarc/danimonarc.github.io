@@ -61,10 +61,25 @@ const TX = {
   install: ["Instalar en este dispositivo", "Install on this device", "Instal·lar en aquest dispositiu"],
   get_app: ["¿Tienes Android? Descarga Distro en Google Play para escanear tickets.", "On Android? Get Distro on Google Play to scan receipts.", "Tens Android? Descarrega Distro a Google Play per escanejar tiquets."],
   back: ["← Tus grupos", "← Your groups", "← Els teus grups"],
+  back_lbl: ["Volver a tus grupos", "Back to your groups", "Tornar als teus grups"],
+  sections: ["Secciones del grupo", "Group sections", "Seccions del grup"],
   tab_exp: ["Gastos", "Expenses", "Despeses"],
   tab_bal: ["Saldos", "Balances", "Saldos"],
   spent: ["{0} gastados", "{0} spent", "{0} gastats"],
-  no_exp: ["Todavía no hay gastos. Añade el primero con el botón de abajo.", "No expenses yet. Add the first one with the button below.", "Encara no hi ha despeses. Afegeix la primera amb el botó de sota."],
+  no_exp: ["Todavía no hay gastos. Añade el primero con «+ Gasto», arriba.", "No expenses yet. Add the first one with “+ Expense” at the top.", "Encara no hi ha despeses. Afegeix la primera amb «+ Despesa», a dalt."],
+  exp_1: ["1 gasto", "1 expense", "1 despesa"],
+  exp_n: ["{0} gastos", "{0} expenses", "{0} despeses"],
+  col_date: ["Fecha", "Date", "Data"],
+  col_what: ["Concepto", "Description", "Concepte"],
+  col_amount: ["Importe", "Amount", "Import"],
+  col_person: ["Persona", "Person", "Persona"],
+  col_paid: ["Pagó", "Paid", "Va pagar"],
+  col_share: ["Le toca", "Share", "Li toca"],
+  col_bal: ["Saldo", "Balance", "Saldo"],
+  bal_foot: ["Saldo = lo que pagó − lo que le toca. Positivo: le deben; negativo: debe.", "Balance = paid − share. Positive: they're owed; negative: they owe.", "Saldo = el que va pagar − el que li toca. Positiu: li deuen; negatiu: deu."],
+  bal_foot_x: ["El saldo ya descuenta los pagos entre vosotros.", "The balance already includes payments between you.", "El saldo ja descompta els pagaments entre vosaltres."],
+  pays_to: ["paga a", "pays", "paga a"],
+  paid_short: ["Pagado", "Paid", "Pagat"],
   paid_by: ["Pagó {0}", "Paid by {0}", "Va pagar {0}"],
   your_share: ["tu parte {0}", "your share {0}", "la teva part {0}"],
   refund: ["Reembolso", "Repayment", "Reemborsament"],
@@ -84,7 +99,8 @@ const TX = {
   name_ph: ["Tu nombre", "Your name", "El teu nom"],
   add_me: ["Añadirme al grupo", "Add me to the group", "Afegir-me al grup"],
   taken: ["(ya es otra cuenta)", "(another account)", "(ja és un altre compte)"],
-  add_exp: ["+ Añadir gasto", "+ Add expense", "+ Afegir despesa"],
+  add_exp: ["+ Gasto", "+ Expense", "+ Despesa"],
+  add_exp_lbl: ["Añadir gasto", "Add expense", "Afegir despesa"],
   new_exp: ["Nuevo gasto", "New expense", "Nova despesa"],
   concept: ["Concepto", "Description", "Concepte"],
   concept_ph: ["Cena, gasolina, compra…", "Dinner, fuel, groceries…", "Sopar, benzina, compra…"],
@@ -139,7 +155,15 @@ function status(msg, kind, retry) {
 }
 let flashTimer;
 function flash(msg) { status(esc(msg)); clearTimeout(flashTimer); flashTimer = setTimeout(() => status(""), 4000); }
-function header(h1, sub) { $("h1").textContent = h1; $("sub").textContent = sub || " "; document.title = h1 + " · Distro"; }
+function header(h1, sub) { $("h1").textContent = h1; $("sub").textContent = sub || ""; document.title = h1 ? h1 + " · Distro" : "Distro"; }
+// Cabecera dentro de un grupo (atrás, «+ Gasto» y pestañas) o fuera (logo). Las pestañas son enlaces:
+// la dirección dice cuál está abierta, y «atrás» y compartir el enlace funcionan.
+function inGroup(gid) {
+  $("back").hidden = !gid; $("logo").hidden = !!gid; $("add").hidden = !gid; $("tabs").hidden = !gid;
+  if (!gid) return;
+  $("tabs").innerHTML = [["exp", "gastos", "tab_exp"], ["bal", "saldos", "tab_bal"]].map(([t, slug, k]) =>
+    '<a href="#/g/' + gid + "/" + slug + '"' + (S.tab === t ? ' aria-current="page"' : "") + ">" + tr(k) + "</a>").join("");
+}
 
 // --- Firestore por REST (enteros como texto) ---
 const str = (s) => ({ stringValue: String(s) }), int = (x) => ({ integerValue: String(x) }), bool = (b) => ({ booleanValue: !!b }), mv = (f) => ({ mapValue: { fields: f } });
@@ -289,13 +313,13 @@ function loginError(e) {
 
 function renderLogin() {
   stopPolling();
-  $("acct").hidden = true; $("fab").hidden = true; $("skel").hidden = true;
+  $("acct").hidden = true; $("skel").hidden = true; inGroup(null);
   header(tr("login_h1"), S.code ? tr("login_join") : tr("login_sub"));
   $("view").innerHTML =
     '<div class="card"><p style="margin-top:0">' + tr("login_text") + "</p>" +
     '<button class="btn google" id="google" type="button">' + GOOGLE_SVG + tr("google") + "</button>" +
-    '<p class="or">' + tr("or_email") + "</p>" +
-    '<form id="mailf"><input type="email" id="mail" required autocomplete="email" inputmode="email" placeholder="' + tr("email_ph") + '">' +
+    '<p class="or"><label for="mail" style="display:inline;font-weight:400;margin:0">' + tr("or_email") + "</label></p>" +
+    '<form id="mailf"><input type="email" id="mail" name="email" required autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="' + tr("email_ph") + '">' +
     '<button class="btn" type="submit">' + tr("send_link") + "</button></form></div>" +
     getAppNote();
   $("google").onclick = async () => {
@@ -329,10 +353,10 @@ async function finishEmailLink() {
   if (email && await tryWith(email)) return;
   if (!isSignInWithEmailLink(auth, location.href)) return;
   await new Promise((resolve) => {
-    $("skel").hidden = true;
+    $("skel").hidden = true; inGroup(null);
     header(tr("login_h1"), tr("login_sub"));
-    $("view").innerHTML = '<form class="card" id="again"><p style="margin-top:0">' + tr("email_again") + "</p>" +
-      '<input type="email" id="mail2" required autocomplete="email" placeholder="' + tr("email_ph") + '">' +
+    $("view").innerHTML = '<form class="card" id="again"><p style="margin-top:0"><label for="mail2" style="font-weight:400;margin:0">' + tr("email_again") + "</label></p>" +
+      '<input type="email" id="mail2" name="email" required autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="' + tr("email_ph") + '">' +
       '<button class="btn on" type="submit">' + tr("finish") + "</button></form>";
     $("again").onsubmit = async (ev) => { ev.preventDefault(); if (await tryWith($("mail2").value.trim())) resolve(); };
   });
@@ -342,7 +366,9 @@ async function finishEmailLink() {
 function setupAccount() {
   const u = S.user, btn = $("acct"), menu = $("menu");
   btn.hidden = false;
-  btn.textContent = tr("account");
+  btn.textContent = (u.displayName || u.email || "?").trim().charAt(0).toUpperCase();
+  btn.setAttribute("aria-label", tr("account"));
+  btn.title = tr("account");
   btn.onclick = (e) => {
     e.stopPropagation();
     const open = menu.hidden;
@@ -411,8 +437,8 @@ function go(gid) { const h = "#/g/" + gid; if (location.hash === h) route(); els
 
 async function route() {
   $("menu").hidden = true; closeSheet();
-  const m = location.hash.match(/^#\/g\/(\d+)/);
-  if (m) return openGroup(m[1]);
+  const m = location.hash.match(/^#\/g\/(\d+)(?:\/(gastos|saldos))?/);
+  if (m) return openGroup(m[1], m[2] === "saldos" ? "bal" : "exp");
   return home();
 }
 
@@ -431,7 +457,7 @@ function installNote() {
 
 async function home() {
   stopPolling();
-  S.gid = null; $("fab").hidden = true;
+  S.gid = null; inGroup(null);
   header(tr("home_h1"), S.groups ? plural(S.groups.length, "groups_1", "groups_n") : "");
   if (!S.groups) { $("view").innerHTML = ""; $("skel").hidden = false; }
   try { S.groups = (await myGroups()).sort((a, b) => a.createdAt - b.createdAt); }
@@ -440,11 +466,11 @@ async function home() {
   $("skel").hidden = true;
   header(tr("home_h1"), plural(S.groups.length, "groups_1", "groups_n"));
   $("view").innerHTML =
-    (S.groups.length ? S.groups.map((g) => '<a class="pick" href="#/g/' + g.id + '">' + avatar(g) +
-      '<span class="grow"><span class="name">' + esc(g.name) + "</span><small>" + plural(g.people.length, "people_1", "people_n") + "</small></span></a>").join("")
+    (S.groups.length ? '<nav class="list" aria-label="' + tr("home_h1") + '">' + S.groups.map((g) => '<a href="#/g/' + g.id + '">' + avatar(g) +
+      '<span class="grow"><span class="name">' + esc(g.name) + "</span><small>" + plural(g.people.length, "people_1", "people_n") + '</small></span><span class="chev" aria-hidden="true">›</span></a>').join("") + "</nav>"
       : '<div class="note">' + tr("no_groups") + "</div>") +
     '<form class="card" id="joinf"><label for="code" style="margin-top:0">' + tr("join_title") + "</label>" +
-    '<div class="split"><input id="code" maxlength="8" autocapitalize="characters" autocomplete="off" placeholder="ABC123" style="letter-spacing:.15em;text-transform:uppercase">' +
+    '<div class="split"><input id="code" name="code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC123" style="letter-spacing:.15em;text-transform:uppercase">' +
     '<button type="submit" class="on" style="flex:0 0 auto;margin:6px 0">' + tr("join_btn") + "</button></div></form>" +
     installNote() + getAppNote();
   $("joinf").onsubmit = async (ev) => {
@@ -458,9 +484,11 @@ async function home() {
   if (ib) ib.onclick = async () => { if (!installPrompt) return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; ib.hidden = true; };
 }
 
-async function openGroup(gid) {
-  if (S.gid !== gid) { S.gid = gid; S.group = null; S.sig = null; S.tab = "exp"; $("view").innerHTML = ""; $("skel").hidden = false; header("", ""); }
-  $("fab").hidden = true;
+async function openGroup(gid, tab) {
+  S.tab = tab;
+  if (S.gid !== gid) { S.gid = gid; S.group = null; S.sig = null; $("view").innerHTML = ""; $("skel").hidden = false; header("", ""); }
+  else if (S.group) renderGroup(); // solo ha cambiado la pestaña
+  inGroup(gid);
   stopPolling();
   await refresh();
   // Los cambios de los demás se ven solos: se vuelve a leer cada 15 s con la página a la vista.
@@ -474,7 +502,7 @@ async function refresh() {
     const d = await getDoc("groups/" + gid);
     const [ex, tk] = d ? await Promise.all([listDocs("groups/" + gid + "/expenses"), listDocs("groups/" + gid + "/tickets")]) : [[], []];
     if (gid !== S.gid) return;
-    if (!d) { stopPolling(); $("fab").hidden = true; header(tr("home_h1")); $("view").innerHTML = '<p><a href="#/" class="link">' + tr("back") + "</a></p>"; return status(esc(tr("e_gone")), "bad"); }
+    if (!d) { stopPolling(); $("add").hidden = true; $("tabs").hidden = true; header(tr("home_h1")); $("view").innerHTML = '<p><a href="#/" class="link">' + tr("back") + "</a></p>"; return status(esc(tr("e_gone")), "bad"); }
     const sig = JSON.stringify([d, ex, tk.length]);
     if (sig === S.sig) return;
     S.sig = sig;
@@ -497,18 +525,18 @@ function renderGroup() {
   const g = S.group;
   $("skel").hidden = true;
   const spent = S.expenses.filter((e) => !e.isTransfer).reduce((a, e) => a + e.amountCents, 0);
-  header((g.icon ? g.icon + " " : "") + g.name, plural(g.people.length, "people_1", "people_n") + " · " + tr("spent", money(spent)));
+  header((g.icon ? g.icon + " " : "") + g.name, plural(g.people.length, "people_1", "people_n") + " · " + money(spent));
   const meOk = g.me && g.people.some((p) => p.id === g.me);
-  let h = '<p style="margin:10px 0 0"><a href="#/" class="link">' + tr("back") + "</a></p>";
+  let h = "";
   if (!meOk) h += whoCard();
   if (S.tickets) h += '<div class="note">' + esc(plural(S.tickets, "pending_1", "pending_n")) + "</div>";
-  h += '<div class="tabs" role="tablist">' +
-    '<button type="button" role="tab" data-tab="exp" aria-selected="' + (S.tab === "exp") + '">' + tr("tab_exp") + "</button>" +
-    '<button type="button" role="tab" data-tab="bal" aria-selected="' + (S.tab === "bal") + '">' + tr("tab_bal") + "</button></div>";
   h += S.tab === "exp" ? expensesHtml() : balancesHtml();
   $("view").innerHTML = h;
-  const fab = $("fab");
-  fab.hidden = false; fab.textContent = tr("add_exp"); fab.onclick = openAddExpense;
+  inGroup(g.id);
+  $("back").setAttribute("aria-label", tr("back_lbl"));
+  $("tabs").setAttribute("aria-label", tr("sections"));
+  const add = $("add");
+  add.textContent = tr("add_exp"); add.setAttribute("aria-label", tr("add_exp_lbl")); add.onclick = openAddExpense;
   wireGroup();
 }
 
@@ -516,54 +544,70 @@ function whoCard() {
   const g = S.group, own = (S.user.displayName || "").trim();
   // Se propone el nombre de la cuenta solo si nadie del grupo se llama ya así.
   const suggested = own && !g.people.some((p) => p.name.trim().toLowerCase() === own.toLowerCase()) ? own : "";
-  return '<div class="card"><p style="margin-top:0"><b style="color:var(--ink);font-size:1.1rem">' + tr("who_title") + "</b><br>" + tr("who_hint") + "</p>" +
-    g.people.map((p) => {
+  return "<h2>" + tr("who_title") + "</h2><p>" + tr("who_hint") + "</p>" +
+    '<div class="list">' + g.people.map((p) => {
       const taken = g.taken.indexOf(p.id) >= 0;
-      return '<button type="button" class="pick" data-who="' + p.id + '"><span class="av" aria-hidden="true">' + initial(p.name) + "</span><span>" + esc(p.name) +
-        (taken ? "<small>" + tr("taken") + "</small>" : "") + "</span></button>";
-    }).join("") +
-    '<form id="addme"><label for="myname">' + tr("not_listed") + '</label><input id="myname" maxlength="60" required autocomplete="name" placeholder="' + tr("name_ph") + '" value="' + esc(suggested) + '">' +
-    '<button class="btn" type="submit">' + tr("add_me") + "</button></form></div>";
+      return '<button type="button" data-who="' + p.id + '"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span class="grow"><span class="name">' + esc(p.name) + "</span>" +
+        (taken ? "<small>" + tr("taken") + "</small>" : "") + '</span><span class="chev" aria-hidden="true">›</span></button>';
+    }).join("") + "</div>" +
+    '<form class="card" id="addme"><label for="myname" style="margin-top:0">' + tr("not_listed") + '</label><input id="myname" name="name" maxlength="60" required autocomplete="name" placeholder="' + tr("name_ph") + '" value="' + esc(suggested) + '">' +
+    '<button class="btn" type="submit">' + tr("add_me") + "</button></form>";
 }
 
+const signed = (c) => (c > 0 ? "+" : c < 0 ? "−" : "") + money(Math.abs(c));
+const tone = (c) => (c > 0 ? "pos" : c < 0 ? "neg" : "");
+
+// Tabla de gastos: fecha, concepto (con quién pagó y tu parte) e importe. Los pagos entre personas van en gris.
 function expensesHtml() {
   if (!S.expenses.length) return '<div class="note">' + tr("no_exp") + "</div>";
-  const me = S.group.me;
-  return '<div class="card">' + S.expenses.map((e) => {
-    if (e.isTransfer) {
-      const to = Object.keys(e.shares)[0];
-      return '<div class="exp"><span class="av emoji" aria-hidden="true">↔</span><span class="grow"><span class="name">' + esc(nameYou(e.payerId)) + " → " + esc(to ? nameYou(to) : "?") +
-        "</span><small>" + esc(e.title) + " · " + day(e.createdAt) + '</small></span><span class="amt">' + money(e.amountCents) + "</span></div>";
-    }
-    const mine = me && e.shares[me] ? " · " + tr("your_share", money(e.shares[me])) : "";
-    return '<div class="exp"><span class="av" aria-hidden="true">' + initial(e.title) + '</span><span class="grow"><span class="name">' + esc(e.title) +
-      "</span><small>" + esc(tr("paid_by", nameYou(e.payerId))) + " · " + day(e.createdAt) + esc(mine) + '</small></span><span class="amt">' + money(e.amountCents) + "</span></div>";
-  }).join("") + "</div>";
+  const me = S.group.me, n = S.expenses.filter((e) => !e.isTransfer).length;
+  return "<table><caption>" + plural(n, "exp_1", "exp_n") + "</caption>" +
+    '<thead><tr><th scope="col">' + tr("col_date") + '</th><th scope="col">' + tr("col_what") + '</th><th scope="col" class="n">' + tr("col_amount") + "</th></tr></thead><tbody>" +
+    S.expenses.map((e) => {
+      if (e.isTransfer) {
+        const to = Object.keys(e.shares)[0];
+        return '<tr class="xfer"><td class="d">' + day(e.createdAt) + '</td><td><span class="what">' + esc(nameYou(e.payerId)) + ' <span aria-hidden="true">→</span><span class="sr"> ' + tr("pays_to") + " </span> " + esc(to ? nameYou(to) : "?") +
+          "</span><small>" + esc(e.title) + '</small></td><td class="n big">' + money(e.amountCents) + "</td></tr>";
+      }
+      const mine = me && e.shares[me] ? " · " + tr("your_share", money(e.shares[me])) : "";
+      return '<tr><td class="d">' + day(e.createdAt) + '</td><td><span class="what">' + esc(e.title) + "</span><small>" + esc(tr("paid_by", nameYou(e.payerId)) + mine) +
+        '</small></td><td class="n big">' + money(e.amountCents) + "</td></tr>";
+    }).join("") + "</tbody></table>";
 }
 
+// Tabla de saldos (lo que pagó, lo que le toca y la diferencia) y debajo los pagos para quedar en paz.
 function balancesHtml() {
-  const g = S.group, bal = balances(g, S.expenses), me = g.me;
+  const g = S.group, bal = balances(g, S.expenses), me = g.me, paid = {}, share = {};
+  let transfers = false;
+  S.expenses.forEach((e) => {
+    if (e.isTransfer) { transfers = true; return; }
+    paid[e.payerId] = (paid[e.payerId] || 0) + e.amountCents;
+    Object.keys(e.shares).forEach((id) => { share[id] = (share[id] || 0) + e.shares[id]; });
+  });
   const people = g.people.slice().sort((a, b) => (a.id === me ? -1 : b.id === me ? 1 : 0));
-  let h = '<div class="card">' + people.map((p) => {
-    const v = bal[p.id] || 0, cls = v > 0 ? "pos" : v < 0 ? "neg" : "";
-    return '<div class="exp"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span class="grow name">' + esc(nameYou(p.id)) +
-      '</span><span class="amt ' + cls + '">' + (v > 0 ? "+" : v < 0 ? "−" : "") + money(Math.abs(v)) + "</span></div>";
-  }).join("") + '<small style="display:block;margin-top:6px">' + tr("bal_hint") + "</small></div>";
+  let h = "<table><caption>" + tr("tab_bal") + "</caption>" +
+    '<thead><tr><th scope="col">' + tr("col_person") + '</th><th scope="col" class="n">' + tr("col_paid") + '</th><th scope="col" class="n">' + tr("col_share") +
+    '</th><th scope="col" class="n">' + tr("col_bal") + "</th></tr></thead><tbody>" +
+    people.map((p) => {
+      const v = bal[p.id] || 0;
+      return '<tr><th scope="row" class="p">' + esc(nameYou(p.id)) + '</th><td class="n">' + money(paid[p.id] || 0) + '</td><td class="n">' + money(share[p.id] || 0) +
+        '</td><td class="n s ' + tone(v) + '">' + signed(v) + "</td></tr>";
+    }).join("") + "</tbody></table>" +
+    '<p class="foot">' + tr("bal_foot") + (transfers ? " " + tr("bal_foot_x") : "") + "</p>";
   const ts = settle(bal);
   h += "<h2>" + tr("settle_title") + "</h2>";
   if (!ts.length) return h + '<div class="note">' + tr("all_settled") + "</div>";
-  h += '<div class="card">' + ts.map((t, i) => {
-    const label = t.from === me ? tr("i_paid") : t.to === me ? tr("they_paid") : tr("mark_paid");
+  h += ts.map((t, i) => {
+    const label = t.from === me ? tr("i_paid") : t.to === me ? tr("they_paid") : tr("paid_short");
     const strong = t.from === me || t.to === me;
-    return '<div class="tr"><div class="row"><span class="grow">' + esc(tr("pays", nameYou(t.from), nameYou(t.to))) + '</span><span class="amt">' + money(t.cents) + "</span></div>" +
-      '<div class="acts"><button type="button" data-pay="' + i + '"' + (strong ? ' class="on"' : "") + ">" + label + "</button></div></div>";
-  }).join("") + "</div>";
+    return '<div class="pay"><span class="who"><b>' + esc(nameYou(t.from)) + '</b> <span class="arrow" aria-hidden="true">→</span><span class="sr"> ' + tr("pays_to") + " </span> <b>" + esc(nameYou(t.to)) + "</b></span>" +
+      '<span class="amt">' + money(t.cents) + '</span><button type="button" data-pay="' + i + '"' + (strong ? ' class="on"' : "") + ">" + label + "</button></div>";
+  }).join("");
   S.transfers = ts;
   return h;
 }
 
 function wireGroup() {
-  document.querySelectorAll("[data-tab]").forEach((b) => { b.onclick = () => { S.tab = b.dataset.tab; renderGroup(); }; });
   document.querySelectorAll("[data-who]").forEach((b) => { b.onclick = () => pickMe(b.dataset.who); });
   document.querySelectorAll("[data-pay]").forEach((b) => { b.onclick = () => markPaid(S.transfers[Number(b.dataset.pay)], b); });
   const f = $("addme");
@@ -625,7 +669,11 @@ function markPaid(t, btn) {
 }
 
 // --- Nuevo gasto (a partes iguales) ---
-function closeSheet() { const s = $("sheet"); s.hidden = true; s.innerHTML = ""; }
+function closeSheet() {
+  const s = $("sheet"), was = !s.hidden;
+  s.hidden = true; s.innerHTML = "";
+  if (was && !$("add").hidden) $("add").focus({ preventScroll: true }); // el foco vuelve a «+ Gasto»
+}
 function parseCents(s) {
   s = (s || "").trim().replace(/\s/g, "");
   if (!/^\d{1,7}([.,]\d{1,2})?$/.test(s)) return 0;
@@ -634,12 +682,12 @@ function parseCents(s) {
 function openAddExpense() {
   const g = S.group, sheet = $("sheet"), sel = new Set(g.people.map((p) => p.id));
   const payer = g.me && g.people.some((p) => p.id === g.me) ? g.me : (g.people[0] || {}).id;
-  sheet.innerHTML = '<form id="expf" novalidate><h2>' + tr("new_exp") + "</h2>" +
-    '<label for="ec">' + tr("concept") + '</label><input id="ec" maxlength="120" placeholder="' + tr("concept_ph") + '" autocomplete="off">' +
-    '<label for="ea">' + tr("amount", esc(g.currency)) + '</label><input id="ea" inputmode="decimal" placeholder="0,00" autocomplete="off">' +
-    '<label for="ep">' + tr("paid_by_lbl") + '</label><select id="ep">' + g.people.map((p) => '<option value="' + p.id + '"' + (p.id === payer ? " selected" : "") + ">" + esc(nameYou(p.id)) + "</option>").join("") + "</select>" +
-    "<label>" + tr("between") + '</label><div class="chips" id="eb">' + g.people.map((p) => '<button type="button" aria-pressed="true" data-p="' + p.id + '">' + esc(p.name) + "</button>").join("") + "</div>" +
-    '<small id="each"></small><p class="err" id="eerr" role="alert" style="color:var(--bad)"></p>' +
+  sheet.innerHTML = '<form id="expf" novalidate role="dialog" aria-modal="true" aria-labelledby="eh"><h2 id="eh">' + tr("new_exp") + "</h2>" +
+    '<label for="ec">' + tr("concept") + '</label><input id="ec" name="concept" maxlength="120" placeholder="' + tr("concept_ph") + '" autocomplete="off">' +
+    '<label for="ea">' + tr("amount", esc(g.currency)) + '</label><input id="ea" name="amount" inputmode="decimal" placeholder="0,00" autocomplete="off">' +
+    '<label for="ep">' + tr("paid_by_lbl") + '</label><select id="ep" name="payer">' + g.people.map((p) => '<option value="' + p.id + '"' + (p.id === payer ? " selected" : "") + ">" + esc(nameYou(p.id)) + "</option>").join("") + "</select>" +
+    '<label id="ebl">' + tr("between") + '</label><div class="chips" id="eb" role="group" aria-labelledby="ebl">' + g.people.map((p) => '<button type="button" aria-pressed="true" data-p="' + p.id + '">' + esc(p.name) + "</button>").join("") + "</div>" +
+    '<small id="each" aria-live="polite"></small><p class="err" id="eerr" role="alert" style="color:var(--bad)"></p>' +
     '<div class="split"><button type="button" id="ecancel">' + tr("cancel") + '</button><button type="submit" class="on" id="esave">' + tr("save") + "</button></div></form>";
   sheet.hidden = false;
   const upd = () => { const c = parseCents($("ea").value), n = sel.size; $("each").textContent = c > 0 && n ? tr("each", money(Math.floor(c / n))) : ""; };
@@ -651,19 +699,26 @@ function openAddExpense() {
   $("ea").oninput = upd;
   $("ecancel").onclick = closeSheet;
   sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
-  setTimeout(() => $("ec").focus(), 50);
+  // En el móvil no se enfoca solo: abriría el teclado tapando medio formulario.
+  if (matchMedia("(pointer: fine)").matches) setTimeout(() => $("ec").focus(), 50);
+  ["ec", "ea"].forEach((id) => $(id).addEventListener("input", () => $(id).removeAttribute("aria-invalid")));
   $("expf").onsubmit = async (ev) => {
     ev.preventDefault();
     const title = $("ec").value.trim(), cents = parseCents($("ea").value), err = $("eerr");
-    if (!title) return (err.textContent = tr("e_concept"));
-    if (cents <= 0) return (err.textContent = tr("e_amount"));
+    const bad = (id, msg) => { err.textContent = msg; const f = $(id); if (f.tagName === "INPUT") f.setAttribute("aria-invalid", "true"); (f.tagName === "DIV" ? f.querySelector("button") : f).focus(); };
+    if (!title) return bad("ec", tr("e_concept"));
+    if (cents <= 0) return bad("ea", tr("e_amount"));
     const ids = g.people.map((p) => p.id).filter((id) => sel.has(id));
-    if (!ids.length) return (err.textContent = tr("e_between"));
+    if (!ids.length) return bad("eb", tr("e_between"));
     err.textContent = "";
     const e = { id: newId(), title, payerId: $("ep").value, amountCents: cents, shares: equalShares(cents, ids), createdAt: Date.now(), isTransfer: false };
     const ok = await guarded(() => commit([expenseWrite(e), activityWrite("expense_added", title, cents)]), $("esave"));
-    if (ok) { closeSheet(); S.tab = "exp"; renderGroup(); flash(tr("saved")); }
-    else err.textContent = tr("e_save");
+    if (ok) {
+      closeSheet();
+      const h = "#/g/" + S.gid + "/gastos";
+      if (S.tab !== "exp") location.hash = h; else renderGroup();
+      flash(tr("saved"));
+    } else err.textContent = tr("e_save");
   };
 }
 
