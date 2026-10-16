@@ -57,8 +57,13 @@ const TX = {
   joining: ["Entrando en el grupo…", "Joining the group…", "Entrant al grup…"],
   e_code: ["El código no existe o ha caducado. Pide uno nuevo.", "That code doesn't exist or has expired. Ask for a new one.", "El codi no existeix o ha caducat. Demana'n un de nou."],
   e_join: ["No se ha podido entrar en el grupo.", "Couldn't join the group.", "No s'ha pogut entrar al grup."],
-  install_ios: ["Para tenerla como una app: botón Compartir → «Añadir a pantalla de inicio».", "To keep it like an app: Share button → “Add to Home Screen”.", "Per tenir-la com una app: botó Compartir → «Afegir a la pantalla d'inici»."],
-  install: ["Instalar en este dispositivo", "Install on this device", "Instal·lar en aquest dispositiu"],
+  inst_h: ["Ponla en tu pantalla de inicio", "Add it to your home screen", "Posa-la a la pantalla d'inici"],
+  inst_p: ["Se abre como una app, a pantalla completa y sin buscarla en el navegador.", "It opens like an app, full screen, without looking for it in the browser.", "S'obre com una app, a pantalla completa i sense buscar-la al navegador."],
+  inst_ios: ["Toca <b>Compartir</b> <span aria-hidden=\"true\">(□↑)</span> en la barra del navegador y elige <b>«Añadir a pantalla de inicio»</b>. Si no la ves, desliza la lista hacia abajo.", "Tap <b>Share</b> <span aria-hidden=\"true\">(□↑)</span> in the browser bar and choose <b>“Add to Home Screen”</b>. If you can't see it, scroll the list down.", "Toca <b>Compartir</b> <span aria-hidden=\"true\">(□↑)</span> a la barra del navegador i tria <b>«Afegir a la pantalla d'inici»</b>. Si no el veus, llisca la llista cap avall."],
+  inst_samsung: ["Abre el menú <b>☰</b> de abajo, toca <b>«Añadir página a»</b> y elige <b>«Pantalla de inicio»</b>.", "Open the <b>☰</b> menu at the bottom, tap <b>“Add page to”</b> and choose <b>“Home screen”</b>.", "Obre el menú <b>☰</b> de baix, toca <b>«Afegir pàgina a»</b> i tria <b>«Pantalla d'inici»</b>."],
+  inst_android: ["Abre el menú <b>⋮</b> del navegador y toca <b>«Añadir a pantalla de inicio»</b> o <b>«Instalar aplicación»</b>.", "Open the browser's <b>⋮</b> menu and tap <b>“Add to Home screen”</b> or <b>“Install app”</b>.", "Obre el menú <b>⋮</b> del navegador i toca <b>«Afegir a la pantalla d'inici»</b> o <b>«Instal·lar l'aplicació»</b>."],
+  install: ["Añadir a la pantalla de inicio", "Add to home screen", "Afegir a la pantalla d'inici"],
+  inst_hide: ["No mostrar más", "Don't show again", "No mostrar més"],
   get_app: ["¿Tienes Android? Descarga Distro en Google Play para escanear tickets.", "On Android? Get Distro on Google Play to scan receipts.", "Tens Android? Descarrega Distro a Google Play per escanejar tiquets."],
   back: ["← Tus grupos", "← Your groups", "← Els teus grups"],
   back_lbl: ["Volver a tus grupos", "Back to your groups", "Tornar als teus grups"],
@@ -447,12 +452,25 @@ function getAppNote() {
   return '<p class="center"><small><a href="https://play.google.com/store/apps/details?id=es.monarc.distro" style="color:var(--green)">' + tr("get_app") + "</a></small></p>";
 }
 let installPrompt = null;
-addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; const b = $("install"); if (b) b.hidden = false; });
+addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; if (!S.gid && S.groups) home(); });
+addEventListener("appinstalled", () => { installPrompt = null; store("installHide", "1"); const c = $("instc"); if (c) c.remove(); });
+// Tarjeta con cómo ponerla en la pantalla de inicio: el botón del sistema si el navegador lo ofrece (Chrome, Edge)
+// y, si no, los pasos de cada navegador del móvil. No sale si ya está instalada o si se ha pedido no verla más.
 function installNote() {
   const standalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: minimal-ui)").matches || navigator.standalone;
-  if (standalone) return "";
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) return '<p class="center"><small>' + tr("install_ios") + "</small></p>";
-  return '<button class="btn" id="install" type="button"' + (installPrompt ? "" : " hidden") + ">" + tr("install") + "</button>";
+  if (standalone || load("installHide")) return "";
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  let how;
+  if (installPrompt) how = '<button class="btn on" id="install" type="button">' + tr("install") + "</button>";
+  else if (ios) how = "<p>" + tr("inst_ios") + "</p>";
+  else if (/SamsungBrowser/i.test(ua)) how = "<p>" + tr("inst_samsung") + "</p>";
+  else if (/Android/i.test(ua)) how = "<p>" + tr("inst_android") + "</p>";
+  else return ""; // en el ordenador, solo si el navegador ofrece instalarla
+  return '<section class="card" id="instc" aria-labelledby="insth"><div class="split" style="align-items:flex-start">' +
+    '<img src="icon-192.png" alt="" width="40" height="40" style="border-radius:10px;flex:none">' +
+    '<div class="grow"><strong id="insth">' + tr("inst_h") + "</strong><p>" + tr("inst_p") + "</p></div></div>" + how +
+    '<button type="button" id="insthide" class="link" style="border:0;min-height:44px;padding:0;margin-top:4px">' + tr("inst_hide") + "</button></section>";
 }
 
 async function home() {
@@ -469,10 +487,11 @@ async function home() {
     (S.groups.length ? '<nav class="list" aria-label="' + tr("home_h1") + '">' + S.groups.map((g) => '<a href="#/g/' + g.id + '">' + avatar(g) +
       '<span class="grow"><span class="name">' + esc(g.name) + "</span><small>" + plural(g.people.length, "people_1", "people_n") + '</small></span><span class="chev" aria-hidden="true">›</span></a>').join("") + "</nav>"
       : '<div class="note">' + tr("no_groups") + "</div>") +
+    installNote() +
     '<form class="card" id="joinf"><label for="code" style="margin-top:0">' + tr("join_title") + "</label>" +
     '<div class="split"><input id="code" name="code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC123" style="letter-spacing:.15em;text-transform:uppercase">' +
     '<button type="submit" class="on" style="flex:0 0 auto;margin:6px 0">' + tr("join_btn") + "</button></div></form>" +
-    installNote() + getAppNote();
+    getAppNote();
   $("joinf").onsubmit = async (ev) => {
     ev.preventDefault();
     const code = clean($("code").value);
@@ -481,7 +500,9 @@ async function home() {
     catch (e) { status(esc(tr("e_join")), "bad"); }
   };
   const ib = $("install");
-  if (ib) ib.onclick = async () => { if (!installPrompt) return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; ib.hidden = true; };
+  if (ib) ib.onclick = async () => { if (!installPrompt) return; installPrompt.prompt(); const c = await installPrompt.userChoice; installPrompt = null; if (c.outcome === "accepted") $("instc").remove(); else home(); };
+  const ih = $("insthide");
+  if (ih) ih.onclick = () => { store("installHide", "1"); $("instc").remove(); };
 }
 
 async function openGroup(gid, tab) {
