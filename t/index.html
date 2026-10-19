@@ -207,13 +207,15 @@ async function listChange(path, field, values, add) {
   if (!r.ok) throw new Error("commit " + r.status);
 }
 
-// Entrar en el grupo: las reglas piden apuntar en joins.{uid} el código vigente con el que se entra.
+// Entrar como invitado del ticket: las reglas piden apuntar en joins.{uid} el código vigente y
+// añadirse a ticketGuests (NO a memberUids): así se lee el grupo y el ticket y se marca lo propio,
+// pero sin ver los gastos ni poder borrar el grupo.
 async function joinGroup() {
   var r = await call("https://firestore.googleapis.com/v1/projects/" + PROJECT + "/databases/(default)/documents:commit", {
     method: "POST", body: JSON.stringify({ writes: [{
       update: { name: DOCS + "/groups/" + S.groupId, fields: { joins: mv(kv(S.uid, { stringValue: code })) } },
       updateMask: { fieldPaths: ["joins." + tick(S.uid)] },
-      updateTransforms: [{ fieldPath: "memberUids", appendMissingElements: { values: [{ stringValue: S.uid }] } }],
+      updateTransforms: [{ fieldPath: "ticketGuests", appendMissingElements: { values: [{ stringValue: S.uid }] } }],
       currentDocument: { exists: true }
     }] })
   });
