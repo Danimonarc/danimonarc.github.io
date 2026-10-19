@@ -6,6 +6,7 @@ import {
   getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail,
   isSignInWithEmailLink, signInWithEmailLink, signOut, deleteUser,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initPush } from "./push.js"; // notificaciones push (esqueleto: no-op hasta configurar FCM)
 
 // Clave pública de la web (restringida a montarc.es): no es un secreto.
 const KEY = "AIzaSyBGyMSB2-HcDlcOwm9XJ-Qt5k5lcybBgoU", PROJECT = "distro-58a19";
@@ -756,6 +757,7 @@ let started = false;
     if (!user) { started = false; return renderLogin(); }
     status("");
     if (!started) { started = true; setupAccount(); }
+    initPush(user); // activa las notificaciones push al entrar (no-op mientras falte configurar FCM)
     if (S.code) {
       const code = S.code;
       S.code = null;
