@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<!-- Seguridad (P1): página estática sin peticiones externas; se cierra todo salvo lo propio en línea. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Anti-clickjacking (ver /t/). -->
+<script>if (self !== top) { try { top.location = self.location; } catch (e) { document.documentElement.style.display = "none"; } }</script>
 <title>Invitación a Distro</title>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Distro">

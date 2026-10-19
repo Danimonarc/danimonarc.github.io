@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<!-- Seguridad (P1): referrer estricto y anti-clickjacking por JS (frame-ancestors no vale por <meta> en GitHub
+     Pages). La CSP de recursos NO se pone aquí todavía: esta página usa el SDK de Firebase y el popup de Google,
+     y una CSP mal ajustada rompe el login; hay que probarla en navegador antes (ver docs del pentest). -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<script>if (self !== top) { try { top.location = self.location; } catch (e) { document.documentElement.style.display = "none"; } }</script>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#18211b" media="(prefers-color-scheme: dark)">
 <title>Distro</title>

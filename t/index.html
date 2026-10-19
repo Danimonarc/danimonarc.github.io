@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<!-- Seguridad (P1): esta página solo habla por REST con Firestore/Identity Toolkit; se cierra todo lo demás. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Anti-clickjacking: GitHub Pages no deja enviar frame-ancestors por cabecera, así que se rompe el marco por JS. -->
+<script>if (self !== top) { try { top.location = self.location; } catch (e) { document.documentElement.style.display = "none"; } }</script>
 <meta name="theme-color" content="#2f8f0a">
 <title>Marcar un ticket en Distro</title>
 <meta property="og:type" content="website">
