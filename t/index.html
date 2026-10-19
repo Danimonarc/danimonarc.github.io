@@ -127,7 +127,7 @@
     <b data-tr="ad_title">Distro: reparte los gastos sin hacer cuentas</b>
     <span data-tr="ad_text">Escanea el ticket y cada uno marca lo suyo.</span>
   </div>
-  <p style="text-align:center" id="foot" hidden><small data-tr="foot">Quien pagó cierra el ticket desde la app y se reparte.</small><br><small><a id="seegroup" href="/g/" style="color:var(--green);font-weight:700" data-tr="see_group">Ver los saldos del grupo en la web</a></small></p>
+  <p style="text-align:center" id="foot" hidden><small data-tr="foot">Quien pagó cierra el ticket desde la app y se reparte.</small></p>
 </main>
 <div class="bar" id="mine" hidden>
   <div>
@@ -241,7 +241,6 @@ function applyStatic() {
 async function start() {
   applyStatic();
   if (code.length !== 6 || !ticketId) return fail(tr("e_link"));
-  $("seegroup").href = "/g/?c=" + code;
   // Con la app instalada el enlace suele abrirla directamente; si no, este botón la abre.
   if (/Android/i.test(navigator.userAgent)) {
     $("openapp").href = "distro://t?c=" + code + "&t=" + ticketId;
