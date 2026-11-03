@@ -51,7 +51,7 @@ const TX = {
   groups_n: ["{0} grupos", "{0} groups", "{0} grups"],
   people_1: ["1 persona", "1 person", "1 persona"],
   people_n: ["{0} personas", "{0} people", "{0} persones"],
-  no_groups: ["Aún no estás en ningún grupo. Crea uno con «+ Grupo», arriba, o pide a alguien del grupo que te invite desde la app (menú del grupo → Invitar) y abre el enlace o escribe aquí el código.", "You're not in any group yet. Create one with “+ Group” at the top, or ask someone in the group to invite you from the app (group menu → Invite) and open the link or type the code here.", "Encara no ets a cap grup. Crea'n un amb «+ Grup», a dalt, o demana a algú del grup que et convidi des de l'app (menú del grup → Convidar) i obre l'enllaç o escriu aquí el codi."],
+  no_groups: ["Aún no estás en ningún grupo. Crea uno con «+ Grupo», arriba, o pide a alguien del grupo que te invite (en la app o en la web, con «Invitar») y abre el enlace o escribe aquí el código.", "You're not in any group yet. Create one with “+ Group” at the top, or ask someone in the group to invite you (in the app or on the web, with “Invite”) and open the link or type the code here.", "Encara no ets a cap grup. Crea'n un amb «+ Grup», a dalt, o demana a algú del grup que et convidi (a l'app o al web, amb «Convidar») i obre l'enllaç o escriu aquí el codi."],
   add_grp: ["+ Grupo", "+ Group", "+ Grup"],
   add_grp_lbl: ["Crear un grupo", "Create a group", "Crear un grup"],
   new_grp: ["Nuevo grupo", "New group", "Nou grup"],
@@ -59,7 +59,18 @@ const TX = {
   grp_name_ph: ["Viaje a Lisboa, piso, cenas…", "Lisbon trip, flat, dinners…", "Viatge a Lisboa, pis, sopars…"],
   your_name: ["Tu nombre", "Your name", "El teu nom"],
   others: ["Las demás personas", "The other people", "Les altres persones"],
-  others_hint: ["Escribe un nombre y pulsa «Añadir». Luego podrán unirse con un código de invitación (desde la app) y elegir quiénes son.", "Type a name and press “Add”. They can join later with an invite code (from the app) and pick who they are.", "Escriu un nom i prem «Afegir». Després s'hi podran unir amb un codi d'invitació (des de l'app) i triar qui són."],
+  others_hint: ["Escribe un nombre y pulsa «Añadir». Luego, con «Invitar», les mandas un enlace para que entren y elijan quiénes son.", "Type a name and press “Add”. Then use “Invite” to send them a link to join and pick who they are.", "Escriu un nom i prem «Afegir». Després, amb «Convidar», els envies un enllaç perquè hi entrin i triïn qui són."],
+  invite: ["Invitar", "Invite", "Convidar"],
+  invite_to: ["Invitar a «{0}»", "Invite to “{0}”", "Convidar a «{0}»"],
+  invite_body: ["Mándales el enlace: con la app de Android se abre Distro y, si no, entran desde el navegador. También pueden escribir el código en «Unirse con un código».", "Send them the link: with the Android app it opens Distro, otherwise they join from the browser. They can also type the code in “Join with a code”.", "Envia'ls l'enllaç: amb l'app d'Android s'obre Distro i, si no, hi entren des del navegador. També poden escriure el codi a «Unir-se amb un codi»."],
+  inviting: ["Creando la invitación…", "Creating the invite…", "Creant la invitació…"],
+  expires_7: ["Caduca en 7 días.", "Expires in 7 days.", "Caduca d'aquí a 7 dies."],
+  invite_share_text: ["Únete a «{0}» en Distro: {1}\nO escribe el código {2} en la app o en montarc.es/g.", "Join “{0}” on Distro: {1}\nOr enter the code {2} in the app or at montarc.es/g.", "Uneix-te a «{0}» a Distro: {1}\nO escriu el codi {2} a l'app o a montarc.es/g."],
+  share: ["Compartir", "Share", "Compartir"],
+  copy_link: ["Copiar enlace", "Copy link", "Copiar l'enllaç"],
+  copied: ["Enlace copiado.", "Link copied.", "Enllaç copiat."],
+  close: ["Cerrar", "Close", "Tancar"],
+  e_invite: ["No se ha podido crear la invitación. ¿Tienes conexión?", "Couldn't create the invite. Are you online?", "No s'ha pogut crear la invitació. Tens connexió?"],
   other_ph: ["Nombre", "Name", "Nom"],
   add_person: ["Añadir", "Add", "Afegir"],
   remove_person: ["Quitar a {0}", "Remove {0}", "Treure {0}"],
@@ -187,7 +198,9 @@ function inGroup(gid) {
   const add = $("add"); // si no, mientras carga el grupo seguiría siendo «+ Grupo»
   add.textContent = tr("add_exp"); add.setAttribute("aria-label", tr("add_exp_lbl")); add.onclick = () => { if (S.group) openAddExpense(); };
   $("tabs").innerHTML = [["exp", "gastos", "tab_exp"], ["bal", "saldos", "tab_bal"]].map(([t, slug, k]) =>
-    '<a href="#/g/' + gid + "/" + slug + '"' + (S.tab === t ? ' aria-current="page"' : "") + ">" + tr(k) + "</a>").join("");
+    '<a href="#/g/' + gid + "/" + slug + '"' + (S.tab === t ? ' aria-current="page"' : "") + ">" + tr(k) + "</a>").join("") +
+    '<button type="button" class="inv" id="inv">' + tr("invite") + "</button>";
+  $("inv").onclick = () => { if (S.group) openInvite(); };
 }
 
 // --- Firestore por REST (enteros como texto) ---
@@ -839,6 +852,59 @@ function openNewGroup() {
     go(gid);
     flash(tr("created"));
   };
+}
+
+// --- Invitar: un código de 6 caracteres que caduca en 7 días (como createInvite() en la app) ---
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const invites = {}; // grupo → código ya creado en esta visita, para no crear uno nuevo cada vez
+async function createInvite(gid) {
+  const c = invites[gid];
+  if (c && c.until > Date.now() + 864e5) return c.code;
+  for (let tries = 0; ; tries++) {
+    const a = new Uint8Array(6); crypto.getRandomValues(a);
+    const code = Array.from(a, (x) => CODE_CHARS[x % CODE_CHARS.length]).join(""), now = Date.now(), until = now + 7 * 864e5;
+    try {
+      await commit([{
+        update: { name: docName("invites/" + code), fields: {
+          groupId: str(gid), createdAt: { timestampValue: new Date(now).toISOString() }, expiresAt: { timestampValue: new Date(until).toISOString() },
+        } },
+        currentDocument: { exists: false }, // si el código ya existe (muy raro), se prueba otro
+      }]);
+      invites[gid] = { code, until };
+      return code;
+    } catch (e) { if (tries >= 2) throw e; }
+  }
+}
+function openInvite() {
+  const g = S.group, sheet = $("sheet");
+  sheet.innerHTML = '<form id="invf" role="dialog" aria-modal="true" aria-labelledby="ih"><h2 id="ih">' + esc(tr("invite_to", g.name)) + "</h2>" +
+    "<p>" + tr("invite_body") + '</p><div id="invb" aria-live="polite"><p>' + tr("inviting") + "</p></div>" +
+    '<div class="split" style="margin-top:10px"><button type="button" id="iclose">' + tr("close") + "</button></div></form>";
+  sheet.hidden = false;
+  $("iclose").onclick = closeSheet;
+  sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
+  $("invf").onsubmit = (ev) => ev.preventDefault();
+  const gid = S.gid;
+  createInvite(gid).then((code) => {
+    if (S.gid !== gid || !$("invb")) return;
+    const url = "https://montarc.es/j/?c=" + code, text = tr("invite_share_text", g.name, url, code);
+    const canShare = !!navigator.share;
+    $("invb").innerHTML = '<p class="code" translate="no">' + code + "</p>" +
+      '<input id="ilink" readonly value="' + esc(url) + '" aria-label="' + tr("copy_link") + '"><small>' + tr("expires_7") + "</small>" +
+      '<div class="split" style="margin-top:10px">' + (canShare ? '<button type="button" class="on" id="ishare">' + tr("share") + "</button>" : "") +
+      '<button type="button" id="icopy"' + (canShare ? "" : ' class="on"') + ">" + tr("copy_link") + "</button></div>";
+    $("ilink").onfocus = () => $("ilink").select();
+    $("icopy").onclick = async () => {
+      try { await navigator.clipboard.writeText(text); } catch (e) { $("ilink").select(); document.execCommand("copy"); }
+      flash(tr("copied"));
+    };
+    if (canShare) $("ishare").onclick = () => navigator.share({ title: "Distro", text }).catch(() => {});
+  }).catch((e) => {
+    console.warn(e);
+    if (S.gid !== gid || !$("invb")) return;
+    $("invb").innerHTML = '<p class="err" role="alert" style="color:var(--bad)">' + tr("e_invite") + '</p><button type="button" id="iretry">' + tr("retry") + "</button>";
+    $("iretry").onclick = openInvite;
+  });
 }
 
 // --- Arranque ---
