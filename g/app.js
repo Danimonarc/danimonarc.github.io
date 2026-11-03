@@ -51,7 +51,25 @@ const TX = {
   groups_n: ["{0} grupos", "{0} groups", "{0} grups"],
   people_1: ["1 persona", "1 person", "1 persona"],
   people_n: ["{0} personas", "{0} people", "{0} persones"],
-  no_groups: ["Aún no estás en ningún grupo. Pide a alguien del grupo que te invite desde la app (menú del grupo → Invitar) y abre el enlace, o escribe aquí el código.", "You're not in any group yet. Ask someone in the group to invite you from the app (group menu → Invite) and open the link, or type the code here.", "Encara no ets a cap grup. Demana a algú del grup que et convidi des de l'app (menú del grup → Convidar) i obre l'enllaç, o escriu aquí el codi."],
+  no_groups: ["Aún no estás en ningún grupo. Crea uno con «+ Grupo», arriba, o pide a alguien del grupo que te invite desde la app (menú del grupo → Invitar) y abre el enlace o escribe aquí el código.", "You're not in any group yet. Create one with “+ Group” at the top, or ask someone in the group to invite you from the app (group menu → Invite) and open the link or type the code here.", "Encara no ets a cap grup. Crea'n un amb «+ Grup», a dalt, o demana a algú del grup que et convidi des de l'app (menú del grup → Convidar) i obre l'enllaç o escriu aquí el codi."],
+  add_grp: ["+ Grupo", "+ Group", "+ Grup"],
+  add_grp_lbl: ["Crear un grupo", "Create a group", "Crear un grup"],
+  new_grp: ["Nuevo grupo", "New group", "Nou grup"],
+  grp_name: ["Nombre del grupo", "Group name", "Nom del grup"],
+  grp_name_ph: ["Viaje a Lisboa, piso, cenas…", "Lisbon trip, flat, dinners…", "Viatge a Lisboa, pis, sopars…"],
+  your_name: ["Tu nombre", "Your name", "El teu nom"],
+  others: ["Las demás personas", "The other people", "Les altres persones"],
+  others_hint: ["Escribe un nombre y pulsa «Añadir». Luego podrán unirse con un código de invitación (desde la app) y elegir quiénes son.", "Type a name and press “Add”. They can join later with an invite code (from the app) and pick who they are.", "Escriu un nom i prem «Afegir». Després s'hi podran unir amb un codi d'invitació (des de l'app) i triar qui són."],
+  other_ph: ["Nombre", "Name", "Nom"],
+  add_person: ["Añadir", "Add", "Afegir"],
+  remove_person: ["Quitar a {0}", "Remove {0}", "Treure {0}"],
+  currency: ["Moneda", "Currency", "Moneda"],
+  create: ["Crear grupo", "Create group", "Crear el grup"],
+  e_grp_name: ["Escribe un nombre para el grupo.", "Type a name for the group.", "Escriu un nom per al grup."],
+  e_your_name: ["Escribe tu nombre.", "Type your name.", "Escriu el teu nom."],
+  e_dup: ["Ya hay alguien con ese nombre.", "Someone already has that name.", "Ja hi ha algú amb aquest nom."],
+  e_create: ["No se ha podido crear el grupo. Inténtalo de nuevo.", "Couldn't create the group. Please try again.", "No s'ha pogut crear el grup. Torna-ho a provar."],
+  created: ["Grupo creado.", "Group created.", "Grup creat."],
   join_title: ["Unirse con un código", "Join with a code", "Unir-se amb un codi"],
   join_btn: ["Unirse", "Join", "Unir-se"],
   joining: ["Entrando en el grupo…", "Joining the group…", "Entrant al grup…"],
@@ -166,6 +184,8 @@ function header(h1, sub) { $("h1").textContent = h1; $("sub").textContent = sub 
 function inGroup(gid) {
   $("back").hidden = !gid; $("logo").hidden = !!gid; $("add").hidden = !gid; $("tabs").hidden = !gid;
   if (!gid) return;
+  const add = $("add"); // si no, mientras carga el grupo seguiría siendo «+ Grupo»
+  add.textContent = tr("add_exp"); add.setAttribute("aria-label", tr("add_exp_lbl")); add.onclick = () => { if (S.group) openAddExpense(); };
   $("tabs").innerHTML = [["exp", "gastos", "tab_exp"], ["bal", "saldos", "tab_bal"]].map(([t, slug, k]) =>
     '<a href="#/g/' + gid + "/" + slug + '"' + (S.tab === t ? ' aria-current="page"' : "") + ">" + tr(k) + "</a>").join("");
 }
@@ -475,7 +495,7 @@ function installNote() {
 
 async function home() {
   stopPolling();
-  S.gid = null; inGroup(null);
+  S.gid = null; inGroup(null); homeAdd();
   header(tr("home_h1"), S.groups ? plural(S.groups.length, "groups_1", "groups_n") : "");
   if (!S.groups) { $("view").innerHTML = ""; $("skel").hidden = false; }
   try { S.groups = (await myGroups()).sort((a, b) => a.createdAt - b.createdAt); }
@@ -556,8 +576,6 @@ function renderGroup() {
   inGroup(g.id);
   $("back").setAttribute("aria-label", tr("back_lbl"));
   $("tabs").setAttribute("aria-label", tr("sections"));
-  const add = $("add");
-  add.textContent = tr("add_exp"); add.setAttribute("aria-label", tr("add_exp_lbl")); add.onclick = openAddExpense;
   wireGroup();
 }
 
@@ -740,6 +758,86 @@ function openAddExpense() {
       if (S.tab !== "exp") location.hash = h; else renderGroup();
       flash(tr("saved"));
     } else err.textContent = tr("e_save");
+  };
+}
+
+// --- Nuevo grupo (lo mismo que createGroup() en GroupsViewModel: tú primero y quién eres ya elegido) ---
+const CURRENCIES = ["EUR", "USD", "GBP", "CHF", "JPY", "CAD", "AUD", "MXN", "ARS", "COP", "CLP", "BRL", "SEK", "NOK", "DKK", "PLN", "CZK", "TRY", "MAD", "CNY", "INR"];
+// La moneda del país del navegador si es una de la lista (como Fx.defaultCurrency en la app); si no, euros.
+function defaultCurrency() {
+  const R = { US: "USD", GB: "GBP", CH: "CHF", JP: "JPY", CA: "CAD", AU: "AUD", MX: "MXN", AR: "ARS", CO: "COP", CL: "CLP", BR: "BRL", SE: "SEK", NO: "NOK", DK: "DKK", PL: "PLN", CZ: "CZK", TR: "TRY", MA: "MAD", CN: "CNY", IN: "INR" };
+  try { return R[new Intl.Locale(navigator.language || "es").maximize().region] || "EUR"; } catch (e) { return "EUR"; }
+}
+function homeAdd() {
+  const add = $("add");
+  add.hidden = false; add.textContent = tr("add_grp"); add.setAttribute("aria-label", tr("add_grp_lbl")); add.onclick = openNewGroup;
+}
+function openNewGroup() {
+  const sheet = $("sheet"), others = [], cur = defaultCurrency();
+  const own = (S.user.displayName || "").trim().slice(0, 60);
+  sheet.innerHTML = '<form id="grpf" novalidate role="dialog" aria-modal="true" aria-labelledby="gh"><h2 id="gh">' + tr("new_grp") + "</h2>" +
+    '<label for="gn">' + tr("grp_name") + '</label><input id="gn" name="group" maxlength="100" placeholder="' + tr("grp_name_ph") + '" autocomplete="off">' +
+    '<label for="gm">' + tr("your_name") + '</label><input id="gm" name="name" maxlength="60" autocomplete="name" placeholder="' + tr("name_ph") + '" value="' + esc(own) + '">' +
+    '<label for="go">' + tr("others") + '</label><small>' + tr("others_hint") + "</small>" +
+    '<div class="split"><input id="go" name="other" maxlength="60" autocomplete="off" placeholder="' + tr("other_ph") + '"><button type="button" id="goadd" style="flex:0 0 auto;margin:6px 0">' + tr("add_person") + "</button></div>" +
+    '<div class="chips" id="gol" aria-live="polite"></div>' +
+    '<label for="gc">' + tr("currency") + '</label><select id="gc" name="currency">' + CURRENCIES.map((c) => '<option value="' + c + '"' + (c === cur ? " selected" : "") + ">" + c + "</option>").join("") + "</select>" +
+    '<p class="err" id="gerr" role="alert" style="color:var(--bad)"></p>' +
+    '<div class="split"><button type="button" id="gcancel">' + tr("cancel") + '</button><button type="submit" class="on" id="gsave">' + tr("create") + "</button></div></form>";
+  sheet.hidden = false;
+  const err = $("gerr");
+  const bad = (id, msg) => { err.textContent = msg; const f = $(id); f.setAttribute("aria-invalid", "true"); f.focus(); return false; };
+  const taken = (n) => { n = n.toLowerCase(); return n === $("gm").value.trim().toLowerCase() || others.some((o) => o.toLowerCase() === n); };
+  const draw = () => {
+    $("gol").innerHTML = others.map((n, i) => '<button type="button" aria-pressed="true" data-i="' + i + '" aria-label="' + esc(tr("remove_person", n)) + '">' + esc(n) + ' <span aria-hidden="true">×</span></button>').join("");
+  };
+  // Añade lo escrito en «Las demás personas»; false si no vale (vacío no cuenta como error).
+  const addOther = () => {
+    const n = $("go").value.trim();
+    if (!n) return true;
+    if (taken(n)) return bad("go", tr("e_dup"));
+    if (others.length >= 99) return true;
+    others.push(n); $("go").value = ""; err.textContent = ""; draw();
+    return true;
+  };
+  $("goadd").onclick = () => { addOther(); $("go").focus(); };
+  $("go").onkeydown = (ev) => { if (ev.key === "Enter") { ev.preventDefault(); addOther(); } };
+  $("gol").onclick = (ev) => { const b = ev.target.closest("button[data-i]"); if (!b) return; others.splice(Number(b.dataset.i), 1); draw(); $("go").focus(); };
+  $("gcancel").onclick = closeSheet;
+  sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
+  if (matchMedia("(pointer: fine)").matches) setTimeout(() => $("gn").focus(), 50);
+  ["gn", "gm", "go"].forEach((id) => $(id).addEventListener("input", () => { $(id).removeAttribute("aria-invalid"); err.textContent = ""; }));
+  $("grpf").onsubmit = async (ev) => {
+    ev.preventDefault();
+    const name = $("gn").value.trim(), me = $("gm").value.trim();
+    if (!name) return bad("gn", tr("e_grp_name"));
+    if (!me) return bad("gm", tr("e_your_name"));
+    if (others.some((o) => o.toLowerCase() === me.toLowerCase())) return bad("gm", tr("e_dup"));
+    if (!addOther()) return;
+    err.textContent = "";
+    const people = [me].concat(others).map((n) => ({ id: newId(), name: n }));
+    const gid = newId(), btn = $("gsave"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = tr("saving");
+    try {
+      // Las reglas piden que al crearlo solo estés tú en memberUids y en who.
+      await commit([{
+        update: { name: docName("groups/" + gid), fields: {
+          name: str(name), currency: str($("gc").value), createdAt: int(Date.now()),
+          people: { arrayValue: { values: people.map((p) => mv({ id: int(p.id), name: str(p.name) })) } },
+          memberUids: { arrayValue: { values: [str(S.user.uid)] } },
+          who: mv({ [S.user.uid]: int(people[0].id) }),
+        } },
+        currentDocument: { exists: false },
+      }]);
+    } catch (e) {
+      console.warn(e);
+      err.textContent = tr("e_create"); btn.disabled = false; btn.textContent = label;
+      return;
+    }
+    closeSheet();
+    S.groups = null;
+    go(gid);
+    flash(tr("created"));
   };
 }
 
