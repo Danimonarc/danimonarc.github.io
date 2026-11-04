@@ -216,15 +216,22 @@ async function listChange(path, field, values, add) {
 // añadirse a ticketGuests (NO a memberUids): así se lee el grupo y el ticket y se marca lo propio,
 // pero sin ver los gastos ni poder borrar el grupo.
 async function joinGroup() {
-  var r = await call("https://firestore.googleapis.com/v1/projects/" + PROJECT + "/databases/(default)/documents:commit", {
-    method: "POST", body: JSON.stringify({ writes: [{
-      update: { name: DOCS + "/groups/" + S.groupId, fields: { joins: mv(kv(S.uid, { stringValue: code })) } },
-      updateMask: { fieldPaths: ["joins." + tick(S.uid)] },
-      updateTransforms: [{ fieldPath: "ticketGuests", appendMissingElements: { values: [{ stringValue: S.uid }] } }],
-      currentDocument: { exists: true }
-    }] })
-  });
-  if (!r.ok) throw new Error("join " + r.status);
+  var url = "https://firestore.googleapis.com/v1/projects/" + PROJECT + "/databases/(default)/documents:commit";
+  var add = [{ fieldPath: "ticketGuests", appendMissingElements: { values: [{ stringValue: S.uid }] } }];
+  var send = function (writes) { return call(url, { method: "POST", body: JSON.stringify({ writes: writes }) }); };
+  // El código va en una prueba que nadie puede leer (groups/{id}/joins/{uid}): antes iba en el grupo,
+  // a la vista de todos los invitados (pentest 2026-11-04, E1).
+  var r = await send([
+    { update: { name: DOCS + "/groups/" + S.groupId + "/joins/" + S.uid, fields: { code: { stringValue: code } } } },
+    { transform: { document: DOCS + "/groups/" + S.groupId, fieldTransforms: add }, currentDocument: { exists: true } }
+  ]);
+  // Reglas aún sin la prueba: el camino antiguo, con el código en joins.{uid}.
+  if (!r.ok) r = await send([{
+    update: { name: DOCS + "/groups/" + S.groupId, fields: { joins: mv(kv(S.uid, { stringValue: code })) } },
+    updateMask: { fieldPaths: ["joins." + tick(S.uid)] }, updateTransforms: add, currentDocument: { exists: true }
+  }]);
+  // Quien ya entró antes (al volver a abrir el enlace) no puede «volver a entrar», pero ya lee el grupo.
+  if (!r.ok && !(await getDoc("groups/" + S.groupId).catch(function () { return null; }))) throw new Error("join " + r.status);
 }
 
 // --- Idioma: español o inglés según el navegador (o ?lang=es / ?lang=en) ---
@@ -248,7 +255,7 @@ async function start() {
   }
   try { await auth(); } catch (e) { return fail(tr("e_conn"), true); }
   var inv = await getDoc("invites/" + code).catch(function () { return null; });
-  if (!inv || !inv.groupId) return fail(tr("e_expired"));
+  if (!inv || !isId(inv.groupId)) return fail(tr("e_expired"));
   S.groupId = inv.groupId;
   try { await joinGroup(); }
   catch (e) { return fail(tr("e_join"), true); }
@@ -265,13 +272,37 @@ async function refresh(force) {
     offline(false);
     var sig = JSON.stringify([g, t]);
     if (!force && sig === S.sig) return; // nada nuevo: no se repinta (evita parpadeos y toques perdidos)
-    S.sig = sig; S.group = g; S.ticket = t; render();
+    S.sig = sig; S.group = cleanGroup(g); S.ticket = cleanTicket(t); render();
   } catch (e) { if (S.ticket) offline(true); else fail(tr("e_retrying")); }
 }
 function offline(on) { var n = $("status"); if (S.ticket) { n.className = on ? "note warn" : ""; n.textContent = on ? tr("e_offline") : ""; } }
 
 // --- Utilidades ---
-function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+// Para texto y para valores de atributos: también las comillas.
+function esc(s) { return (s == null ? "" : String(s)).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+// Los ids son enteros (como en la app). Lo que no lo sea se descarta: un invitado puede escribir
+// personas y lo marcado de un ticket, y las reglas no validan su forma.
+function isId(x) { return typeof x === "string" && /^\d{1,19}$/.test(x); }
+function ids(a) { return (Array.isArray(a) ? a : []).filter(isId); }
+function cleanGroup(g) {
+  g.people = (Array.isArray(g.people) ? g.people : []).filter(function (p) { return p && isId(p.id); })
+    .map(function (p) { return { id: p.id, name: typeof p.name === "string" && p.name ? p.name : "?" }; });
+  return g;
+}
+function cleanTicket(t) {
+  t.items = (Array.isArray(t.items) ? t.items : []).filter(function (it) { return it && isId(it.id); }).map(function (it) {
+    return { id: it.id, name: typeof it.name === "string" ? it.name : "", quantity: Math.max(1, Math.floor(Number(it.quantity) || 1)), totalCents: Math.max(0, Math.floor(Number(it.totalCents) || 0)) };
+  });
+  var c = t.claims && typeof t.claims === "object" ? t.claims : {}, out = {};
+  Object.keys(c).filter(isId).forEach(function (k) {
+    var a = c[k] || {}, units = {}, slots = {};
+    Object.keys(a.units || {}).filter(isId).forEach(function (p) { var n = Math.floor(Number(a.units[p]) || 0); if (n > 0) units[p] = n; });
+    Object.keys(a.slots || {}).filter(isId).forEach(function (sl) { slots[sl] = ids(a.slots[sl]); });
+    out[k] = { units: units, shared: a.shared === true, sharedBy: ids(a.sharedBy), slots: slots };
+  });
+  t.claims = out;
+  return t;
+}
 function eur(c) {
   // Moneda del grupo (si falta o no es válida, euros).
   var cur = S.group && /^[A-Z]{3}$/.test(S.group.currency || "") ? S.group.currency : "EUR";

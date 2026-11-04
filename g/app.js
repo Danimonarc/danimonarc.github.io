@@ -208,7 +208,11 @@ const TX = {
 function tr(k, ...a) { let s = (TX[k] || [k])[LI]; a.forEach((v, i) => { s = s.split("{" + i + "}").join(v); }); return s; }
 
 // --- Utilidades ---
-function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+// Para texto y para valores de atributos: también las comillas (sin ellas, un «"» cerraba el atributo).
+function esc(s) { return (s == null ? "" : String(s)).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+// Los ids (grupos, personas, gastos, tickets, artículos) son enteros como en la app. Lo que no lo sea
+// se descarta al leer: las reglas dejan escribir algunos de estos datos a invitados y no los validan.
+const isId = (x) => typeof x === "string" && /^\d{1,19}$/.test(x);
 function money(c, cur) {
   cur = cur || (S.group && S.group.currency) || "EUR";
   try { return (Number(c) / 100).toLocaleString(LOC, { style: "currency", currency: cur }); }
@@ -299,7 +303,7 @@ async function myGroups() {
     where: { fieldFilter: { field: { fieldPath: "memberUids" }, op: "ARRAY_CONTAINS", value: str(S.user.uid) } },
   } }) });
   if (!r.ok) throw new Error("groups " + r.status);
-  return (await r.json()).filter((x) => x.document).map((x) => toGroup(idOf(x.document), decDoc(x.document)));
+  return (await r.json()).filter((x) => x.document).map((x) => toGroup(idOf(x.document), decDoc(x.document))).filter((g) => isId(g.id));
 }
 
 function toGroup(id, d) {
@@ -307,18 +311,18 @@ function toGroup(id, d) {
   return {
     id, name: d.name || "", icon: d.icon || null,
     currency: /^[A-Z]{3}$/.test(d.currency || "") ? d.currency : "EUR",
-    people: (d.people || []).filter((p) => p && p.id != null).map((p) => ({ id: String(p.id), name: p.name || "?" })),
+    people: (Array.isArray(d.people) ? d.people : []).filter((p) => p && isId(p.id)).map((p) => ({ id: p.id, name: typeof p.name === "string" && p.name ? p.name : "?" })),
     members: (d.memberUids || []).length,
-    me: who[S.user.uid] != null ? String(who[S.user.uid]) : null,
-    taken: Object.keys(who).filter((u) => u !== S.user.uid).map((u) => String(who[u])),
+    me: isId(who[S.user.uid]) ? who[S.user.uid] : null,
+    taken: Object.keys(who).filter((u) => u !== S.user.uid && isId(who[u])).map((u) => who[u]),
     createdAt: Number(d.createdAt || 0),
   };
 }
 function toExpense(id, d) {
   // Los gastos borrados se quedan marcados (borrado suave de la app) y no cuentan.
-  if (d.deleted === true || d.payerId == null || d.amountCents == null) return null;
+  if (d.deleted === true || !isId(d.payerId) || d.amountCents == null) return null;
   const shares = {};
-  Object.keys(d.shares || {}).forEach((k) => { shares[k] = Number(d.shares[k]); });
+  Object.keys(d.shares || {}).filter(isId).forEach((k) => { shares[k] = Number(d.shares[k]) || 0; });
   return { id, title: d.title || "", payerId: String(d.payerId), amountCents: Number(d.amountCents), shares, createdAt: Number(d.createdAt || 0), isTransfer: !!d.isTransfer };
 }
 
@@ -496,17 +500,27 @@ async function deleteAccount() {
 async function join(code) {
   status(esc(tr("joining")));
   const inv = await getDoc("invites/" + code);
-  if (!inv || !inv.groupId) { status(esc(tr("e_code")), "bad"); return null; }
-  const uid = S.user.uid;
-  // Las reglas piden apuntar en joins.{uid} el código vigente con el que se entra.
-  await commit([{
-    update: { name: docName("groups/" + inv.groupId), fields: { joins: mv({ [uid]: str(code) }) } },
-    updateMask: { fieldPaths: ["joins." + tick(uid)] },
-    updateTransforms: [{ fieldPath: "memberUids", appendMissingElements: { values: [str(uid)] } }],
-    currentDocument: { exists: true },
-  }]);
+  if (!inv || !isId(inv.groupId)) { status(esc(tr("e_code")), "bad"); return null; }
+  const uid = S.user.uid, gid = inv.groupId, add = [{ fieldPath: "memberUids", appendMissingElements: { values: [str(uid)] } }];
+  try {
+    // El código va en una prueba que nadie puede leer (groups/{id}/joins/{uid}), en la misma escritura:
+    // antes iba en el grupo y un invitado podía copiarlo para hacerse miembro (pentest 2026-11-04, E1).
+    await commit([
+      { update: { name: docName("groups/" + gid + "/joins/" + uid), fields: { code: str(code) } } },
+      { transform: { document: docName("groups/" + gid), fieldTransforms: add }, currentDocument: { exists: true } },
+    ]);
+  } catch (e) {
+    try {
+      // Reglas aún sin la prueba: el camino antiguo, con el código en joins.{uid}.
+      await commit([{ update: { name: docName("groups/" + gid), fields: { joins: mv({ [uid]: str(code) }) } },
+        updateMask: { fieldPaths: ["joins." + tick(uid)] }, updateTransforms: add, currentDocument: { exists: true } }]);
+    } catch (e2) {
+      // Si ya eras miembro, las reglas no dejan «volver a entrar», pero el grupo se puede abrir.
+      if (!(await getDoc("groups/" + gid))) throw e2;
+    }
+  }
   status("");
-  return inv.groupId;
+  return gid;
 }
 
 // --- Pantallas ---
@@ -604,14 +618,25 @@ async function refresh() {
     if (sig === S.sig) return;
     S.sig = sig;
     S.group = toGroup(gid, d);
+    cleanJoins(gid, d);
     S.expenses = ex.map((x) => toExpense(x.id, x.data)).filter(Boolean).sort((a, b) => b.createdAt - a.createdAt);
-    S.tickets = tk.map((x) => toTicket(x.id, x.data)).sort((a, b) => a.createdAt - b.createdAt);
+    S.tickets = tk.map((x) => toTicket(x.id, x.data)).filter(Boolean).sort((a, b) => a.createdAt - b.createdAt);
     if ($("status").className.indexOf("bad") >= 0) status("");
     renderGroup();
   } catch (e) {
     if (gid !== S.gid) return;
     if (S.group) status(esc(tr("e_conn")), "warn"); else status(esc(tr("e_conn")), "bad", refresh);
   }
+}
+
+// Los clientes antiguos dejaban en el grupo el código con el que entró cada uno (joins), y lo leen
+// también los invitados. Cualquier miembro puede quitarlo: ya no hace falta para nada (E1).
+const joinsCleaned = new Set();
+function cleanJoins(gid, d) {
+  if (joinsCleaned.has(gid) || !d.joins || !Object.keys(d.joins).length) return;
+  joinsCleaned.add(gid);
+  commit([{ update: { name: docName("groups/" + gid), fields: {} }, updateMask: { fieldPaths: ["joins"] }, currentDocument: { exists: true } }])
+    .catch((e) => console.warn("joins", e));
 }
 
 function personName(id) { const p = S.group.people.find((x) => x.id === id); return p ? p.name : "?"; }
@@ -958,16 +983,17 @@ function openInvite() {
 
 // --- Tickets: leerlos con la cámara y repartirlos (como TicketViewModel y PendingTicket en la app) ---
 function toTicket(id, d) {
-  const claims = {};
-  Object.keys(d.claims || {}).forEach((k) => {
+  if (!isId(id) || !isId(d.payerId)) return null;
+  const claims = {}, ids = (a) => (Array.isArray(a) ? a : []).filter(isId);
+  Object.keys(d.claims || {}).filter(isId).forEach((k) => {
     const c = d.claims[k] || {}, units = {}, slots = {};
-    Object.keys(c.units || {}).forEach((p) => { units[p] = Number(c.units[p]); });
-    Object.keys(c.slots || {}).forEach((sl) => { slots[sl] = (c.slots[sl] || []).map(String); });
-    claims[k] = { units, shared: c.shared === true, sharedBy: (c.sharedBy || []).map(String), slots };
+    Object.keys(c.units || {}).filter(isId).forEach((p) => { units[p] = Math.max(0, Math.floor(Number(c.units[p]) || 0)); });
+    Object.keys(c.slots || {}).filter(isId).forEach((sl) => { slots[sl] = ids(c.slots[sl]); });
+    claims[k] = { units, shared: c.shared === true, sharedBy: ids(c.sharedBy), slots };
   });
   return {
     id, title: d.title || "", payerId: String(d.payerId), createdAt: Number(d.createdAt || 0), claims,
-    items: (d.items || []).map((it) => ({ id: String(it.id), name: it.name || "", quantity: Number(it.quantity || 1), totalCents: Number(it.totalCents || 0) })),
+    items: (Array.isArray(d.items) ? d.items : []).filter((it) => it && isId(it.id)).map((it) => ({ id: it.id, name: typeof it.name === "string" ? it.name : "", quantity: Math.max(1, Math.floor(Number(it.quantity) || 1)), totalCents: Math.max(0, Math.floor(Number(it.totalCents) || 0)) })),
   };
 }
 const ticketTotal = (t) => t.items.reduce((a, it) => a + it.totalCents, 0);
