@@ -16,7 +16,7 @@ window.distroReady = true;
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
-const S = { user: null, code: clean(params.get("c")), groups: null, gid: null, group: null, expenses: [], tickets: 0, tab: "exp", sig: null, busy: false };
+const S = { user: null, code: clean(params.get("c")), groups: null, gid: null, group: null, expenses: [], tickets: [], tab: "exp", sig: null, busy: false };
 function clean(c) { c = (c || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); return c.length === 6 ? c : null; }
 function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -150,8 +150,51 @@ const TX = {
   e_concept: ["Escribe un concepto.", "Type a description.", "Escriu un concepte."],
   e_save: ["No se ha podido guardar. Inténtalo de nuevo.", "Couldn't save. Please try again.", "No s'ha pogut desar. Torna-ho a provar."],
   saved: ["Gasto guardado.", "Expense saved.", "Despesa desada."],
-  pending_1: ["Hay 1 ticket pendiente de repartir. Ábrelo con el enlace que te enviaron o en la app.", "1 receipt is waiting to be split. Open it from the link you were sent or in the app.", "Hi ha 1 tiquet pendent de repartir. Obre'l amb l'enllaç que et van enviar o a l'app."],
-  pending_n: ["Hay {0} tickets pendientes de repartir. Ábrelos con el enlace que te enviaron o en la app.", "{0} receipts are waiting to be split. Open them from the link you were sent or in the app.", "Hi ha {0} tiquets pendents de repartir. Obre'ls amb l'enllaç que et van enviar o a l'app."],
+  scan_btn: ["📷 Leer un ticket", "📷 Scan a receipt", "📷 Llegir un tiquet"],
+  scan_h: ["Leer un ticket", "Scan a receipt", "Llegir un tiquet"],
+  scan_p: ["Haz una foto del ticket recto y con luz, o elige una de la galería. Si es muy largo, usa varias fotos de arriba abajo (hasta 5). La foto se lee en tu móvil y no se sube a ningún sitio.", "Take a straight, well-lit photo of the receipt or pick one from your gallery. If it's very long, use several photos from top to bottom (up to 5). The photo is read on your phone and isn't uploaded anywhere.", "Fes una foto del tiquet recta i amb llum, o tria'n una de la galeria. Si és molt llarg, fes servir diverses fotos de dalt a baix (fins a 5). La foto es llegeix al teu mòbil i no es puja enlloc."],
+  scan_first: ["La primera vez se descargan unos 6 MB para poder leerlo; luego ya no.", "The first time, about 6 MB are downloaded to read it; after that, not again.", "La primera vegada es descarreguen uns 6 MB per poder-lo llegir; després ja no."],
+  add_photo: ["+ Foto", "+ Photo", "+ Foto"],
+  photo_n: ["Foto {0}", "Photo {0}", "Foto {0}"],
+  rm_photo: ["Quitar la foto {0}", "Remove photo {0}", "Treure la foto {0}"],
+  read_btn: ["Leer ticket", "Read receipt", "Llegir el tiquet"],
+  ocr_load: ["Preparando el lector… {0}", "Getting the reader ready… {0}", "Preparant el lector… {0}"],
+  ocr_read: ["Leyendo la foto {0} de {1}… {2}", "Reading photo {0} of {1}… {2}", "Llegint la foto {0} de {1}… {2}"],
+  e_ocr: ["No se ha podido leer el ticket. Inténtalo de nuevo o apúntalo a mano con «+ Gasto».", "Couldn't read the receipt. Try again or add it by hand with “+ Expense”.", "No s'ha pogut llegir el tiquet. Torna-ho a provar o apunta'l a mà amb «+ Despesa»."],
+  review_h: ["Revisa el ticket", "Check the receipt", "Revisa el tiquet"],
+  review_p: ["Corrige lo que se haya leído mal y compara el total con el del papel.", "Fix anything read wrong and compare the total with the paper.", "Corregeix el que s'hagi llegit malament i compara el total amb el del paper."],
+  none_read: ["No se ha leído ningún artículo. Prueba con otra foto más de cerca, recta y con luz, o añádelos a mano.", "No items were read. Try another photo, closer, straight and well lit, or add them by hand.", "No s'ha llegit cap article. Prova amb una altra foto més a prop, recta i amb llum, o afegeix-los a mà."],
+  items_h: ["Artículos", "Items", "Articles"],
+  item_name: ["Artículo {0}", "Item {0}", "Article {0}"],
+  item_qty: ["Unidades del artículo {0}", "Units of item {0}", "Unitats de l'article {0}"],
+  item_amt: ["Importe del artículo {0}", "Amount of item {0}", "Import de l'article {0}"],
+  rm_item: ["Quitar el artículo {0}", "Remove item {0}", "Treure l'article {0}"],
+  add_item: ["+ Añadir artículo", "+ Add item", "+ Afegir article"],
+  sum_is: ["Suma: {0}", "Sum: {0}", "Suma: {0}"],
+  sum_off: ["El ticket dice {0} y la suma da {1}: revisa los importes.", "The receipt says {0} but the items add up to {1}: check the amounts.", "El tiquet diu {0} i la suma dona {1}: revisa els imports."],
+  sum_ok: ["Cuadra con el total del ticket.", "Matches the receipt total.", "Quadra amb el total del tiquet."],
+  e_items: ["Revisa los artículos: cada uno necesita nombre, unidades (1 o más) e importe.", "Check the items: each needs a name, units (1 or more) and an amount.", "Revisa els articles: cadascun necessita nom, unitats (1 o més) i import."],
+  e_noitems: ["Añade al menos un artículo.", "Add at least one item.", "Afegeix almenys un article."],
+  upload: ["Subir para que cada uno marque lo suyo", "Upload so everyone marks their own", "Pujar perquè cadascú marqui el seu"],
+  as_equal: ["Apuntar a partes iguales", "Add as an equal split", "Apuntar a parts iguals"],
+  ticket_def: ["Ticket", "Receipt", "Tiquet"],
+  uploaded_h: ["Ticket subido", "Receipt uploaded", "Tiquet pujat"],
+  uploaded_p: ["Ahora cada uno marca lo suyo con el enlace (o en la app). Cuando estéis, ciérralo aquí y se apunta como gasto.", "Now everyone marks their own with the link (or in the app). When you're done, close it here and it's saved as an expense.", "Ara cadascú marca el seu amb l'enllaç (o a l'app). Quan estigueu, tanca'l aquí i s'apunta com a despesa."],
+  pend_h: ["Tickets pendientes", "Pending receipts", "Tiquets pendents"],
+  pend_meta: ["Pagó {0} · {1}", "Paid by {0} · {1}", "Va pagar {0} · {1}"],
+  pend_missing: ["Falta por marcar: {0}", "Not marked yet: {0}", "Falta per marcar: {0}"],
+  pend_all: ["Ya ha marcado todo el mundo.", "Everyone has marked.", "Ja ho ha marcat tothom."],
+  mark_mine: ["Marcar lo mío", "Mark mine", "Marcar el meu"],
+  send_link: ["Enviar enlace", "Send link", "Enviar l'enllaç"],
+  close_ticket: ["Cerrar ticket", "Close receipt", "Tancar el tiquet"],
+  delete_ticket: ["Borrar", "Delete", "Esborrar"],
+  confirm_close: ["Se apuntará como un gasto de {0} con lo que ha marcado cada uno. Lo que nadie ha marcado ({1}) se reparte entre todos. ¿Cerrarlo?", "It will be saved as a {0} expense with what each person marked. Anything nobody marked ({1}) is split between everyone. Close it?", "S'apuntarà com una despesa de {0} amb el que ha marcat cadascú. El que ningú ha marcat ({1}) es reparteix entre tothom. Tancar-lo?"],
+  confirm_close_all: ["Se apuntará como un gasto de {0} con lo que ha marcado cada uno. ¿Cerrarlo?", "It will be saved as a {0} expense with what each person marked. Close it?", "S'apuntarà com una despesa de {0} amb el que ha marcat cadascú. Tancar-lo?"],
+  confirm_del_ticket: ["¿Borrar el ticket «{0}»? Se perderá lo que haya marcado cada uno.", "Delete the receipt “{0}”? What everyone marked will be lost.", "Esborrar el tiquet «{0}»? Es perdrà el que hagi marcat cadascú."],
+  closed_ok: ["Ticket cerrado y apuntado como gasto.", "Receipt closed and saved as an expense.", "Tiquet tancat i apuntat com a despesa."],
+  ticket_share_text: ["Marca lo tuyo del ticket «{0}» en Distro: {1}", "Mark your items on the receipt “{0}” on Distro: {1}", "Marca el teu del tiquet «{0}» a Distro: {1}"],
+  ticket_link_h: ["Enlace del ticket «{0}»", "Link for “{0}”", "Enllaç del tiquet «{0}»"],
+  ticket_link_p: ["Quien lo abra marca lo suyo sin tener que entrar en el grupo ni ver los gastos.", "Whoever opens it marks their own without joining the group or seeing the expenses.", "Qui l'obri marca el seu sense haver d'entrar al grup ni veure les despeses."],
   e_gone: ["Este grupo ya no existe o no estás en él.", "This group no longer exists or you're not in it.", "Aquest grup ja no existeix o no hi ets."],
   account: ["Cuenta", "Account", "Compte"],
   signed_as: ["Has entrado como {0}", "Signed in as {0}", "Has entrat com a {0}"],
@@ -557,12 +600,12 @@ async function refresh() {
     const [ex, tk] = d ? await Promise.all([listDocs("groups/" + gid + "/expenses"), listDocs("groups/" + gid + "/tickets")]) : [[], []];
     if (gid !== S.gid) return;
     if (!d) { stopPolling(); $("add").hidden = true; $("tabs").hidden = true; header(tr("home_h1")); $("view").innerHTML = '<p><a href="#/" class="link">' + tr("back") + "</a></p>"; return status(esc(tr("e_gone")), "bad"); }
-    const sig = JSON.stringify([d, ex, tk.length]);
+    const sig = JSON.stringify([d, ex, tk]);
     if (sig === S.sig) return;
     S.sig = sig;
     S.group = toGroup(gid, d);
     S.expenses = ex.map((x) => toExpense(x.id, x.data)).filter(Boolean).sort((a, b) => b.createdAt - a.createdAt);
-    S.tickets = tk.length;
+    S.tickets = tk.map((x) => toTicket(x.id, x.data)).sort((a, b) => a.createdAt - b.createdAt);
     if ($("status").className.indexOf("bad") >= 0) status("");
     renderGroup();
   } catch (e) {
@@ -583,7 +626,7 @@ function renderGroup() {
   const meOk = g.me && g.people.some((p) => p.id === g.me);
   let h = "";
   if (!meOk) h += whoCard();
-  if (S.tickets) h += '<div class="note">' + esc(plural(S.tickets, "pending_1", "pending_n")) + "</div>";
+  if (S.tickets.length) h += ticketsHtml();
   h += S.tab === "exp" ? expensesHtml() : balancesHtml();
   $("view").innerHTML = h;
   inGroup(g.id);
@@ -660,6 +703,7 @@ function balancesHtml() {
 }
 
 function wireGroup() {
+  wireTickets();
   document.querySelectorAll("[data-who]").forEach((b) => { b.onclick = () => pickMe(b.dataset.who); });
   document.querySelectorAll("[data-pay]").forEach((b) => { b.onclick = () => markPaid(S.transfers[Number(b.dataset.pay)], b); });
   const f = $("addme");
@@ -731,10 +775,11 @@ function parseCents(s) {
   if (!/^\d{1,7}([.,]\d{1,2})?$/.test(s)) return 0;
   return Math.round(parseFloat(s.replace(",", ".")) * 100);
 }
-function openAddExpense() {
+function openAddExpense(pre) {
   const g = S.group, sheet = $("sheet"), sel = new Set(g.people.map((p) => p.id));
   const payer = g.me && g.people.some((p) => p.id === g.me) ? g.me : (g.people[0] || {}).id;
   sheet.innerHTML = '<form id="expf" novalidate role="dialog" aria-modal="true" aria-labelledby="eh"><h2 id="eh">' + tr("new_exp") + "</h2>" +
+    (pre ? "" : '<button type="button" class="btn" id="escan" style="margin:8px 0 4px">' + tr("scan_btn") + "</button>") +
     '<label for="ec">' + tr("concept") + '</label><input id="ec" name="concept" maxlength="120" placeholder="' + tr("concept_ph") + '" autocomplete="off">' +
     '<label for="ea">' + tr("amount", esc(g.currency)) + '</label><input id="ea" name="amount" inputmode="decimal" placeholder="0,00" autocomplete="off">' +
     '<label for="ep">' + tr("paid_by_lbl") + '</label><select id="ep" name="payer">' + g.people.map((p) => '<option value="' + p.id + '"' + (p.id === payer ? " selected" : "") + ">" + esc(nameYou(p.id)) + "</option>").join("") + "</select>" +
@@ -749,10 +794,12 @@ function openAddExpense() {
     b.setAttribute("aria-pressed", String(sel.has(id))); upd();
   };
   $("ea").oninput = upd;
+  if (pre) { $("ec").value = pre.title; $("ea").value = (pre.cents / 100).toFixed(2).replace(".", LANG === "en" ? "." : ","); $("ep").value = pre.payer; upd(); }
+  else $("escan").onclick = () => openScan();
   $("ecancel").onclick = closeSheet;
   sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
   // En el móvil no se enfoca solo: abriría el teclado tapando medio formulario.
-  if (matchMedia("(pointer: fine)").matches) setTimeout(() => $("ec").focus(), 50);
+  if (!pre && matchMedia("(pointer: fine)").matches) setTimeout(() => $("ec").focus(), 50);
   ["ec", "ea"].forEach((id) => $(id).addEventListener("input", () => $(id).removeAttribute("aria-invalid")));
   $("expf").onsubmit = async (ev) => {
     ev.preventDefault();
@@ -857,8 +904,8 @@ function openNewGroup() {
 // --- Invitar: un código de 6 caracteres que caduca en 7 días (como createInvite() en la app) ---
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const invites = {}; // grupo → código ya creado en esta visita, para no crear uno nuevo cada vez
-async function createInvite(gid) {
-  const c = invites[gid];
+async function createInvite(gid, ticket) {
+  const key = gid + (ticket ? "/" + ticket : ""), c = invites[key];
   if (c && c.until > Date.now() + 864e5) return c.code;
   for (let tries = 0; ; tries++) {
     const a = new Uint8Array(6); crypto.getRandomValues(a);
@@ -867,10 +914,12 @@ async function createInvite(gid) {
       await commit([{
         update: { name: docName("invites/" + code), fields: {
           groupId: str(gid), createdAt: { timestampValue: new Date(now).toISOString() }, expiresAt: { timestampValue: new Date(until).toISOString() },
+          // Con `ticket` el código solo sirve para entrar como invitado a marcar ese ticket (ver firestore.rules).
+          ...(ticket ? { ticket: int(ticket) } : {}),
         } },
         currentDocument: { exists: false }, // si el código ya existe (muy raro), se prueba otro
       }]);
-      invites[gid] = { code, until };
+      invites[key] = { code, until };
       return code;
     } catch (e) { if (tries >= 2) throw e; }
   }
@@ -905,6 +954,249 @@ function openInvite() {
     $("invb").innerHTML = '<p class="err" role="alert" style="color:var(--bad)">' + tr("e_invite") + '</p><button type="button" id="iretry">' + tr("retry") + "</button>";
     $("iretry").onclick = openInvite;
   });
+}
+
+// --- Tickets: leerlos con la cámara y repartirlos (como TicketViewModel y PendingTicket en la app) ---
+function toTicket(id, d) {
+  const claims = {};
+  Object.keys(d.claims || {}).forEach((k) => {
+    const c = d.claims[k] || {}, units = {}, slots = {};
+    Object.keys(c.units || {}).forEach((p) => { units[p] = Number(c.units[p]); });
+    Object.keys(c.slots || {}).forEach((sl) => { slots[sl] = (c.slots[sl] || []).map(String); });
+    claims[k] = { units, shared: c.shared === true, sharedBy: (c.sharedBy || []).map(String), slots };
+  });
+  return {
+    id, title: d.title || "", payerId: String(d.payerId), createdAt: Number(d.createdAt || 0), claims,
+    items: (d.items || []).map((it) => ({ id: String(it.id), name: it.name || "", quantity: Number(it.quantity || 1), totalCents: Number(it.totalCents || 0) })),
+  };
+}
+const ticketTotal = (t) => t.items.reduce((a, it) => a + it.totalCents, 0);
+// Lo que le toca a cada uno según lo marcado y lo que queda sin marcar (SplitCalculator.compute).
+function ticketSplit(t, people) {
+  const by = {}; let unassigned = 0;
+  people.forEach((p) => { by[p.id] = 0; });
+  for (const it of t.items) {
+    const a = t.claims[it.id] || { units: {}, shared: false, sharedBy: [], slots: {} };
+    if (a.shared) {
+      const sh = people.filter((p) => a.sharedBy.indexOf(p.id) >= 0);
+      if (!sh.length) { unassigned += it.totalCents; continue; }
+      const parts = splitCents(it.totalCents, sh.map(() => 1));
+      sh.forEach((p, i) => { by[p.id] += parts[i]; });
+      continue;
+    }
+    const cl = people.filter((p) => (a.units[p.id] || 0) > 0);
+    const sl = Object.keys(a.slots).sort(cmpId).map((k) => people.filter((p) => a.slots[k].indexOf(p.id) >= 0)).filter((x) => x.length);
+    const claimed = cl.reduce((n, p) => n + a.units[p.id], 0) + sl.length, free = Math.max(0, it.quantity - claimed);
+    const parts = splitCents(it.totalCents, cl.map((p) => a.units[p.id]).concat(sl.map(() => 1), [free]));
+    cl.forEach((p, i) => { by[p.id] += parts[i]; });
+    sl.forEach((ids, k) => { const e = splitCents(parts[cl.length + k], ids.map(() => 1)); ids.forEach((p, i) => { by[p.id] += e[i]; }); });
+    unassigned += parts[parts.length - 1];
+  }
+  return { by, unassigned };
+}
+// El gasto que queda al cerrarlo: lo que nadie ha marcado se reparte entre todos (PendingTicket.toExpense).
+function ticketExpense(t, people) {
+  const { by, unassigned } = ticketSplit(t, people), left = splitCents(unassigned, people.map(() => 1)), shares = {};
+  people.forEach((p, i) => { const c = (by[p.id] || 0) + left[i]; if (c > 0) shares[p.id] = c; });
+  return { id: t.id, title: t.title, payerId: t.payerId, amountCents: ticketTotal(t), shares, createdAt: t.createdAt, isTransfer: false };
+}
+function unmarked(t, people) {
+  const m = new Set();
+  Object.values(t.claims).forEach((a) => { Object.keys(a.units).forEach((p) => { if (a.units[p] > 0) m.add(p); }); a.sharedBy.forEach((p) => m.add(p)); Object.values(a.slots).forEach((ids) => ids.forEach((p) => m.add(p))); });
+  return people.filter((p) => !m.has(p.id));
+}
+
+function ticketsHtml() {
+  const people = S.group.people;
+  return "<h2>" + tr("pend_h") + "</h2>" + S.tickets.map((t) => {
+    const miss = unmarked(t, people);
+    return '<section class="card tk" aria-label="' + esc(t.title) + '"><div class="split" style="align-items:baseline"><strong class="grow">' + esc(t.title) + '</strong><span class="amt"><b>' + money(ticketTotal(t)) + "</b></span></div>" +
+      "<small>" + esc(tr("pend_meta", nameYou(t.payerId), day(t.createdAt))) + "</small><small>" +
+      esc(miss.length ? tr("pend_missing", miss.map((p) => p.name).join(", ")) : tr("pend_all")) + "</small>" +
+      '<div class="tkb"><button type="button" class="on" data-tmark="' + t.id + '">' + tr("mark_mine") + '</button><button type="button" data-tshare="' + t.id + '">' + tr("send_link") +
+      '</button><button type="button" data-tclose="' + t.id + '">' + tr("close_ticket") + '</button><button type="button" class="link" data-tdel="' + t.id + '">' + tr("delete_ticket") + "</button></div></section>";
+  }).join("");
+}
+function wireTickets() {
+  const find = (id) => S.tickets.find((t) => t.id === id);
+  document.querySelectorAll("[data-tmark]").forEach((b) => { b.onclick = () => markMine(find(b.dataset.tmark), b); });
+  document.querySelectorAll("[data-tshare]").forEach((b) => { b.onclick = () => shareTicket(find(b.dataset.tshare)); });
+  document.querySelectorAll("[data-tclose]").forEach((b) => { b.onclick = () => closeTicket(find(b.dataset.tclose), b); });
+  document.querySelectorAll("[data-tdel]").forEach((b) => { b.onclick = () => deleteTicket(find(b.dataset.tdel), b); });
+}
+const ticketUrl = (code, tid) => "https://montarc.es/t/?c=" + code + "&t=" + tid;
+// Se marca en /t/, la misma página que usan quienes reciben el enlace.
+async function markMine(t, btn) {
+  if (!t || S.busy) return;
+  const label = btn.textContent; btn.disabled = true; btn.textContent = tr("saving");
+  try { const code = await createInvite(S.gid, t.id); location.href = "/t/?c=" + code + "&t=" + t.id; }
+  catch (e) { console.warn(e); status(esc(tr("e_invite")), "bad"); btn.disabled = false; btn.textContent = label; }
+}
+// Hoja con el enlace para compartir (la misma que la de invitar al grupo).
+function linkSheet(title, body, makeCode, makeUrl, makeText) {
+  const sheet = $("sheet");
+  sheet.innerHTML = '<form id="invf" role="dialog" aria-modal="true" aria-labelledby="ih"><h2 id="ih">' + esc(title) + "</h2>" +
+    "<p>" + body + '</p><div id="invb" aria-live="polite"><p>' + tr("inviting") + "</p></div>" +
+    '<div class="split" style="margin-top:10px"><button type="button" id="iclose">' + tr("close") + "</button></div></form>";
+  sheet.hidden = false;
+  $("iclose").onclick = closeSheet;
+  sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
+  $("invf").onsubmit = (ev) => ev.preventDefault();
+  const gid = S.gid;
+  makeCode().then((code) => {
+    if (S.gid !== gid || !$("invb")) return;
+    const url = makeUrl(code), text = makeText(url, code), canShare = !!navigator.share;
+    $("invb").innerHTML = '<input id="ilink" readonly value="' + esc(url) + '" aria-label="' + tr("copy_link") + '"><small>' + tr("expires_7") + "</small>" +
+      '<div class="split" style="margin-top:10px">' + (canShare ? '<button type="button" class="on" id="ishare">' + tr("share") + "</button>" : "") +
+      '<button type="button" id="icopy"' + (canShare ? "" : ' class="on"') + ">" + tr("copy_link") + "</button></div>";
+    $("ilink").onfocus = () => $("ilink").select();
+    $("icopy").onclick = async () => { try { await navigator.clipboard.writeText(text); } catch (e) { $("ilink").select(); document.execCommand("copy"); } flash(tr("copied")); };
+    if (canShare) $("ishare").onclick = () => navigator.share({ title: "Distro", text }).catch(() => {});
+  }).catch((e) => {
+    console.warn(e);
+    if (S.gid !== gid || !$("invb")) return;
+    $("invb").innerHTML = '<p class="err" role="alert" style="color:var(--bad)">' + tr("e_invite") + "</p>";
+  });
+}
+function shareTicket(t) {
+  if (!t) return;
+  linkSheet(tr("ticket_link_h", t.title), tr("ticket_link_p"), () => createInvite(S.gid, t.id), (code) => ticketUrl(code, t.id), (url) => tr("ticket_share_text", t.title, url));
+}
+function closeTicket(t, btn) {
+  if (!t) return;
+  const people = S.group.people, { unassigned } = ticketSplit(t, people), total = ticketTotal(t);
+  if (total <= 0) return;
+  if (!confirm(unassigned > 0 ? tr("confirm_close", money(total), money(unassigned)) : tr("confirm_close_all", money(total)))) return;
+  const e = ticketExpense(t, people);
+  guarded(() => commit([expenseWrite(e), { delete: docName("groups/" + S.gid + "/tickets/" + t.id) }, activityWrite("ticket_closed", t.title, total)]), btn)
+    .then((ok) => { if (ok) flash(tr("closed_ok")); });
+}
+function deleteTicket(t, btn) {
+  if (!t || !confirm(tr("confirm_del_ticket", t.title))) return;
+  guarded(() => commit([{ delete: docName("groups/" + S.gid + "/tickets/" + t.id) }]), btn);
+}
+
+// Fotos → lectura → revisión. Al final se sube como ticket pendiente o se apunta a partes iguales.
+let ocrMod = null;
+function openScan() {
+  const sheet = $("sheet"), photos = [];
+  let items = [], printed = null, title = tr("ticket_def");
+  const g = S.group, payer0 = g.me && g.people.some((p) => p.id === g.me) ? g.me : (g.people[0] || {}).id;
+  let payer = payer0;
+  const shell = (body) => {
+    sheet.innerHTML = '<form id="scanf" novalidate role="dialog" aria-modal="true" aria-labelledby="sh">' + body + "</form>";
+    sheet.hidden = false;
+    sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
+    $("scanf").onsubmit = (ev) => ev.preventDefault();
+  };
+  const freeThumbs = () => photos.forEach((p) => URL.revokeObjectURL(p.url));
+
+  function pick() {
+    shell('<h2 id="sh">' + tr("scan_h") + "</h2><p>" + tr("scan_p") + "</p>" +
+      '<div class="thumbs">' + photos.map((p, i) => '<span class="th"><img src="' + p.url + '" alt="' + tr("photo_n", i + 1) + '"><button type="button" data-rm="' + i + '" aria-label="' + tr("rm_photo", i + 1) + '">×</button></span>').join("") + "</div>" +
+      (photos.length < 5 ? '<input type="file" id="tfile" accept="image/*" multiple class="sr"><label for="tfile" class="btn" role="button" tabindex="0">' + tr("add_photo") + "</label>" : "") +
+      (load("ocrLoaded") ? "" : "<small>" + tr("scan_first") + "</small>") +
+      '<div class="split" style="margin-top:12px"><button type="button" id="scancel">' + tr("cancel") + '</button><button type="button" class="on" id="sread"' + (photos.length ? "" : " disabled") + ">" + tr("read_btn") + "</button></div>");
+    const f = $("tfile");
+    if (f) {
+      f.onchange = () => { Array.from(f.files || []).slice(0, 5 - photos.length).forEach((file) => photos.push({ file, url: URL.createObjectURL(file) })); pick(); };
+      const lb = f.nextElementSibling; lb.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); f.click(); } };
+    }
+    document.querySelectorAll("[data-rm]").forEach((b) => { b.onclick = () => { const [p] = photos.splice(Number(b.dataset.rm), 1); URL.revokeObjectURL(p.url); pick(); }; });
+    $("scancel").onclick = () => { freeThumbs(); closeSheet(); };
+    $("sread").onclick = read;
+  }
+
+  async function read() {
+    shell('<h2 id="sh">' + tr("scan_h") + '</h2><p id="sprog" aria-live="polite">' + tr("ocr_load", "") + '</p><progress id="sbar" max="1" value="0" style="width:100%"></progress>' +
+      '<div class="split" style="margin-top:12px"><button type="button" id="scancel">' + tr("cancel") + "</button></div>");
+    let cancelled = false;
+    $("scancel").onclick = () => { cancelled = true; freeThumbs(); closeSheet(); };
+    const pct = (x) => Math.round(x * 100) + " %";
+    try {
+      ocrMod = ocrMod || await import("./ticket.js");
+      const r = await ocrMod.scan(photos.map((p) => p.file), (i, n, frac, phase) => {
+        if (cancelled || !$("sprog")) return;
+        $("sprog").textContent = phase === "read" ? tr("ocr_read", i + 1, n, pct(frac)) : tr("ocr_load", pct(frac));
+        $("sbar").value = phase === "read" ? (i + frac) / n : frac;
+      });
+      store("ocrLoaded", "1");
+      if (cancelled) return;
+      items = r.items.map((it) => ({ name: it.name, qty: String(it.quantity), amt: (it.totalCents / 100).toFixed(2).replace(".", LANG === "en" ? "." : ",") }));
+      printed = r.printedTotalCents;
+      review();
+    } catch (e) {
+      console.warn(e);
+      if (cancelled) return;
+      shell('<h2 id="sh">' + tr("scan_h") + '</h2><p class="err" role="alert" style="color:var(--bad)">' + tr("e_ocr") + "</p>" +
+        '<div class="split"><button type="button" id="scancel">' + tr("cancel") + '</button><button type="button" class="on" id="sretry">' + tr("retry") + "</button></div>");
+      $("scancel").onclick = () => { freeThumbs(); closeSheet(); };
+      $("sretry").onclick = read;
+    }
+  }
+
+  function review() {
+    shell('<h2 id="sh">' + tr("review_h") + "</h2><p>" + tr(items.length ? "review_p" : "none_read") + "</p>" +
+      '<label for="stitle">' + tr("concept") + '</label><input id="stitle" maxlength="120" autocomplete="off" value="' + esc(title) + '">' +
+      '<label for="spayer">' + tr("paid_by_lbl") + '</label><select id="spayer">' + g.people.map((p) => '<option value="' + p.id + '"' + (p.id === payer ? " selected" : "") + ">" + esc(nameYou(p.id)) + "</option>").join("") + "</select>" +
+      '<label id="sih">' + tr("items_h") + '</label><div id="sitems" role="group" aria-labelledby="sih">' + items.map((it, i) =>
+        '<div class="titem" data-i="' + i + '"><input data-f="name" value="' + esc(it.name) + '" maxlength="120" aria-label="' + tr("item_name", i + 1) + '" autocomplete="off">' +
+        '<input data-f="qty" value="' + esc(it.qty) + '" inputmode="numeric" maxlength="3" aria-label="' + tr("item_qty", i + 1) + '" autocomplete="off">' +
+        '<input data-f="amt" value="' + esc(it.amt) + '" inputmode="decimal" maxlength="10" aria-label="' + tr("item_amt", i + 1) + '" autocomplete="off">' +
+        '<button type="button" data-del="' + i + '" aria-label="' + tr("rm_item", i + 1) + '">×</button></div>').join("") + "</div>" +
+      '<button type="button" class="link" id="sadd">' + tr("add_item") + '</button><p id="ssum" aria-live="polite"></p><p class="err" id="serr" role="alert" style="color:var(--bad)"></p>' +
+      '<button type="button" class="btn on" id="sup">' + tr("upload") + '</button><button type="button" class="btn" id="seq">' + tr("as_equal") + "</button>" +
+      '<div class="split" style="margin-top:10px"><button type="button" id="scancel">' + tr("cancel") + "</button></div>");
+    const sum = () => items.reduce((a, it) => a + parseCents(it.amt), 0);
+    const upd = () => {
+      const c = sum(), n = $("ssum");
+      if (printed != null && printed !== c) { n.className = "note warn"; n.textContent = tr("sum_off", money(printed), money(c)); }
+      else { n.className = ""; n.textContent = tr("sum_is", money(c)) + (printed != null ? " · " + tr("sum_ok") : ""); }
+    };
+    upd();
+    const keep = () => { title = $("stitle").value; payer = $("spayer").value; };
+    $("sitems").oninput = (ev) => { const row = ev.target.closest(".titem"); if (!row) return; items[Number(row.dataset.i)][ev.target.dataset.f] = ev.target.value; ev.target.removeAttribute("aria-invalid"); $("serr").textContent = ""; upd(); };
+    $("sitems").onclick = (ev) => { const b = ev.target.closest("[data-del]"); if (!b) return; keep(); items.splice(Number(b.dataset.del), 1); review(); };
+    $("sadd").onclick = () => { keep(); items.push({ name: "", qty: "1", amt: "" }); review(); const r = document.querySelectorAll(".titem"); r[r.length - 1].querySelector("input").focus(); };
+    $("scancel").onclick = () => { freeThumbs(); closeSheet(); };
+    // Los artículos ya revisados, o null (y se marca el campo mal) si alguno no vale.
+    const valid = () => {
+      keep();
+      const out = [];
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i], name = it.name.trim(), q = /^\d{1,3}$/.test(it.qty.trim()) ? Number(it.qty.trim()) : 0, c = parseCents(it.amt);
+        if (!name && !it.amt.trim()) continue; // fila vacía: se ignora
+        const row = document.querySelector('.titem[data-i="' + i + '"]'), badF = !name ? "name" : q < 1 ? "qty" : c <= 0 ? "amt" : null;
+        if (badF) { const f = row.querySelector('[data-f="' + badF + '"]'); f.setAttribute("aria-invalid", "true"); f.focus(); $("serr").textContent = tr("e_items"); return null; }
+        out.push({ id: out.length, name, quantity: q, totalCents: c });
+      }
+      if (!out.length) { $("serr").textContent = tr("e_noitems"); return null; }
+      return out;
+    };
+    $("seq").onclick = () => {
+      const its = valid(); if (!its) return;
+      freeThumbs(); closeSheet();
+      openAddExpense({ title: title.trim() || tr("ticket_def"), cents: its.reduce((a, it) => a + it.totalCents, 0), payer });
+    };
+    $("sup").onclick = async () => {
+      const its = valid(); if (!its) return;
+      const t = { id: newId(), title: title.trim() || tr("ticket_def"), payerId: payer, createdAt: Date.now(), items: its };
+      const ok = await guarded(() => commit([{
+        update: { name: docName("groups/" + S.gid + "/tickets/" + t.id), fields: {
+          title: str(t.title), payerId: int(t.payerId), createdAt: int(t.createdAt), createdBy: str(S.user.uid),
+          items: { arrayValue: { values: its.map((it) => mv({ id: int(it.id), name: str(it.name), quantity: int(it.quantity), totalCents: int(it.totalCents) })) } },
+          claims: mv({}),
+        } },
+        currentDocument: { exists: false },
+      }, activityWrite("ticket_uploaded", t.title, its.reduce((a, it) => a + it.totalCents, 0))]), $("sup"));
+      if (!ok) { $("serr").textContent = tr("e_save"); return; }
+      // Para que la app solo baje los tickets de los grupos que han cambiado; si falla, el ticket ya está.
+      commit([{ transform: { document: groupDoc(), fieldTransforms: [{ fieldPath: "lastTicketAt", setToServerValue: "REQUEST_TIME" }] } }]).catch((e) => console.warn(e));
+      freeThumbs();
+      linkSheet(tr("uploaded_h"), tr("uploaded_p"), () => createInvite(S.gid, t.id), (code) => ticketUrl(code, t.id), (url) => tr("ticket_share_text", t.title, url));
+    };
+  }
+  pick();
 }
 
 // --- Arranque ---
