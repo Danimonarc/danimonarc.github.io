@@ -195,6 +195,107 @@ const TX = {
   ticket_share_text: ["Marca lo tuyo del ticket «{0}» en Distro: {1}", "Mark your items on the receipt “{0}” on Distro: {1}", "Marca el teu del tiquet «{0}» a Distro: {1}"],
   ticket_link_h: ["Enlace del ticket «{0}»", "Link for “{0}”", "Enllaç del tiquet «{0}»"],
   ticket_link_p: ["Quien lo abra marca lo suyo sin tener que entrar en el grupo ni ver los gastos.", "Whoever opens it marks their own without joining the group or seeing the expenses.", "Qui l'obri marca el seu sense haver d'entrar al grup ni veure les despeses."],
+  tab_stats: ["Estadísticas", "Stats", "Estadístiques"],
+  more: ["Más opciones del grupo", "More group options", "Més opcions del grup"],
+  edit_exp: ["Editar gasto", "Edit expense", "Editar despesa"],
+  amount_lbl: ["Importe", "Amount", "Import"],
+  total_lbl: ["Importe (la suma de abajo)", "Amount (the sum below)", "Import (la suma de sota)"],
+  paid_in: ["Moneda en la que se pagó", "Currency it was paid in", "Moneda en què es va pagar"],
+  m_label: ["Cómo se reparte", "How to split it", "Com es reparteix"],
+  m_equal: ["A partes iguales", "Equally", "A parts iguals"],
+  m_parts: ["Por partes", "By shares", "Per parts"],
+  m_amounts: ["Por importes", "By amounts", "Per imports"],
+  m_pct: ["Por porcentajes", "By percentage", "Per percentatges"],
+  parts_hint: ["Cuántas partes le tocan a cada uno: 2× paga el doble que 1×; 0× no paga.", "How many shares each person pays: 2× pays twice as much as 1×; 0× pays nothing.", "Quantes parts li toquen a cadascú: 2× paga el doble que 1×; 0× no paga."],
+  less_for: ["Una parte menos para {0}", "One share less for {0}", "Una part menys per a {0}"],
+  more_for: ["Una parte más para {0}", "One share more for {0}", "Una part més per a {0}"],
+  amount_of: ["Importe de {0}", "Amount for {0}", "Import de {0}"],
+  pct_of: ["Porcentaje de {0}", "Percentage for {0}", "Percentatge de {0}"],
+  total_is: ["Total: {0}", "Total: {0}", "Total: {0}"],
+  pct_ok: ["Suman 100 %.", "They add up to 100%.", "Sumen 100 %."],
+  pct_sum: ["Suman {0} %: tiene que ser 100 %.", "They add up to {0}%: it must be 100%.", "Sumen {0} %: ha de ser 100 %."],
+  e_amounts: ["Revisa los importes: números como 12,50.", "Check the amounts: numbers like 12.50.", "Revisa els imports: números com 12,50."],
+  e_pct: ["Los porcentajes tienen que sumar 100 % (números como 33,33).", "The percentages must add up to 100% (numbers like 33.33).", "Els percentatges han de sumar 100 % (números com 33,33)."],
+  rate_lbl: ["Tipo de cambio: 1 {0} = ? {1}", "Exchange rate: 1 {0} = ? {1}", "Tipus de canvi: 1 {0} = ? {1}"],
+  rate_loading: ["Buscando el tipo de hoy…", "Looking up today's rate…", "Buscant el tipus d'avui…"],
+  rate_auto: ["Tipo de hoy, puesto automáticamente. Puedes cambiarlo.", "Today's rate, filled in automatically. You can change it.", "Tipus d'avui, posat automàticament. El pots canviar."],
+  rate_failed: ["No se ha podido obtener el tipo de hoy. Escríbelo a mano.", "Couldn't get today's rate. Type it in.", "No s'ha pogut obtenir el tipus d'avui. Escriu-lo a mà."],
+  rate_preview: ["Equivale a {0}", "Equals {0}", "Equival a {0}"],
+  e_rate: ["Escribe el tipo de cambio (por ejemplo, 0,92).", "Type the exchange rate (for example, 0.92).", "Escriu el tipus de canvi (per exemple, 0,92)."],
+  paid_orig: ["Pagado {0} · 1 {1} = {2} {3}", "Paid {0} · 1 {1} = {2} {3}", "Pagat {0} · 1 {1} = {2} {3}"],
+  repeat: ["Repetir cada mes", "Repeat every month", "Repetir cada mes"],
+  repeat_hint: ["Alquiler, recibos, suscripciones: se apunta solo el mismo día de cada mes.", "Rent, bills, subscriptions: added automatically on the same day every month.", "Lloguer, rebuts, subscripcions: s'apunta sol el mateix dia de cada mes."],
+  delete_exp: ["Borrar", "Delete", "Esborrar"],
+  confirm_del_exp: ["¿Borrar «{0}»?", "Delete “{0}”?", "Esborrar «{0}»?"],
+  confirm_del_pay: ["¿Borrar este pago de {0}?", "Delete this {0} payment?", "Esborrar aquest pagament de {0}?"],
+  exp_deleted: ["Gasto borrado.", "Expense deleted.", "Despesa esborrada."],
+  pay_deleted: ["Pago borrado.", "Payment deleted.", "Pagament esborrat."],
+  undo: ["Deshacer", "Undo", "Desfer"],
+  restored: ["Recuperado.", "Restored.", "Recuperat."],
+  edited: ["Gasto cambiado.", "Expense updated.", "Despesa canviada."],
+  open_exp: ["{0}, {1}: ver o editar", "{0}, {1}: view or edit", "{0}, {1}: veure o editar"],
+  open_pay: ["Pago de {0} a {1}, {2}: borrar", "Payment from {0} to {1}, {2}: delete", "Pagament de {0} a {1}, {2}: esborrar"],
+  no_stats: ["Aún no hay estadísticas. Cuando apuntéis gastos, aquí verás quién gasta más, los días fuertes y en qué se va el dinero.", "No stats yet. Once you add expenses, you'll see who spends most, the big days and where the money goes.", "Encara no hi ha estadístiques. Quan apunteu despeses, aquí veureu qui gasta més, els dies forts i en què se'n van els diners."],
+  st_total: ["Gasto total", "Total spent", "Despesa total"],
+  st_count: ["Gastos", "Expenses", "Despeses"],
+  st_avg: ["Media por gasto", "Average per expense", "Mitjana per despesa"],
+  st_pp: ["Por persona", "Per person", "Per persona"],
+  st_pd: ["Por día ({0} días)", "Per day ({0} days)", "Per dia ({0} dies)"],
+  st_people: ["Gasto por persona", "Spending per person", "Despesa per persona"],
+  st_paid_share: ["Pagó {0} · le tocaba {1}", "Paid {0} · share {1}", "Va pagar {0} · li tocava {1}"],
+  st_cats: ["En qué se va el dinero", "Where the money goes", "En què se'n van els diners"],
+  st_daily: ["Gasto por día", "Spending per day", "Despesa per dia"],
+  st_days: ["Los días con más gasto", "The biggest spending days", "Els dies amb més despesa"],
+  st_big: ["El gasto más grande", "The biggest expense", "La despesa més gran"],
+  cat_food: ["Comer", "Food", "Menjar"], cat_drinks: ["Bebidas", "Drinks", "Begudes"], cat_groceries: ["Compra", "Groceries", "Compra"],
+  cat_transport: ["Transporte", "Transport", "Transport"], cat_lodging: ["Alojamiento y casa", "Lodging and home", "Allotjament i casa"],
+  cat_leisure: ["Ocio", "Leisure", "Oci"], cat_bills: ["Facturas", "Bills", "Factures"], cat_gifts: ["Regalos", "Gifts", "Regals"],
+  cat_health: ["Salud", "Health", "Salut"], cat_trips: ["Viajes y eventos", "Trips and events", "Viatges i esdeveniments"], cat_other: ["Otros", "Other", "Altres"],
+  menu_h: ["Opciones del grupo", "Group options", "Opcions del grup"],
+  m_edit: ["Nombre, icono y moneda", "Name, icon and currency", "Nom, icona i moneda"],
+  m_people: ["Participantes", "People", "Participants"],
+  m_recurring: ["Gastos de cada mes", "Monthly expenses", "Despeses de cada mes"],
+  m_activity: ["Actividad", "Activity", "Activitat"],
+  m_csv: ["Exportar a CSV", "Export to CSV", "Exportar a CSV"],
+  m_share_bal: ["Compartir saldos", "Share balances", "Compartir saldos"],
+  m_leave: ["Salir del grupo", "Leave the group", "Sortir del grup"],
+  m_delete: ["Borrar el grupo", "Delete the group", "Esborrar el grup"],
+  g_icon: ["Icono (un emoji)", "Icon (an emoji)", "Icona (un emoji)"],
+  g_icon_hint: ["Vacío = automático (la inicial del nombre).", "Empty = automatic (the name's initial).", "Buit = automàtic (la inicial del nom)."],
+  g_cur_hint: ["Los gastos nuevos usan esta moneda. Los importes que ya hay no se convierten.", "New expenses use this currency. Existing amounts aren't converted.", "Les despeses noves fan servir aquesta moneda. Els imports que ja hi ha no es converteixen."],
+  g_saved: ["Grupo guardado.", "Group saved.", "Grup desat."],
+  p_me: ["Soy yo", "That's me", "Sóc jo"],
+  p_remove: ["Quitar", "Remove", "Treure"],
+  p_involved: ["Tiene gastos: no se puede quitar.", "Has expenses: can't be removed.", "Té despeses: no es pot treure."],
+  p_add: ["Nombre de la persona nueva", "New person's name", "Nom de la persona nova"],
+  confirm_rm_person: ["¿Quitar a {0} del grupo?", "Remove {0} from the group?", "Treure {0} del grup?"],
+  rec_hint: ["Se apuntan solos cada mes, el mismo día, cuando alguien abre la app o la web.", "They're added automatically every month, on the same day, when someone opens the app or the web.", "S'apunten sols cada mes, el mateix dia, quan algú obre l'app o el web."],
+  rec_none: ["No hay gastos que se repitan. Al apuntar un gasto, marca «Repetir cada mes».", "No repeating expenses. When you add an expense, tick “Repeat every month”.", "No hi ha despeses que es repeteixin. En apuntar una despesa, marca «Repetir cada mes»."],
+  rec_line: ["Paga {0} · día {1} de cada mes", "Paid by {0} · day {1} of every month", "Paga {0} · dia {1} de cada mes"],
+  rec_stop: ["Dejar de repetir", "Stop repeating", "Deixar de repetir"],
+  rec_stop_q: ["¿Dejar de repetir «{0}»? Los meses ya apuntados se quedan como gastos normales.", "Stop repeating “{0}”? Months already added stay as normal expenses.", "Deixar de repetir «{0}»? Els mesos ja apuntats es queden com a despeses normals."],
+  loading: ["Cargando…", "Loading…", "Carregant…"],
+  someone: ["Alguien", "Someone", "Algú"],
+  act_empty: ["Aún no hay nada. Aquí verás los cambios que hagan los miembros del grupo.", "Nothing yet. Here you'll see the changes group members make.", "Encara no hi ha res. Aquí veuràs els canvis que facin els membres del grup."],
+  act_expense_added: ["{0} añadió «{1}» ({2})", "{0} added “{1}” ({2})", "{0} va afegir «{1}» ({2})"],
+  act_expense_edited: ["{0} editó «{1}» ({2})", "{0} edited “{1}” ({2})", "{0} va editar «{1}» ({2})"],
+  act_expense_deleted: ["{0} borró «{1}» ({2})", "{0} deleted “{1}” ({2})", "{0} va esborrar «{1}» ({2})"],
+  act_refund: ["{0} apuntó un reembolso de {1}", "{0} recorded a refund of {1}", "{0} va apuntar un reemborsament de {1}"],
+  act_ticket_uploaded: ["{0} subió el ticket «{1}» ({2})", "{0} uploaded the receipt “{1}” ({2})", "{0} va pujar el tiquet «{1}» ({2})"],
+  act_ticket_closed: ["{0} cerró el ticket «{1}» ({2})", "{0} closed the receipt “{1}” ({2})", "{0} va tancar el tiquet «{1}» ({2})"],
+  act_person_added: ["{0} añadió a {1} al grupo", "{0} added {1} to the group", "{0} va afegir {1} al grup"],
+  act_person_removed: ["{0} quitó a {1} del grupo", "{0} removed {1} from the group", "{0} va treure {1} del grup"],
+  csv_type: ["Tipo", "Type", "Tipus"],
+  csv_orig: ["Original", "Original", "Original"],
+  bal_text_title: ["💶 {0} — gasto total {1}", "💶 {0} — total spent {1}", "💶 {0} — despesa total {1}"],
+  to_settle: ["Para saldar:", "To settle up:", "Per liquidar:"],
+  settle_line: ["• {0} paga {1} a {2}", "• {0} pays {2} {1}", "• {0} paga {1} a {2}"],
+  bal_copied: ["Saldos copiados: pégalos donde quieras.", "Balances copied: paste them anywhere.", "Saldos copiats: enganxa'ls on vulguis."],
+  leave_q: ["¿Salir de «{0}»? Dejarás de verlo; los demás lo siguen teniendo con todos los gastos.", "Leave “{0}”? You'll stop seeing it; the others keep it with all the expenses.", "Sortir de «{0}»? Deixaràs de veure'l; els altres el continuen tenint amb totes les despeses."],
+  leave_alone_q: ["¿Salir de «{0}»? Nadie más tiene este grupo, así que se borrará con sus gastos.", "Leave “{0}”? Nobody else has this group, so it will be deleted with its expenses.", "Sortir de «{0}»? Ningú més té aquest grup, així que s'esborrarà amb les despeses."],
+  delete_q: ["¿Borrar «{0}» para todos? Se borrarán todos sus gastos. No se puede deshacer.", "Delete “{0}” for everyone? All its expenses will be deleted. This can't be undone.", "Esborrar «{0}» per a tothom? S'esborraran totes les despeses. No es pot desfer."],
+  left_ok: ["Has salido del grupo.", "You left the group.", "Has sortit del grup."],
+  deleted_g: ["Grupo borrado.", "Group deleted.", "Grup esborrat."],
   e_gone: ["Este grupo ya no existe o no estás en él.", "This group no longer exists or you're not in it.", "Aquest grup ja no existeix o no hi ets."],
   account: ["Cuenta", "Account", "Compte"],
   signed_as: ["Has entrado como {0}", "Signed in as {0}", "Has entrat com a {0}"],
@@ -235,7 +336,17 @@ function status(msg, kind, retry) {
   if (retry) { const b = document.createElement("button"); b.textContent = tr("retry"); b.onclick = () => { status(""); retry(); }; n.appendChild(document.createElement("br")); n.appendChild(b); }
 }
 let flashTimer;
-function flash(msg) { status(esc(msg)); clearTimeout(flashTimer); flashTimer = setTimeout(() => status(""), 4000); }
+// Aviso flotante abajo (como el de la app): se ve aunque se haya bajado por la lista.
+function flash(msg, undo) {
+  status(esc(msg)); clearTimeout(flashTimer);
+  $("status").classList.add("toast");
+  if (undo) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "link"; b.textContent = tr("undo");
+    b.onclick = () => { clearTimeout(flashTimer); status(""); undo(); };
+    $("status").appendChild(document.createTextNode(" ")); $("status").appendChild(b);
+  }
+  flashTimer = setTimeout(() => status(""), undo ? 9000 : 4000);
+}
 function header(h1, sub) { $("h1").textContent = h1; $("sub").textContent = sub || ""; document.title = h1 ? h1 + " · Distro" : "Distro"; }
 // Cabecera dentro de un grupo (atrás, «+ Gasto» y pestañas) o fuera (logo). Las pestañas son enlaces:
 // la dirección dice cuál está abierta, y «atrás» y compartir el enlace funcionan.
@@ -244,10 +355,10 @@ function inGroup(gid) {
   if (!gid) return;
   const add = $("add"); // si no, mientras carga el grupo seguiría siendo «+ Grupo»
   add.textContent = tr("add_exp"); add.setAttribute("aria-label", tr("add_exp_lbl")); add.onclick = () => { if (S.group) openAddExpense(); };
-  $("tabs").innerHTML = [["exp", "gastos", "tab_exp"], ["bal", "saldos", "tab_bal"]].map(([t, slug, k]) =>
+  $("tabs").innerHTML = [["exp", "gastos", "tab_exp"], ["bal", "saldos", "tab_bal"], ["stats", "estadisticas", "tab_stats"]].map(([t, slug, k]) =>
     '<a href="#/g/' + gid + "/" + slug + '"' + (S.tab === t ? ' aria-current="page"' : "") + ">" + tr(k) + "</a>").join("") +
-    '<button type="button" class="inv" id="inv">' + tr("invite") + "</button>";
-  $("inv").onclick = () => { if (S.group) openInvite(); };
+    '<button type="button" class="inv" id="inv" aria-label="' + tr("more") + '" title="' + tr("more") + '"><span aria-hidden="true">⋯</span></button>';
+  $("inv").onclick = () => { if (S.group) openMenu(); };
 }
 
 // --- Firestore por REST (enteros como texto) ---
@@ -316,6 +427,12 @@ function toGroup(id, d) {
     me: isId(who[S.user.uid]) ? who[S.user.uid] : null,
     taken: Object.keys(who).filter((u) => u !== S.user.uid && isId(who[u])).map((u) => who[u]),
     createdAt: Number(d.createdAt || 0),
+    recurring: Object.keys(d.recurring && typeof d.recurring === "object" ? d.recurring : {}).filter(isId).map((k) => {
+      const r = d.recurring[k] || {}, sh = {};
+      if (!isId(r.payerId) || r.amountCents == null || r.startAt == null) return null;
+      Object.keys(r.shares || {}).filter(isId).forEach((pid) => { sh[pid] = Number(r.shares[pid]) || 0; });
+      return { id: k, title: typeof r.title === "string" ? r.title : "", payerId: r.payerId, amountCents: Number(r.amountCents), shares: sh, startAt: Number(r.startAt), applied: Math.max(1, Number(r.applied) || 1) };
+    }).filter(Boolean).sort((a, b) => a.startAt - b.startAt),
   };
 }
 function toExpense(id, d) {
@@ -323,7 +440,9 @@ function toExpense(id, d) {
   if (d.deleted === true || !isId(d.payerId) || d.amountCents == null) return null;
   const shares = {};
   Object.keys(d.shares || {}).filter(isId).forEach((k) => { shares[k] = Number(d.shares[k]) || 0; });
-  return { id, title: d.title || "", payerId: String(d.payerId), amountCents: Number(d.amountCents), shares, createdAt: Number(d.createdAt || 0), isTransfer: !!d.isTransfer };
+  const rate = Number(d.rate), foreign = typeof d.currency === "string" && /^[A-Z]{3}$/.test(d.currency) && d.originalCents != null && rate > 0;
+  return { id, title: d.title || "", payerId: String(d.payerId), amountCents: Number(d.amountCents), shares, createdAt: Number(d.createdAt || 0), isTransfer: !!d.isTransfer,
+    currency: foreign ? d.currency : null, originalCents: foreign ? Number(d.originalCents) : null, rate: foreign ? rate : null };
 }
 
 // --- Cuentas: lo mismo que la app (Balances en Group.kt) ---
@@ -478,12 +597,8 @@ async function deleteAccount() {
   try {
     const uid = user.uid;
     for (const g of await myGroups()) {
-      if (g.members <= 1) {
-        const writes = [];
-        for (const sub of ["expenses", "tickets"]) (await listDocs("groups/" + g.id + "/" + sub)).forEach((d) => writes.push({ delete: docName("groups/" + g.id + "/" + sub + "/" + d.id) }));
-        writes.push({ delete: docName("groups/" + g.id) });
-        await commit(writes);
-      } else {
+      if (g.members <= 1) await deleteGroupDocs(g.id);
+      else {
         await commit([{ update: { name: docName("groups/" + g.id), fields: {} }, updateMask: { fieldPaths: ["who." + tick(uid)] },
           updateTransforms: [{ fieldPath: "memberUids", removeAllFromArray: { values: [str(uid)] } }] }]);
       }
@@ -532,8 +647,8 @@ function go(gid) { const h = "#/g/" + gid; if (location.hash === h) route(); els
 
 async function route() {
   $("menu").hidden = true; closeSheet();
-  const m = location.hash.match(/^#\/g\/(\d+)(?:\/(gastos|saldos))?/);
-  if (m) return openGroup(m[1], m[2] === "saldos" ? "bal" : "exp");
+  const m = location.hash.match(/^#\/g\/(\d+)(?:\/(gastos|saldos|estadisticas))?/);
+  if (m) return openGroup(m[1], m[2] === "saldos" ? "bal" : m[2] === "estadisticas" ? "stats" : "exp");
   return home();
 }
 
@@ -621,6 +736,7 @@ async function refresh() {
     cleanJoins(gid, d);
     S.expenses = ex.map((x) => toExpense(x.id, x.data)).filter(Boolean).sort((a, b) => b.createdAt - a.createdAt);
     S.tickets = tk.map((x) => toTicket(x.id, x.data)).filter(Boolean).sort((a, b) => a.createdAt - b.createdAt);
+    if (S.group.recurring.length) applyRecurring(gid, ex.map((x) => x.id));
     if ($("status").className.indexOf("bad") >= 0) status("");
     renderGroup();
   } catch (e) {
@@ -652,7 +768,7 @@ function renderGroup() {
   let h = "";
   if (!meOk) h += whoCard();
   if (S.tickets.length) h += ticketsHtml();
-  h += S.tab === "exp" ? expensesHtml() : balancesHtml();
+  h += S.tab === "exp" ? expensesHtml() : S.tab === "bal" ? balancesHtml() : statsHtml();
   $("view").innerHTML = h;
   inGroup(g.id);
   $("back").setAttribute("aria-label", tr("back_lbl"));
@@ -686,12 +802,15 @@ function expensesHtml() {
     S.expenses.map((e) => {
       if (e.isTransfer) {
         const to = Object.keys(e.shares)[0];
-        return '<tr class="xfer"><td class="d">' + day(e.createdAt) + '</td><td><span class="what">' + esc(nameYou(e.payerId)) + ' <span aria-hidden="true">→</span><span class="sr"> ' + tr("pays_to") + " </span> " + esc(to ? nameYou(to) : "?") +
-          "</span><small>" + esc(e.title) + '</small></td><td class="n big">' + money(e.amountCents) + "</td></tr>";
+        return '<tr class="xfer"><td class="d">' + day(e.createdAt) + '</td><td><button type="button" class="rowbtn" data-exp="' + e.id + '" aria-label="' + esc(tr("open_pay", nameYou(e.payerId), to ? nameYou(to) : "?", money(e.amountCents))) + '">' +
+          '<span class="what">' + esc(nameYou(e.payerId)) + ' <span aria-hidden="true">→</span> ' + esc(to ? nameYou(to) : "?") +
+          "</span><small>" + esc(e.title) + '</small></button></td><td class="n big">' + money(e.amountCents) + "</td></tr>";
       }
       const mine = me && e.shares[me] ? " · " + tr("your_share", money(e.shares[me])) : "";
-      return '<tr><td class="d">' + day(e.createdAt) + '</td><td><span class="what">' + esc(e.title) + "</span><small>" + esc(tr("paid_by", nameYou(e.payerId)) + mine) +
-        '</small></td><td class="n big">' + money(e.amountCents) + "</td></tr>";
+      const orig = e.currency ? "<small>" + esc(tr("paid_orig", money(e.originalCents, e.currency), e.currency, rateLocal(e.rate), S.group.currency)) + "</small>" : "";
+      return '<tr><td class="d">' + day(e.createdAt) + '</td><td><button type="button" class="rowbtn" data-exp="' + e.id + '" aria-label="' + esc(tr("open_exp", e.title, money(e.amountCents))) + '">' +
+        '<span class="what"><span aria-hidden="true">' + expenseEmoji(e) + "</span> " + esc(e.title) + "</span><small>" + esc(tr("paid_by", nameYou(e.payerId)) + mine) +
+        "</small>" + orig + '</button></td><td class="n big">' + money(e.amountCents) + "</td></tr>";
     }).join("") + "</tbody></table>";
 }
 
@@ -731,6 +850,14 @@ function wireGroup() {
   wireTickets();
   document.querySelectorAll("[data-who]").forEach((b) => { b.onclick = () => pickMe(b.dataset.who); });
   document.querySelectorAll("[data-pay]").forEach((b) => { b.onclick = () => markPaid(S.transfers[Number(b.dataset.pay)], b); });
+  document.querySelectorAll("[data-exp]").forEach((b) => {
+    b.onclick = () => {
+      const e = S.expenses.find((x) => x.id === b.dataset.exp); if (!e) return;
+      // Un pago entre personas no se edita: se borra (y se puede deshacer).
+      if (e.isTransfer) { if (confirm(tr("confirm_del_pay", money(e.amountCents)))) deleteExpense(e, true); }
+      else openExpense(e);
+    };
+  });
   const f = $("addme");
   if (f) f.onsubmit = (ev) => { ev.preventDefault(); addMe($("myname").value.trim(), f.querySelector("button")); };
 }
@@ -745,25 +872,12 @@ function activityWrite(kind, title, cents, by) {
     currentDocument: { exists: false },
   };
 }
-function expenseWrite(e) {
-  const shares = {};
-  Object.keys(e.shares).forEach((k) => { shares[k] = int(e.shares[k]); });
-  return {
-    update: { name: docName("groups/" + S.gid + "/expenses/" + e.id), fields: {
-      title: str(e.title), payerId: int(e.payerId), amountCents: int(e.amountCents), shares: mv(shares),
-      createdAt: int(e.createdAt), isTransfer: bool(e.isTransfer), updatedBy: str(S.user.uid),
-    } },
-    updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }],
-    currentDocument: { exists: false },
-  };
-}
-
-async function guarded(fn, btn) {
+async function guarded(fn, btn, noRefresh) {
   if (S.busy) return;
   S.busy = true;
   const label = btn && btn.textContent;
   if (btn) { btn.disabled = true; btn.textContent = tr("saving"); }
-  try { await fn(); S.sig = null; await refresh(); return true; }
+  try { await fn(); S.sig = null; if (!noRefresh) await refresh(); return true; }
   catch (e) { console.warn(e); status(esc(tr("e_save")), "bad"); return false; }
   finally { S.busy = false; if (btn && btn.isConnected) { btn.disabled = false; btn.textContent = label; } }
 }
@@ -786,10 +900,12 @@ function addMe(name, btn) {
 function markPaid(t, btn) {
   if (!t || !confirm(tr("confirm_paid", personName(t.from), money(t.cents), personName(t.to)))) return;
   const e = { id: newId(), title: tr("refund"), payerId: t.from, amountCents: t.cents, shares: { [t.to]: t.cents }, createdAt: Date.now(), isTransfer: true };
-  guarded(() => commit([expenseWrite(e), activityWrite("refund", e.title, e.amountCents)]), btn).then((ok) => { if (ok) flash(tr("paid_ok")); });
+  guarded(() => commit([expenseWrite(e), activityWrite("refund", e.title, e.amountCents)]), btn).then((ok) => { if (ok) flash(tr("paid_ok"), () => deleteExpense(e, false)); });
 }
 
-// --- Nuevo gasto (a partes iguales) ---
+// --- Gastos: nuevo, editar y borrar (como ExpenseDialog en la app) ---
+// Modos: a partes iguales, por partes (2×, 1×…), por importes y por porcentajes. Se guarda siempre lo
+// que le toca a cada uno en céntimos (shares), así que la app entiende los cuatro igual.
 function closeSheet() {
   const s = $("sheet"), was = !s.hidden;
   s.hidden = true; s.innerHTML = "";
@@ -800,50 +916,617 @@ function parseCents(s) {
   if (!/^\d{1,7}([.,]\d{1,2})?$/.test(s)) return 0;
   return Math.round(parseFloat(s.replace(",", ".")) * 100);
 }
-function openAddExpense(pre) {
-  const g = S.group, sheet = $("sheet"), sel = new Set(g.people.map((p) => p.id));
-  const payer = g.me && g.people.some((p) => p.id === g.me) ? g.me : (g.people[0] || {}).id;
-  sheet.innerHTML = '<form id="expf" novalidate role="dialog" aria-modal="true" aria-labelledby="eh"><h2 id="eh">' + tr("new_exp") + "</h2>" +
-    (pre ? "" : '<button type="button" class="btn" id="escan" style="margin:8px 0 4px">' + tr("scan_btn") + "</button>") +
-    '<label for="ec">' + tr("concept") + '</label><input id="ec" name="concept" maxlength="120" placeholder="' + tr("concept_ph") + '" autocomplete="off">' +
-    '<label for="ea">' + tr("amount", esc(g.currency)) + '</label><input id="ea" name="amount" inputmode="decimal" placeholder="0,00" autocomplete="off">' +
-    '<label for="ep">' + tr("paid_by_lbl") + '</label><select id="ep" name="payer">' + g.people.map((p) => '<option value="' + p.id + '"' + (p.id === payer ? " selected" : "") + ">" + esc(nameYou(p.id)) + "</option>").join("") + "</select>" +
-    '<label id="ebl">' + tr("between") + '</label><div class="chips" id="eb" role="group" aria-labelledby="ebl">' + g.people.map((p) => '<button type="button" aria-pressed="true" data-p="' + p.id + '">' + esc(p.name) + "</button>").join("") + "</div>" +
-    '<small id="each" aria-live="polite"></small><p class="err" id="eerr" role="alert" style="color:var(--bad)"></p>' +
-    '<div class="split"><button type="button" id="ecancel">' + tr("cancel") + '</button><button type="submit" class="on" id="esave">' + tr("save") + "</button></div></form>";
+// Porcentaje en centésimas de punto ("33,33" → 3333); -1 si no vale.
+function parsePct(s) {
+  s = (s || "").trim().replace(/\s|%/g, "");
+  if (!s) return 0;
+  if (!/^\d{1,3}([.,]\d{1,2})?$/.test(s)) return -1;
+  const v = Math.round(parseFloat(s.replace(",", ".")) * 100);
+  return v <= 10000 ? v : -1;
+}
+const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+function centsText(c) { return (c / 100).toFixed(2).replace(".", LANG === "en" ? "." : ","); }
+function pctText(bp) { return (bp / 100).toFixed(bp % 100 ? 2 : 0).replace(".", LANG === "en" ? "." : ","); }
+// Tipo de cambio: como rateString/parseRate de la app.
+function rateString(r) { let s = String(r); if (/e/i.test(s)) s = r.toFixed(12).replace(/0+$/, "").replace(/\.$/, ""); return s; }
+function parseRate(s) { const v = Number((s || "").trim().replace(",", ".")); return v > 0 && isFinite(v) ? v : null; }
+function rateLocal(r) { return LANG === "en" ? rateString(r) : rateString(r).replace(".", ","); }
+// Céntimos × tipo, redondeado a medio céntimo hacia arriba y sin errores de coma flotante (Fx.convert).
+function convert(cents, rate) {
+  const [i, f = ""] = rateString(rate).split("."), N = BigInt(i + f), D = 10n ** BigInt(f.length);
+  return Number((BigInt(cents) * N * 2n + D) / (2n * D));
+}
+function splitMap(total, shares) {
+  const ids = Object.keys(shares), p = splitCents(total, ids.map((k) => shares[k])), o = {};
+  ids.forEach((k, i) => { o[k] = p[i]; });
+  return o;
+}
+const convertShares = (shares, rate) => splitMap(convert(sum(shares), rate), shares); // Fx.convertShares
+const toForeignShares = (shares, original) => splitMap(original, shares); // Fx.toForeignShares
+function isEqualSplit(e) {
+  const ids = S.group.people.map((p) => p.id).filter((id) => id in e.shares);
+  if (ids.length !== Object.keys(e.shares).length) return false;
+  const eq = equalShares(e.amountCents, ids);
+  return ids.every((id) => eq[id] === e.shares[id]);
+}
+
+// Tipo de cambio de hoy, como RateFetcher: Frankfurter (BCE) y, si no, una API pública con más monedas.
+async function fetchRate(from, to) {
+  const get = async (url) => {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 5000);
+    try { const r = await fetch(url, { signal: ctl.signal }); return r.ok ? await r.json() : null; } catch (e) { return null; } finally { clearTimeout(t); }
+  };
+  const clean = (v) => (typeof v === "number" && v > 0 && isFinite(v) ? Number(v.toPrecision(6)) : null);
+  let j = await get("https://api.frankfurter.dev/v1/latest?base=" + from + "&symbols=" + to);
+  let v = j && j.rates ? clean(j.rates[to]) : null;
+  for (const u of ["https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/", "https://latest.currency-api.pages.dev/v1/currencies/"]) {
+    if (v) break;
+    j = await get(u + from.toLowerCase() + ".json");
+    v = j && j[from.toLowerCase()] ? clean(j[from.toLowerCase()][to.toLowerCase()]) : null;
+  }
+  return v;
+}
+
+const expPath = (id) => "groups/" + S.gid + "/expenses/" + id;
+// how: "create" (no existe), "set" (lo sustituye entero al editar) o "restore" (deshacer un borrado).
+function expenseWrite(e, how) {
+  const shares = {};
+  Object.keys(e.shares).forEach((k) => { shares[k] = int(e.shares[k]); });
+  const fields = {
+    title: str(e.title), payerId: int(e.payerId), amountCents: int(e.amountCents), shares: mv(shares),
+    createdAt: int(e.createdAt), isTransfer: bool(e.isTransfer), updatedBy: str(S.user.uid),
+  };
+  if (e.currency && e.originalCents != null && e.rate) {
+    fields.currency = str(e.currency); fields.originalCents = int(e.originalCents); fields.rate = { doubleValue: e.rate };
+  }
+  if (how === "restore") fields.deleted = bool(false);
+  return {
+    update: { name: docName(expPath(e.id)), fields },
+    updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }],
+    currentDocument: { exists: how === "set" || how === "restore" },
+  };
+}
+// Borrado suave, como la app: el gasto se queda marcado y se puede deshacer.
+function deleteExpense(x, undoable) {
+  return guarded(() => commit([
+    { update: { name: docName(expPath(x.id)), fields: { deleted: bool(true), updatedBy: str(S.user.uid) } },
+      updateMask: { fieldPaths: ["deleted", "updatedBy"] }, updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }], currentDocument: { exists: true } },
+    activityWrite("expense_deleted", x.title, x.amountCents),
+  ])).then((ok) => { if (ok && undoable) flash(tr(x.isTransfer ? "pay_deleted" : "exp_deleted"), () => restoreExpense(x)); return ok; });
+}
+function restoreExpense(x) {
+  guarded(() => commit([expenseWrite(x, "restore"), activityWrite(x.isTransfer ? "refund" : "expense_added", x.title, x.amountCents)]))
+    .then((ok) => { if (ok) flash(tr("restored")); });
+}
+function openAddExpense(pre) { openExpense(null, pre); }
+
+function openExpense(e, pre) {
+  const g = S.group, sheet = $("sheet"), people = g.people, ids = people.map((p) => p.id);
+  const foreign0 = e && e.currency && e.originalCents != null && e.rate ? e.currency : null;
+  const base = e ? (foreign0 ? toForeignShares(e.shares, e.originalCents) : e.shares) : null;
+  const st = {
+    mode: !e || isEqualSplit(e) ? "eq" : "amt",
+    cur: foreign0 || g.currency,
+    rate: e && e.rate ? rateLocal(e.rate) : "",
+    rateEdited: !!(e && e.rate),
+    rateStatus: "",
+    sel: new Set(e ? Object.keys(e.shares).filter((id) => ids.indexOf(id) >= 0) : ids),
+    weights: {}, amounts: {}, pcts: {},
+    title: e ? e.title : pre ? pre.title : "",
+    amount: e ? centsText(foreign0 ? e.originalCents : e.amountCents) : pre ? centsText(pre.cents) : "",
+    payer: e ? e.payerId : pre && pre.payer ? pre.payer : g.me && ids.indexOf(g.me) >= 0 ? g.me : ids[0],
+    monthly: false,
+  };
+  ids.forEach((id) => { st.weights[id] = 1; st.amounts[id] = base && base[id] ? centsText(base[id]) : ""; st.pcts[id] = ""; });
+  const curList = CURRENCIES.indexOf(g.currency) >= 0 ? CURRENCIES.slice() : [g.currency].concat(CURRENCIES);
+  if (curList.indexOf(st.cur) < 0) curList.unshift(st.cur);
+  const foreign = () => st.cur !== g.currency;
+
+  // Al pasar a porcentajes se reparte el 100 % entre los marcados (el resto de centésimas, a los primeros).
+  function fillPcts() {
+    const on = ids.filter((id) => st.sel.has(id)), p = splitCents(10000, on.map(() => 1));
+    ids.forEach((id) => { st.pcts[id] = ""; });
+    on.forEach((id, i) => { st.pcts[id] = pctText(p[i]); });
+  }
+  // Lo que le toca a cada uno en la moneda del gasto; { err } si algo no vale.
+  function compute() {
+    if (st.mode === "amt") {
+      const sh = {};
+      for (const id of ids) {
+        const t = (st.amounts[id] || "").trim();
+        if (!t) continue;
+        const c = parseCents(t);
+        if (!c && !/^0+([.,]0{1,2})?$/.test(t)) return { err: "e_amounts", field: "am_" + id };
+        if (c) sh[id] = c;
+      }
+      return sum(sh) > 0 ? { shares: sh, cents: sum(sh) } : { err: "e_amount", field: "am_" + ids[0] };
+    }
+    const cents = parseCents(st.amount);
+    if (cents <= 0) return { err: "e_amount", field: "ea" };
+    if (st.mode === "eq") {
+      const on = ids.filter((id) => st.sel.has(id));
+      return on.length ? { shares: equalShares(cents, on), cents } : { err: "e_between", field: "eb" };
+    }
+    if (st.mode === "parts") {
+      const w = ids.map((id) => st.weights[id] || 0);
+      if (!w.some((x) => x > 0)) return { err: "e_between", field: "eb" };
+      const p = splitCents(cents, w), sh = {};
+      ids.forEach((id, i) => { if (p[i] > 0) sh[id] = p[i]; });
+      return { shares: sh, cents };
+    }
+    const bp = ids.map((id) => parsePct(st.pcts[id]));
+    const bad = bp.findIndex((x) => x < 0);
+    if (bad >= 0) return { err: "e_pct", field: "pc_" + ids[bad] };
+    const total = bp.reduce((a, b) => a + b, 0);
+    if (total !== 10000) return { err: "e_pct", field: "pc_" + ids[0], pct: total };
+    const p = splitCents(cents, bp), sh = {};
+    ids.forEach((id, i) => { if (p[i] > 0) sh[id] = p[i]; });
+    return { shares: sh, cents };
+  }
+
+  function peopleHtml() {
+    const cur = st.cur;
+    if (st.mode === "eq") {
+      return '<div class="chips" id="eb" role="group" aria-labelledby="eml">' + people.map((p) =>
+        '<button type="button" aria-pressed="' + st.sel.has(p.id) + '" data-p="' + p.id + '">' + esc(p.name) + "</button>").join("") + "</div>";
+    }
+    if (st.mode === "parts") {
+      return '<div id="eb"><small>' + tr("parts_hint") + "</small>" + people.map((p) => {
+        const n = st.weights[p.id] || 0;
+        return '<div class="prow"><span class="grow">' + esc(p.name) + "</span>" +
+          '<button type="button" class="step" data-w="-1" data-p="' + p.id + '" aria-label="' + esc(tr("less_for", p.name)) + '"' + (n <= 0 ? " disabled" : "") + ">−</button>" +
+          '<b class="cnt" aria-live="polite">' + n + "×</b>" +
+          '<button type="button" class="step" data-w="1" data-p="' + p.id + '" aria-label="' + esc(tr("more_for", p.name)) + '"' + (n >= 99 ? " disabled" : "") + ">+</button>" +
+          '<span class="amt out" data-out="' + p.id + '"></span></div>';
+      }).join("") + "</div>";
+    }
+    const amt = st.mode === "amt";
+    return '<div id="eb">' + people.map((p) =>
+      '<div class="prow"><label class="grow" for="' + (amt ? "am_" : "pc_") + p.id + '">' + esc(p.name) + "</label>" +
+      '<input id="' + (amt ? "am_" : "pc_") + p.id + '" data-' + (amt ? "am" : "pc") + '="' + p.id + '" inputmode="decimal" autocomplete="off" class="num" value="' + esc(amt ? st.amounts[p.id] : st.pcts[p.id]) + '"' +
+      ' aria-label="' + esc(tr(amt ? "amount_of" : "pct_of", p.name)) + '" placeholder="' + (amt ? "0,00" : "0") + '">' +
+      '<span class="unit" aria-hidden="true">' + (amt ? esc(cur) : "%") + "</span>" + (amt ? "" : '<span class="amt out" data-out="' + p.id + '"></span>') + "</div>").join("") + "</div>";
+  }
+
+  function draw(focusId) {
+    const f = foreign();
+    sheet.innerHTML = '<form id="expf" novalidate role="dialog" aria-modal="true" aria-labelledby="eh"><h2 id="eh">' + tr(e ? "edit_exp" : "new_exp") + "</h2>" +
+      (!e && !pre ? '<button type="button" class="btn" id="escan" style="margin:8px 0 4px">' + tr("scan_btn") + "</button>" : "") +
+      '<label for="ec">' + tr("concept") + '</label><input id="ec" name="concept" maxlength="120" placeholder="' + tr("concept_ph") + '" autocomplete="off" value="' + esc(st.title) + '">' +
+      '<label for="ea">' + tr(st.mode === "amt" ? "total_lbl" : "amount_lbl") + '</label><div class="split"><input id="ea" name="amount" inputmode="decimal" placeholder="0,00" autocomplete="off" value="' + esc(st.amount) + '"' + (st.mode === "amt" ? " readonly" : "") + ">" +
+      '<select id="ecur" aria-label="' + tr("paid_in") + '" style="flex:0 0 6.2em">' + curList.map((c) => '<option value="' + c + '"' + (c === st.cur ? " selected" : "") + ">" + c + "</option>").join("") + "</select></div>" +
+      (f ? '<label for="erate">' + tr("rate_lbl", esc(st.cur), esc(g.currency)) + '</label><input id="erate" inputmode="decimal" autocomplete="off" value="' + esc(st.rate) + '"><small id="erst" aria-live="polite">' + esc(st.rateStatus) + "</small>" : "") +
+      '<label for="ep">' + tr("paid_by_lbl") + '</label><select id="ep" name="payer">' + people.map((p) => '<option value="' + p.id + '"' + (p.id === st.payer ? " selected" : "") + ">" + esc(nameYou(p.id)) + "</option>").join("") + "</select>" +
+      '<label id="eml">' + tr("m_label") + '</label><div class="seg" role="group" aria-labelledby="eml">' + [["eq", "m_equal"], ["parts", "m_parts"], ["amt", "m_amounts"], ["pct", "m_pct"]].map(([m, k]) =>
+        '<button type="button" data-mode="' + m + '" aria-pressed="' + (st.mode === m) + '">' + tr(k) + "</button>").join("") + "</div>" +
+      peopleHtml() +
+      '<p id="each" aria-live="polite" class="foot"></p>' +
+      (!e && !f ? '<label class="chk"><input type="checkbox" id="emon"' + (st.monthly ? " checked" : "") + "> " + tr("repeat") + "</label><small>" + tr("repeat_hint") + "</small>" : "") +
+      '<p class="err" id="eerr" role="alert" style="color:var(--bad)"></p>' +
+      '<div class="split">' + (e ? '<button type="button" id="edel" class="danger">' + tr("delete_exp") + "</button>" : "") +
+      '<button type="button" id="ecancel">' + tr("cancel") + '</button><button type="submit" class="on" id="esave">' + tr("save") + "</button></div></form>";
+    sheet.hidden = false;
+    wire();
+    upd();
+    if (focusId && $(focusId)) $(focusId).focus();
+  }
+
+  function upd() {
+    const r = compute(), out = $("each"), cur = st.cur, f = foreign(), rate = f ? parseRate(st.rate) : 1;
+    if (!r.err) document.querySelectorAll('#eb [aria-invalid], #ea[aria-invalid]').forEach((n) => n.removeAttribute("aria-invalid"));
+    let txt = "";
+    if (st.mode === "amt") {
+      const c = ids.reduce((a, id) => a + parseCents(st.amounts[id]), 0);
+      $("ea").value = c ? centsText(c) : "";
+    }
+    if (st.mode === "eq" && r.shares) txt = tr("each", money(Math.floor(r.cents / Object.keys(r.shares).length), cur));
+    if (st.mode === "pct") {
+      const total = ids.reduce((a, id) => a + Math.max(0, parsePct(st.pcts[id])), 0);
+      txt = total === 10000 ? tr("pct_ok") : tr("pct_sum", pctText(total));
+    }
+    if ((st.mode === "parts" || st.mode === "pct")) {
+      document.querySelectorAll("[data-out]").forEach((n) => { const v = r.shares && r.shares[n.dataset.out]; n.textContent = v ? money(v, cur) : ""; });
+    }
+    if (r.cents && st.mode !== "eq" && st.mode !== "pct") txt = tr("total_is", money(r.cents, cur));
+    if (f && rate && r.cents) txt += (txt ? " · " : "") + tr("rate_preview", money(convert(r.cents, rate), g.currency));
+    out.textContent = txt;
+  }
+
+  async function lookRate() {
+    if (!foreign() || st.rateEdited) return;
+    const cur = st.cur;
+    st.rateStatus = tr("rate_loading"); if ($("erst")) $("erst").textContent = st.rateStatus;
+    const v = await fetchRate(cur, g.currency);
+    if (cur !== st.cur || st.rateEdited || !$("erate")) return;
+    if (v) { st.rate = rateLocal(v); st.rateStatus = tr("rate_auto"); $("erate").value = st.rate; }
+    else st.rateStatus = tr("rate_failed");
+    $("erst").textContent = st.rateStatus;
+    upd();
+  }
+
+  function keep() { st.title = $("ec").value; if (st.mode !== "amt") st.amount = $("ea").value; st.payer = $("ep").value; if ($("emon")) st.monthly = $("emon").checked; if ($("erate")) st.rate = $("erate").value; }
+
+  function wire() {
+    const err = $("eerr");
+    $("ec").oninput = () => { $("ec").removeAttribute("aria-invalid"); err.textContent = ""; };
+    $("ea").oninput = () => { st.amount = $("ea").value; $("ea").removeAttribute("aria-invalid"); err.textContent = ""; upd(); };
+    $("ecur").onchange = () => {
+      keep(); st.cur = $("ecur").value; st.rateEdited = false; st.rateStatus = "";
+      st.rate = foreign() ? load("rate:" + st.cur + ">" + g.currency) || "" : "";
+      if (foreign()) st.monthly = false;
+      draw("ecur"); lookRate();
+    };
+    if ($("erate")) $("erate").oninput = () => { st.rate = $("erate").value; st.rateEdited = true; st.rateStatus = ""; $("erst").textContent = ""; upd(); };
+    document.querySelectorAll("[data-mode]").forEach((b) => {
+      b.onclick = () => {
+        keep(); const m = b.dataset.mode; if (m === st.mode) return;
+        if (m === "amt" && !ids.some((id) => st.amounts[id])) {
+          // Al pasar a importes se parte de lo que había (por ejemplo, a partes iguales).
+          const r = compute(); if (r.shares) ids.forEach((id) => { st.amounts[id] = r.shares[id] ? centsText(r.shares[id]) : ""; });
+        }
+        if (m === "pct" && !ids.some((id) => st.pcts[id])) fillPcts();
+        if (st.mode === "amt") { const c = ids.reduce((a, id) => a + parseCents(st.amounts[id]), 0); if (c) st.amount = centsText(c); }
+        st.mode = m; draw();
+        const nb = document.querySelector('[data-mode="' + m + '"]'); if (nb) nb.focus();
+      };
+    });
+    $("eb").onclick = (ev) => {
+      const b = ev.target.closest("button[data-p]"); if (!b) return;
+      const id = b.dataset.p;
+      if (st.mode === "eq") { if (st.sel.has(id)) st.sel.delete(id); else st.sel.add(id); b.setAttribute("aria-pressed", String(st.sel.has(id))); }
+      else if (st.mode === "parts") {
+        st.weights[id] = Math.max(0, Math.min(99, (st.weights[id] || 0) + Number(b.dataset.w)));
+        const row = b.closest(".prow"); row.querySelector(".cnt").textContent = st.weights[id] + "×";
+        row.querySelector('[data-w="-1"]').disabled = st.weights[id] <= 0; row.querySelector('[data-w="1"]').disabled = st.weights[id] >= 99;
+      }
+      err.textContent = ""; upd();
+    };
+    $("eb").oninput = (ev) => {
+      const t = ev.target; t.removeAttribute("aria-invalid"); err.textContent = "";
+      if (t.dataset.am) st.amounts[t.dataset.am] = t.value; else if (t.dataset.pc) st.pcts[t.dataset.pc] = t.value;
+      upd();
+    };
+    if ($("escan")) $("escan").onclick = () => openScan();
+    if ($("edel")) $("edel").onclick = () => { if (confirm(tr("confirm_del_exp", e.title))) { closeSheet(); deleteExpense(e, true); } };
+    $("ecancel").onclick = closeSheet;
+    sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
+    $("expf").onsubmit = async (ev) => {
+      ev.preventDefault();
+      keep();
+      const bad = (id, msg) => { err.textContent = msg; const f = $(id); if (!f) return; if (f.tagName === "INPUT") f.setAttribute("aria-invalid", "true"); (f.tagName === "DIV" ? f.querySelector("button, input") : f).focus(); };
+      const title = st.title.trim();
+      if (!title) return bad("ec", tr("e_concept"));
+      const r = compute();
+      if (r.err) return bad(r.field, tr(r.err));
+      const f = foreign(), rate = f ? parseRate(st.rate) : 1;
+      if (!rate) return bad("erate", tr("e_rate"));
+      const inGroup = f ? convertShares(r.shares, rate) : r.shares;
+      if (f) store("rate:" + st.cur + ">" + g.currency, rateLocal(rate));
+      const x = {
+        id: e ? e.id : newId(), title, payerId: st.payer, amountCents: sum(inGroup), shares: inGroup,
+        createdAt: e ? e.createdAt : Date.now(), isTransfer: false,
+        currency: f ? st.cur : null, originalCents: f ? sum(r.shares) : null, rate: f ? rate : null,
+      };
+      err.textContent = "";
+      let writes;
+      if (e) writes = [expenseWrite(x, "set"), activityWrite("expense_edited", title, x.amountCents)];
+      else if (st.monthly && !f) {
+        // El primer mes se guarda con el id del mes 0 de la repetición (Recurring.from en la app).
+        const rec = { id: newId(), title, payerId: x.payerId, amountCents: x.amountCents, shares: x.shares, startAt: x.createdAt, applied: 1 };
+        x.id = recurringExpenseId(rec.id, 0);
+        writes = [expenseWrite(x, "create"), recurringWrite(rec), activityWrite("expense_added", title, x.amountCents)];
+      } else writes = [expenseWrite(x, "create"), activityWrite("expense_added", title, x.amountCents)];
+      const ok = await guarded(() => commit(writes), $("esave"));
+      if (ok) {
+        closeSheet();
+        if (S.tab !== "exp") location.hash = "#/g/" + S.gid + "/gastos"; else renderGroup();
+        flash(tr(e ? "edited" : "saved"));
+      } else err.textContent = tr("e_save");
+    };
+  }
+
+  draw();
+  if (!e && matchMedia("(pointer: fine)").matches) setTimeout(() => $("ec") && $("ec").focus(), 50);
+  if (foreign() && !st.rateEdited) lookRate();
+}
+
+// --- Gastos que se repiten cada mes (Recurring.kt) ---
+// El id de cada mes sale del de la repetición y del número de mes, igual que en la app: si dos
+// móviles (o la app y la web) lo apuntan a la vez, escriben el mismo gasto y no sale repetido.
+function recurringExpenseId(rid, period) {
+  const M = (v) => BigInt.asIntN(64, v);
+  let r = (M(BigInt(rid) * 1000003n) ^ M(BigInt(period) * -0x61c8864680b583ebn)) & 0x7fffffffffffffffn;
+  if (r < 1n) r = 1n;
+  return r.toString();
+}
+// Mismo día del mes, n meses después; el 31 cae en el último día de los meses cortos (Calendar.add).
+function addMonths(ms, n) {
+  const d = new Date(ms), t = new Date(d.getFullYear(), d.getMonth() + n, 1, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+  t.setDate(Math.min(d.getDate(), new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate()));
+  return t.getTime();
+}
+// Meses que faltan por apuntar (como mucho 12) y el valor nuevo de `applied` (Recurring.pending).
+function recurringPending(r, now) {
+  if (now < r.startAt) return { periods: [], due: r.applied };
+  let n = Math.max(1, r.applied);
+  while (addMonths(r.startAt, n) <= now) n++;
+  if (n <= r.applied) return { periods: [], due: r.applied };
+  const periods = [];
+  for (let p = Math.max(r.applied, n - 12); p < n; p++) periods.push(p);
+  return { periods, due: n };
+}
+function recurringWrite(r) {
+  const sh = {};
+  Object.keys(r.shares).forEach((k) => { sh[k] = int(r.shares[k]); });
+  return {
+    update: { name: groupDoc(), fields: { recurring: mv({ [r.id]: mv({
+      title: str(r.title), payerId: int(r.payerId), amountCents: int(r.amountCents), shares: mv(sh), startAt: int(r.startAt), applied: int(r.applied),
+    }) }) } },
+    updateMask: { fieldPaths: ["recurring." + tick(r.id)] },
+  };
+}
+const applying = new Set();
+// Apunta los meses que ya han llegado a su fecha (applyRecurring en la app): lo hace quien abre antes el grupo.
+function applyRecurring(gid, knownIds) {
+  const now = Date.now(), known = new Set(knownIds);
+  for (const r of S.group.recurring) {
+    const { periods, due } = recurringPending(r, now), key = gid + ":" + r.id + ":" + due;
+    if (!periods.length || applying.has(key)) continue;
+    applying.add(key);
+    const writes = [];
+    periods.forEach((p) => {
+      const x = { id: recurringExpenseId(r.id, p), title: r.title, payerId: r.payerId, amountCents: r.amountCents, shares: r.shares, createdAt: addMonths(r.startAt, p), isTransfer: false };
+      if (known.has(x.id)) return; // ya lo apuntó otro (quizá con la caché atrasada)
+      writes.push(expenseWrite(x, "create"), activityWrite("expense_added", x.title, x.amountCents));
+    });
+    writes.push(recurringWrite(Object.assign({}, r, { applied: due })));
+    commit(writes).then(() => { if (S.gid === gid) { S.sig = null; refresh(); } }).catch((e) => console.warn("recurring", e));
+  }
+}
+
+// --- Categorías y emojis (Category.of y expenseEmoji en la app) ---
+const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/\p{Mn}+/gu, "");
+const words = (s) => norm(s).split(/[^a-z0-9]+/).filter(Boolean);
+const match = (title, table, dflt) => { const w = words(title); const hit = table.find(([keys]) => w.some((x) => keys.some((k) => x.startsWith(k)))); return hit ? hit[1] : dflt; };
+const CATS = [
+  [["viaje", "vacaciones", "escapada", "finde", "playa", "boda", "trip", "vacation", "holiday", "weekend", "beach", "wedding", "viatge", "vacances", "platja", "casament"], "trips"],
+  [["pizza", "pizzeria", "hamburg", "burger", "sushi", "japones", "cena", "comida", "almuerzo", "restaurante", "menu", "tapas", "desayuno", "cafe", "cafeteria", "helado", "dinner", "lunch", "restaurant", "breakfast", "coffee", "brunch", "meal", "sopar", "dinar", "esmorzar", "tapes", "menjar", "gelat"], "food"],
+  [["cerveza", "cana", "copas", "vino", "bebida", "bar", "beer", "drinks", "wine", "pub", "cocktail", "cervesa", "canya", "copes", "beguda"], "drinks"],
+  [["super", "mercadona", "lidl", "carrefour", "dia", "alcampo", "compra", "grocery", "groceries", "supermarket", "shopping", "bonpreu", "condis", "esclat"], "groceries"],
+  [["taxi", "uber", "cabify", "gasolina", "gasoil", "diesel", "repsol", "cepsa", "tren", "renfe", "ave", "avion", "vuelo", "ryanair", "vueling", "iberia", "bus", "autobus", "metro", "parking", "aparcamiento", "peaje", "lyft", "gas", "fuel", "petrol", "train", "flight", "toll", "subway", "benzina", "avio", "aparcament", "peatge"], "transport"],
+  [["hotel", "airbnb", "apartamento", "alojamiento", "hostal", "alquiler", "piso", "casa", "hostel", "rent", "flat", "house", "apartment", "allotjament", "pis", "lloguer"], "lodging"],
+  [["museo", "museu", "entrad", "teatre", "concierto", "cine", "teatro", "museum", "concert", "cinema", "movie", "theatre", "theater"], "leisure"],
+  [["luz", "electricidad", "agua", "internet", "wifi", "fibra", "electricity", "water", "bill", "fiber", "llum", "electricitat", "aigua"], "bills"],
+  [["regal", "cumple", "gift", "present", "birthday", "aniversari"], "gifts"],
+  [["farmacia", "pharmacy", "drugstore"], "health"],
+];
+const CAT_EMOJI = { food: "🍽️", drinks: "🍻", groceries: "🛒", transport: "🚕", lodging: "🏨", leisure: "🎟️", bills: "💡", gifts: "🎁", health: "💊", trips: "🧳", other: "🧾" };
+const EMOJIS = [
+  [["reembolso", "devol", "refund", "repay"], "💸"], [["viaje", "vacaciones", "escapada", "finde", "trip", "vacation", "holiday", "weekend", "getaway", "viatge", "vacances"], "🧳"],
+  [["playa", "beach", "platja"], "🏖️"], [["boda", "wedding", "casament"], "💍"], [["pizza", "pizzeria"], "🍕"], [["hamburg", "burger"], "🍔"], [["sushi", "japones"], "🍣"],
+  [["cena", "comida", "almuerzo", "restaurante", "menu", "tapas", "bar", "dinner", "lunch", "restaurant", "meal", "brunch", "sopar", "dinar", "tapes", "menjar"], "🍽️"],
+  [["desayuno", "cafe", "cafeteria", "breakfast", "coffee", "esmorzar"], "☕"],
+  [["cerveza", "cana", "copas", "vino", "bebida", "beer", "drinks", "wine", "pub", "cocktail", "cervesa", "canya", "copes", "beguda"], "🍻"], [["helado", "ice", "gelat"], "🍦"],
+  [["super", "mercadona", "lidl", "carrefour", "dia", "alcampo", "compra", "grocer", "supermarket", "shopping", "bonpreu", "condis", "esclat"], "🛒"],
+  [["taxi", "uber", "cabify", "lyft"], "🚕"], [["gasolina", "gasoil", "diesel", "repsol", "cepsa", "gas", "fuel", "petrol", "benzina"], "⛽"], [["tren", "renfe", "ave", "train"], "🚆"],
+  [["avion", "vuelo", "ryanair", "vueling", "iberia", "flight", "plane", "avio"], "✈️"], [["bus", "autobus", "metro", "subway"], "🚌"], [["parking", "aparcamiento", "peaje", "toll", "aparcament", "peatge"], "🅿️"],
+  [["hotel", "airbnb", "apartamento", "alojamiento", "hostal", "hostel", "lodging", "apartment", "allotjament"], "🏨"],
+  [["museo", "museu", "entrad", "teatre", "concierto", "cine", "teatro", "museum", "ticket", "concert", "cinema", "movie", "theatre", "theater"], "🎟️"],
+  [["luz", "electricidad", "electricity", "power", "llum", "electricitat"], "💡"], [["agua", "water", "aigua"], "💧"], [["internet", "wifi", "fibra", "fiber"], "📶"],
+  [["alquiler", "piso", "casa", "rent", "flat", "house", "pis", "lloguer"], "🏠"], [["regalo", "cumple", "gift", "present", "birthday", "regal", "aniversari"], "🎁"], [["farmacia", "pharmacy", "drugstore"], "💊"],
+];
+const categoryOf = (title) => match(title, CATS, "other");
+const expenseEmoji = (e) => (e.isTransfer ? "💸" : match(e.title, EMOJIS, "🧾"));
+
+// --- Estadísticas (GroupStats.kt). Los reembolsos no cuentan como gasto. ---
+const dayKey = (ms) => { const d = new Date(ms); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
+const keyDate = (k) => new Date(Math.floor(k / 10000), Math.floor(k / 100) % 100 - 1, k % 100);
+function statsHtml() {
+  const g = S.group, ex = S.expenses.filter((e) => !e.isTransfer);
+  if (!ex.length) return '<div class="note">' + tr("no_stats") + "</div>";
+  const total = ex.reduce((a, e) => a + e.amountCents, 0);
+  const byDay = new Map();
+  ex.forEach((e) => { const k = dayKey(e.createdAt); byDay.set(k, (byDay.get(k) || 0) + e.amountCents); });
+  const keys = [...byDay.keys()].sort((a, b) => a - b), days = [];
+  for (let d = keyDate(keys[0]), last = keyDate(keys[keys.length - 1]); d <= last; d.setDate(d.getDate() + 1)) {
+    const k = dayKey(d.getTime()); days.push([k, byDay.get(k) || 0]);
+  }
+  const per = g.people.map((p) => ({ p, paid: ex.filter((e) => e.payerId === p.id).reduce((a, e) => a + e.amountCents, 0), share: ex.reduce((a, e) => a + (e.shares[p.id] || 0), 0) }))
+    .sort((a, b) => b.paid - a.paid);
+  const cats = {};
+  ex.forEach((e) => { const c = categoryOf(e.title); cats[c] = cats[c] || { cents: 0, n: 0 }; cats[c].cents += e.amountCents; cats[c].n++; });
+  const catList = Object.keys(cats).map((c) => [c, cats[c]]).sort((a, b) => b[1].cents - a[1].cents);
+  const top = days.filter((d) => d[1] > 0).sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 3);
+  const big = ex.reduce((a, e) => (!a || e.amountCents > a.amountCents ? e : a), null);
+  const maxPP = Math.max(1, ...per.map((x) => Math.max(x.paid, x.share))), maxDay = Math.max(1, ...days.map((d) => d[1]));
+  const bar = (v, max, cls) => '<span class="bar ' + (cls || "") + '" style="width:' + Math.max(1, Math.round(v * 100 / max)) + '%"></span>';
+  const dLong = (k) => keyDate(k).toLocaleDateString(LOC, { weekday: "short", day: "numeric", month: "short" });
+  const tile = (v, k) => '<div class="tile"><b>' + v + "</b><small>" + k + "</small></div>";
+  return '<div class="tiles">' + tile(money(total), tr("st_total")) + tile(ex.length, tr("st_count")) + tile(money(Math.floor(total / ex.length)), tr("st_avg")) +
+      tile(money(g.people.length ? Math.floor(total / g.people.length) : 0), tr("st_pp")) + tile(money(Math.floor(total / days.length)), tr("st_pd", days.length)) + "</div>" +
+    "<h2>" + tr("st_people") + '</h2><ul class="bars">' + per.map((x) =>
+      '<li><span class="lbl">' + esc(nameYou(x.p.id)) + "</span>" + bar(x.paid, maxPP) + bar(x.share, maxPP, "alt") +
+      "<small>" + esc(tr("st_paid_share", money(x.paid), money(x.share))) + "</small></li>").join("") + "</ul>" +
+    '<p class="foot"><span class="key"></span> ' + tr("col_paid") + ' · <span class="key alt"></span> ' + tr("col_share") + "</p>" +
+    "<h2>" + tr("st_cats") + '</h2><ul class="bars">' + catList.map(([c, v]) =>
+      '<li><span class="lbl"><span aria-hidden="true">' + CAT_EMOJI[c] + "</span> " + tr("cat_" + c) + "</span>" + bar(v.cents, catList[0][1].cents) +
+      "<small>" + money(v.cents) + " · " + Math.round(v.cents * 100 / total) + " % · " + plural(v.n, "exp_1", "exp_n") + "</small></li>").join("") + "</ul>" +
+    (days.length > 1 ? "<h2>" + tr("st_daily") + '</h2><div class="days" role="img" aria-label="' + esc(tr("st_daily") + ": " + days.filter((d) => d[1]).map((d) => dLong(d[0]) + " " + money(d[1])).join(", ")) + '">' +
+      days.map((d) => '<span title="' + esc(dLong(d[0]) + " · " + money(d[1])) + '" style="height:' + (d[1] ? Math.max(4, Math.round(d[1] * 100 / maxDay)) : 0) + '%"></span>').join("") + "</div>" : "") +
+    "<h2>" + tr("st_days") + '</h2><ol class="plain">' + top.map((d) => "<li><b>" + money(d[1]) + "</b> · " + esc(dLong(d[0])) + "</li>").join("") + "</ol>" +
+    "<h2>" + tr("st_big") + '</h2><p class="card"><span aria-hidden="true">' + expenseEmoji(big) + "</span> <b>" + esc(big.title) + "</b> · " + money(big.amountCents) +
+      "<br><small>" + esc(tr("paid_by", nameYou(big.payerId))) + " · " + day(big.createdAt) + "</small></p>";
+}
+
+// --- Opciones del grupo (menú ⋯) ---
+function openMenu() {
+  const g = S.group, sheet = $("sheet");
+  const items = [["invite", "invite"], ["edit", "m_edit"], ["people", "m_people"], ["rec", "m_recurring"], ["act", "m_activity"], ["csv", "m_csv"], ["share", "m_share_bal"], ["leave", "m_leave"], ["del", "m_delete"]];
+  sheet.innerHTML = '<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="mh"><h2 id="mh">' + esc(tr("menu_h")) + '</h2><div class="list">' +
+    items.map(([k, t]) => '<button type="button" data-m="' + k + '"' + (k === "del" || k === "leave" ? ' class="danger"' : "") + '><span class="grow">' + tr(t) + '</span><span class="chev" aria-hidden="true">›</span></button>').join("") +
+    '</div><div class="split"><button type="button" id="mclose">' + tr("close") + "</button></div></div>";
   sheet.hidden = false;
-  const upd = () => { const c = parseCents($("ea").value), n = sel.size; $("each").textContent = c > 0 && n ? tr("each", money(Math.floor(c / n))) : ""; };
-  $("eb").onclick = (ev) => {
-    const b = ev.target.closest("button[data-p]"); if (!b) return;
-    const id = b.dataset.p; if (sel.has(id)) sel.delete(id); else sel.add(id);
-    b.setAttribute("aria-pressed", String(sel.has(id))); upd();
-  };
-  $("ea").oninput = upd;
-  if (pre) { $("ec").value = pre.title; $("ea").value = (pre.cents / 100).toFixed(2).replace(".", LANG === "en" ? "." : ","); $("ep").value = pre.payer; upd(); }
-  else $("escan").onclick = () => openScan();
-  $("ecancel").onclick = closeSheet;
   sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
-  // En el móvil no se enfoca solo: abriría el teclado tapando medio formulario.
-  if (!pre && matchMedia("(pointer: fine)").matches) setTimeout(() => $("ec").focus(), 50);
-  ["ec", "ea"].forEach((id) => $(id).addEventListener("input", () => $(id).removeAttribute("aria-invalid")));
-  $("expf").onsubmit = async (ev) => {
+  $("mclose").onclick = closeSheet;
+  sheet.querySelector("button[data-m]").focus();
+  const act = { invite: openInvite, edit: openEditGroup, people: openPeople, rec: openRecurring, act: openActivity, csv: exportCsv, share: shareBalances, leave: leaveGroup, del: deleteGroup };
+  sheet.querySelectorAll("[data-m]").forEach((b) => { b.onclick = () => act[b.dataset.m](); });
+}
+function dlg(title, body, foot) {
+  const sheet = $("sheet");
+  sheet.innerHTML = '<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dh"><h2 id="dh">' + esc(title) + "</h2>" + body +
+    '<div class="split" style="margin-top:12px">' + (foot || "") + '<button type="button" id="dclose">' + tr("close") + "</button></div></div>";
+  sheet.hidden = false;
+  sheet.onclick = (ev) => { if (ev.target === sheet) closeSheet(); };
+  $("dclose").onclick = closeSheet;
+}
+
+function openEditGroup() {
+  const g = S.group, list = CURRENCIES.indexOf(g.currency) >= 0 ? CURRENCIES : [g.currency].concat(CURRENCIES);
+  dlg(tr("m_edit"), '<form id="gef" novalidate><label for="gname">' + tr("grp_name") + '</label><input id="gname" maxlength="100" value="' + esc(g.name) + '">' +
+    '<label for="gicon">' + tr("g_icon") + '</label><input id="gicon" maxlength="8" autocomplete="off" value="' + esc(g.icon || "") + '" placeholder="🏠"><small>' + tr("g_icon_hint") + "</small>" +
+    '<label for="gcur">' + tr("currency") + '</label><select id="gcur">' + list.map((c) => '<option value="' + c + '"' + (c === g.currency ? " selected" : "") + ">" + c + "</option>").join("") + "</select><small>" + tr("g_cur_hint") + "</small>" +
+    '<p class="err" id="gerr2" role="alert" style="color:var(--bad)"></p><button type="submit" class="btn on" id="gsave2">' + tr("save") + "</button></form>");
+  $("gef").onsubmit = async (ev) => {
     ev.preventDefault();
-    const title = $("ec").value.trim(), cents = parseCents($("ea").value), err = $("eerr");
-    const bad = (id, msg) => { err.textContent = msg; const f = $(id); if (f.tagName === "INPUT") f.setAttribute("aria-invalid", "true"); (f.tagName === "DIV" ? f.querySelector("button") : f).focus(); };
-    if (!title) return bad("ec", tr("e_concept"));
-    if (cents <= 0) return bad("ea", tr("e_amount"));
-    const ids = g.people.map((p) => p.id).filter((id) => sel.has(id));
-    if (!ids.length) return bad("eb", tr("e_between"));
-    err.textContent = "";
-    const e = { id: newId(), title, payerId: $("ep").value, amountCents: cents, shares: equalShares(cents, ids), createdAt: Date.now(), isTransfer: false };
-    const ok = await guarded(() => commit([expenseWrite(e), activityWrite("expense_added", title, cents)]), $("esave"));
-    if (ok) {
-      closeSheet();
-      const h = "#/g/" + S.gid + "/gastos";
-      if (S.tab !== "exp") location.hash = h; else renderGroup();
-      flash(tr("saved"));
-    } else err.textContent = tr("e_save");
+    const name = $("gname").value.trim(), icon = $("gicon").value.trim();
+    if (!name) { $("gerr2").textContent = tr("e_grp_name"); $("gname").focus(); return; }
+    const fields = { name: str(name), currency: str($("gcur").value) };
+    if (icon) fields.icon = str(icon);
+    const ok = await guarded(() => commit([{ update: { name: groupDoc(), fields }, updateMask: { fieldPaths: ["name", "currency", "icon"] }, currentDocument: { exists: true } }]), $("gsave2"));
+    if (ok) { closeSheet(); flash(tr("g_saved")); }
   };
+}
+
+// Alguien que ya aparece en algún gasto no se puede quitar sin descuadrar los saldos (isInvolved).
+const involved = (pid) => S.expenses.some((e) => e.payerId === pid || pid in e.shares);
+function openPeople() {
+  const g = S.group;
+  dlg(tr("m_people"), '<div class="list">' + g.people.map((p) => {
+    const me = p.id === g.me, inv = involved(p.id);
+    return '<div class="prow pp"><span class="av" aria-hidden="true">' + initial(p.name) + '</span><span class="grow"><span class="name">' + esc(nameYou(p.id)) + "</span>" +
+      (inv ? "<small>" + tr("p_involved") + "</small>" : "") + "</span>" +
+      (me ? "" : '<button type="button" data-me="' + p.id + '">' + tr("p_me") + "</button>") +
+      (inv ? "" : '<button type="button" class="danger" data-rm="' + p.id + '" aria-label="' + esc(tr("remove_person", p.name)) + '">' + tr("p_remove") + "</button>") + "</div>";
+  }).join("") + '</div><form id="padd" class="split" novalidate><input id="pname" maxlength="60" autocomplete="off" placeholder="' + tr("other_ph") + '" aria-label="' + tr("p_add") + '">' +
+    '<button type="submit" style="flex:0 0 auto;margin:6px 0">' + tr("add_person") + "</button></form>");
+  const sheet = $("sheet");
+  sheet.querySelectorAll("[data-me]").forEach((b) => { b.onclick = () => { pickMe(b.dataset.me); closeSheet(); }; });
+  sheet.querySelectorAll("[data-rm]").forEach((b) => {
+    b.onclick = async () => {
+      const p = g.people.find((x) => x.id === b.dataset.rm);
+      if (!p || !confirm(tr("confirm_rm_person", p.name))) return;
+      const w = { update: { name: groupDoc(), fields: {} }, updateMask: { fieldPaths: [] }, currentDocument: { exists: true },
+        updateTransforms: [{ fieldPath: "people", removeAllFromArray: { values: [mv({ id: int(p.id), name: str(p.name) })] } }] };
+      if (p.id === g.me) w.updateMask.fieldPaths.push("who." + tick(S.user.uid));
+      if (await guarded(() => commit([w, activityWrite("person_removed", p.name)]))) openPeople();
+    };
+  });
+  $("padd").onsubmit = async (ev) => {
+    ev.preventDefault();
+    const name = $("pname").value.trim();
+    if (!name) return $("pname").focus();
+    if (g.people.some((p) => p.name.trim().toLowerCase() === name.toLowerCase())) { $("pname").setAttribute("aria-invalid", "true"); return flash(tr("e_dup")); }
+    const add = { update: { name: groupDoc(), fields: {} }, updateMask: { fieldPaths: [] }, currentDocument: { exists: true },
+      updateTransforms: [{ fieldPath: "people", appendMissingElements: { values: [mv({ id: int(newId()), name: str(name) })] } }] };
+    if (await guarded(() => commit([add, activityWrite("person_added", name)]))) { openPeople(); $("pname").focus(); }
+  };
+}
+
+function openRecurring() {
+  const g = S.group;
+  dlg(tr("m_recurring"), "<p>" + tr("rec_hint") + "</p>" + (g.recurring.length ? '<div class="list">' + g.recurring.map((r) =>
+    '<div class="prow pp"><span class="grow"><span class="name">' + esc(r.title) + " · " + money(r.amountCents) + "</span><small>" +
+      esc(tr("rec_line", nameYou(r.payerId), new Date(r.startAt).getDate())) + '</small></span><button type="button" class="danger" data-stop="' + r.id + '">' + tr("rec_stop") + "</button></div>").join("") + "</div>"
+    : '<div class="note">' + tr("rec_none") + "</div>"));
+  $("sheet").querySelectorAll("[data-stop]").forEach((b) => {
+    b.onclick = async () => {
+      const r = g.recurring.find((x) => x.id === b.dataset.stop);
+      if (!r || !confirm(tr("rec_stop_q", r.title))) return;
+      if (await guarded(() => commit([{ update: { name: groupDoc(), fields: {} }, updateMask: { fieldPaths: ["recurring." + tick(r.id)] }, currentDocument: { exists: true } }]))) openRecurring();
+    };
+  });
+}
+
+async function openActivity() {
+  dlg(tr("m_activity"), '<div id="actl"><p>' + tr("loading") + "</p></div>");
+  const gid = S.gid;
+  try {
+    const r = await call(ROOT + "/groups/" + gid + ":runQuery", { method: "POST", body: JSON.stringify({ structuredQuery: {
+      from: [{ collectionId: "activity" }], orderBy: [{ field: { fieldPath: "at" }, direction: "DESCENDING" }], limit: 50,
+    } }) });
+    if (!r.ok) throw new Error("activity " + r.status);
+    const list = (await r.json()).filter((x) => x.document).map((x) => decDoc(x.document));
+    if (!$("actl") || S.gid !== gid) return;
+    const line = (a) => {
+      const by = typeof a.by === "string" && a.by ? a.by : tr("someone"), t = typeof a.title === "string" ? a.title : "", m = money(Number(a.amountCents) || 0);
+      return TX["act_" + a.kind] ? tr("act_" + a.kind, by, a.kind === "refund" ? m : t, m) : by + " · " + t;
+    };
+    $("actl").innerHTML = list.length ? '<ul class="plain act">' + list.map((a) => "<li>" + esc(line(a)) + "<small>" +
+      esc(new Date(Number(a.at) || 0).toLocaleString(LOC, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) + "</small></li>").join("") + "</ul>"
+      : '<div class="note">' + tr("act_empty") + "</div>";
+  } catch (e) { console.warn(e); if ($("actl")) $("actl").innerHTML = '<p class="err" style="color:var(--bad)">' + tr("e_conn") + "</p>"; }
+}
+
+// CSV como groupToCsv en la app: una fila por gasto con lo de cada persona y, al final, los saldos.
+function exportCsv() {
+  const g = S.group, comma = LANG !== "en", sep = comma ? ";" : ",";
+  const m = (c) => (c < 0 ? "-" : "") + Math.floor(Math.abs(c) / 100) + (comma ? "," : ".") + String(Math.abs(c) % 100).padStart(2, "0");
+  const cell = (t) => {
+    t = String(t == null ? "" : t);
+    if (t && "=+-@\t\r".indexOf(t[0]) >= 0) t = "'" + t; // que la hoja de cálculo no lo tome por una fórmula
+    return t.indexOf(sep) >= 0 || /["\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  };
+  const iso = (ms) => { const d = new Date(ms); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  const rows = [[tr("col_date"), tr("col_what"), tr("col_paid"), tr("col_amount") + " (" + g.currency + ")", tr("csv_type"), tr("csv_orig")].concat(g.people.map((p) => p.name))];
+  S.expenses.slice().sort((a, b) => a.createdAt - b.createdAt).forEach((e) => rows.push([
+    iso(e.createdAt), e.title, personName(e.payerId), m(e.amountCents), e.isTransfer ? tr("refund") : "",
+    e.currency && e.originalCents != null && e.rate ? m(e.originalCents) + " " + e.currency + " (1 " + e.currency + " = " + rateString(e.rate) + " " + g.currency + ")" : "",
+  ].concat(g.people.map((p) => (p.id in e.shares ? m(e.shares[p.id]) : "")))));
+  const bal = balances(g, S.expenses);
+  rows.push(["", tr("col_bal"), "", "", "", ""].concat(g.people.map((p) => m(bal[p.id] || 0))));
+  const blob = new Blob(["﻿" + rows.map((r) => r.map(cell).join(sep)).join("\r\n") + "\r\n"], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = ((g.name || "distro").replace(/[^\p{L}\p{N} _-]+/gu, "").trim() || "distro") + ".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  closeSheet();
+}
+
+// Saldos en texto para mandar por WhatsApp, como «Compartir saldos» en la app.
+async function shareBalances() {
+  const g = S.group, bal = balances(g, S.expenses), spent = S.expenses.filter((e) => !e.isTransfer).reduce((a, e) => a + e.amountCents, 0);
+  const ts = settle(bal);
+  const text = tr("bal_text_title", g.name, money(spent)) + "\n\n" + g.people.map((p) => p.name + ": " + signed(bal[p.id] || 0)).join("\n") +
+    (ts.length ? "\n\n" + tr("to_settle") + "\n" + ts.map((t) => tr("settle_line", personName(t.from), money(t.cents), personName(t.to))).join("\n") : "\n\n" + tr("all_settled"));
+  closeSheet();
+  if (navigator.share) { try { await navigator.share({ title: g.name, text }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(text); flash(tr("bal_copied")); } catch (e) { prompt(tr("m_share_bal"), text); }
+}
+
+// Borra los gastos (también los borrados), los tickets y, lo último, el grupo (deleteGroup en la app).
+async function deleteGroupDocs(gid) {
+  const writes = [];
+  for (const sub of ["expenses", "tickets"]) (await listDocs("groups/" + gid + "/" + sub)).forEach((d) => writes.push({ delete: docName("groups/" + gid + "/" + sub + "/" + d.id) }));
+  writes.push({ delete: docName("groups/" + gid) });
+  await commit(writes);
+}
+async function leaveGroup() {
+  const g = S.group;
+  if (!confirm(tr(g.members <= 1 ? "leave_alone_q" : "leave_q", g.name))) return;
+  const ok = await guarded(async () => {
+    if (g.members <= 1) return deleteGroupDocs(g.id);
+    await commit([{ update: { name: groupDoc(), fields: {} }, updateMask: { fieldPaths: ["who." + tick(S.user.uid)] }, currentDocument: { exists: true },
+      updateTransforms: [{ fieldPath: "memberUids", removeAllFromArray: { values: [str(S.user.uid)] } }] }]);
+  }, null, true);
+  if (ok) { closeSheet(); S.groups = null; location.hash = "#/"; flash(tr("left_ok")); }
+}
+async function deleteGroup() {
+  const g = S.group;
+  if (!confirm(tr("delete_q", g.name))) return;
+  const ok = await guarded(() => deleteGroupDocs(g.id), null, true);
+  if (ok) { closeSheet(); S.groups = null; location.hash = "#/"; flash(tr("deleted_g")); }
 }
 
 // --- Nuevo grupo (lo mismo que createGroup() en GroupsViewModel: tú primero y quién eres ya elegido) ---
