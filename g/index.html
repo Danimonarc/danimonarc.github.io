@@ -4,11 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<!-- Seguridad (P1): referrer estricto y anti-clickjacking por JS (frame-ancestors no vale por <meta> en GitHub
-     Pages). La CSP de recursos NO se pone aquí todavía: esta página usa el SDK de Firebase y el popup de Google,
-     y una CSP mal ajustada rompe el login; hay que probarla en navegador antes (ver docs del pentest). -->
+<!-- Seguridad: CSP (pentest 2026-11-10, B5). Solo se cargan scripts propios y los de Google que necesita el
+     inicio de sesión (SDK de Firebase en gstatic y la ventana de Google, que usa apis.google.com y un marco de
+     firebaseapp.com); 'wasm-unsafe-eval' y worker-src son para leer tickets (Tesseract). Sin 'unsafe-inline' en
+     los scripts: aunque se colara HTML en la página, no se ejecutaría. Si se añade un servicio nuevo (otra API,
+     otro CDN), hay que añadirlo aquí. frame-ancestors no vale por <meta>: de eso se ocupa /guard.js. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://www.gstatic.com https://apis.google.com 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://api.frankfurter.dev https://cdn.jsdelivr.net https://latest.currency-api.pages.dev; frame-src https://distro-58a19.firebaseapp.com; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<script>if (self !== top) { try { top.location = self.location; } catch (e) { document.documentElement.style.display = "none"; } }</script>
+<script src="/guard.js"></script>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#18211b" media="(prefers-color-scheme: dark)">
 <title>Distro</title>
@@ -215,17 +218,6 @@
 </main>
 <div class="sheet" id="sheet" hidden></div>
 <script type="module" src="app.js"></script>
-<script>
-  // Si no carga Firebase (sin conexión o bloqueado), se dice en vez de dejar la página en blanco.
-  setTimeout(function () {
-    if (window.distroReady) return;
-    var l = (navigator.language || "en").toLowerCase();
-    document.getElementById("skel").hidden = true;
-    var n = document.getElementById("status");
-    n.className = "note bad";
-    n.textContent = l.indexOf("ca") === 0 ? "No s'ha pogut carregar. Revisa la connexió i torna a obrir la pàgina." : l.indexOf("es") === 0 ? "No se ha podido cargar. Revisa tu conexión y vuelve a abrir la página." : "Couldn't load. Check your connection and reopen the page.";
-  }, 12000);
-  if ("serviceWorker" in navigator) addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
-</script>
+<script src="boot.js"></script>
 </body>
 </html>

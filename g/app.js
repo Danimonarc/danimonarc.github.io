@@ -84,6 +84,7 @@ const TX = {
   join_title: ["Unirse con un código", "Join with a code", "Unir-se amb un codi"],
   join_btn: ["Unirse", "Join", "Unir-se"],
   joining: ["Entrando en el grupo…", "Joining the group…", "Entrant al grup…"],
+  join_q: ["Te han invitado a un grupo de Distro. ¿Entrar en él con esta cuenta ({0})?", "You've been invited to a Distro group. Join it with this account ({0})?", "T'han convidat a un grup de Distro. Vols entrar-hi amb aquest compte ({0})?"],
   e_code: ["El código no existe o ha caducado. Pide uno nuevo.", "That code doesn't exist or has expired. Ask for a new one.", "El codi no existeix o ha caducat. Demana'n un de nou."],
   e_join: ["No se ha podido entrar en el grupo.", "Couldn't join the group.", "No s'ha pogut entrar al grup."],
   inst_h: ["Ponla en tu pantalla de inicio", "Add it to your home screen", "Posa-la a la pantalla d'inici"],
@@ -315,6 +316,10 @@ function esc(s) { return (s == null ? "" : String(s)).replace(/&/g, "&amp;").rep
 // Los ids (grupos, personas, gastos, tickets, artículos) son enteros como en la app. Lo que no lo sea
 // se descarta al leer: las reglas dejan escribir algunos de estos datos a invitados y no los validan.
 const isId = (x) => typeof x === "string" && /^\d{1,19}$/.test(x);
+// Fechas de fiar (de 2000 a 2100, como en las reglas y en SaneTime de la app): con una disparatada, los
+// meses de un gasto fijo o los días de las estadísticas eran millones de vueltas (pentest 2026-11-10, D2).
+const T_MIN = 946684800000, T_MAX = 4102444799999;
+const saneTime = (ms) => Math.min(T_MAX, Math.max(T_MIN, Number(ms) || 0));
 function money(c, cur) {
   cur = cur || (S.group && S.group.currency) || "EUR";
   try { return (Number(c) / 100).toLocaleString(LOC, { style: "currency", currency: cur }); }
@@ -430,19 +435,21 @@ function toGroup(id, d) {
     createdAt: Number(d.createdAt || 0),
     recurring: Object.keys(d.recurring && typeof d.recurring === "object" ? d.recurring : {}).filter(isId).map((k) => {
       const r = d.recurring[k] || {}, sh = {};
-      if (!isId(r.payerId) || r.amountCents == null || r.startAt == null) return null;
+      if (!isId(r.payerId) || r.amountCents == null || !(Number(r.startAt) >= T_MIN && Number(r.startAt) <= T_MAX)) return null;
       Object.keys(r.shares || {}).filter(isId).forEach((pid) => { sh[pid] = Number(r.shares[pid]) || 0; });
       return { id: k, title: typeof r.title === "string" ? r.title : "", payerId: r.payerId, amountCents: Number(r.amountCents), shares: sh, startAt: Number(r.startAt), applied: Math.max(1, Number(r.applied) || 1) };
     }).filter(Boolean).sort((a, b) => a.startAt - b.startAt),
   };
 }
 function toExpense(id, d) {
-  // Los gastos borrados se quedan marcados (borrado suave de la app) y no cuentan.
-  if (d.deleted === true || !isId(d.payerId) || d.amountCents == null) return null;
+  // Los gastos borrados se quedan marcados (borrado suave de la app) y no cuentan. El id del documento lo
+  // elige quien lo crea y acaba en atributos (data-exp): uno con comillas ejecutaba código en la web de
+  // los demás miembros (pentest 2026-11-10, N1).
+  if (!isId(id) || d.deleted === true || !isId(d.payerId) || d.amountCents == null) return null;
   const shares = {};
   Object.keys(d.shares || {}).filter(isId).forEach((k) => { shares[k] = Number(d.shares[k]) || 0; });
   const rate = Number(d.rate), foreign = typeof d.currency === "string" && /^[A-Z]{3}$/.test(d.currency) && d.originalCents != null && rate > 0;
-  return { id, title: d.title || "", payerId: String(d.payerId), amountCents: Number(d.amountCents), shares, createdAt: Number(d.createdAt || 0), isTransfer: !!d.isTransfer,
+  return { id, title: d.title || "", payerId: String(d.payerId), amountCents: Number(d.amountCents), shares, createdAt: saneTime(d.createdAt), isTransfer: !!d.isTransfer,
     currency: foreign ? d.currency : null, originalCents: foreign ? Number(d.originalCents) : null, rate: foreign ? rate : null };
 }
 
@@ -1676,7 +1683,7 @@ function toTicket(id, d) {
     claims[k] = { units, shared: c.shared === true, sharedBy: ids(c.sharedBy), slots };
   });
   return {
-    id, title: d.title || "", payerId: String(d.payerId), createdAt: Number(d.createdAt || 0), claims,
+    id, title: d.title || "", payerId: String(d.payerId), createdAt: saneTime(d.createdAt), claims,
     items: (Array.isArray(d.items) ? d.items : []).filter((it) => it && isId(it.id)).map((it) => ({ id: it.id, name: typeof it.name === "string" ? it.name : "", quantity: Math.max(1, Math.floor(Number(it.quantity) || 1)), totalCents: Math.max(0, Math.floor(Number(it.totalCents) || 0)) })),
   };
 }
@@ -1926,8 +1933,12 @@ let started = false;
       const code = S.code;
       S.code = null;
       history.replaceState(null, "", location.pathname + location.hash);
-      try { const gid = await join(code); if (gid) return go(gid); }
-      catch (e) { console.warn(e); status(esc(tr("e_join")), "bad"); }
+      // Un enlace con ?c= no mete a nadie en un grupo sin preguntar: quien ya tiene la sesión abierta
+      // entraba solo con abrirlo (pentest 2026-11-04, B3).
+      if (confirm(tr("join_q", user.email || user.displayName || "?"))) {
+        try { const gid = await join(code); if (gid) return go(gid); }
+        catch (e) { console.warn(e); status(esc(tr("e_join")), "bad"); }
+      }
     }
     route();
   });
