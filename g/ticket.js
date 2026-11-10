@@ -122,13 +122,26 @@ function normalize(t) {
   return t.replace(/(?<=\d[.,]?)[Oo]|[Oo](?=[.,]?\d)/g, "0").replace(/(\d)\s*([.,])\s*(\d{2})(?!\d)/g, "$1$2$3");
 }
 
+// Productos al peso: "0,456 kg", su precio por kilo ("2,99 €/kg") y, tras el peso, "x" y ese precio.
+const WEIGHT = /(?<![\d.,])(\d{1,3}(?:[.,]\d{1,3})?)\s?(kg|gr|g|l)(?![\p{L}\d])/iu;
+const PER_UNIT = /(?:€|EUR)?\s*\/\s*(?:kg|gr|g|l)(?![\p{L}\d])/giu;
+const TIMES_PRICE = /^\s*[xX×*]\s*\d{1,5}[.,]\d{2}(?!\d)/u;
+const weightLabel = (w) => w[1] + " " + w[2].toLowerCase();
+const kilos = (w) => Number(w[1].replace(",", ".")) / (w[2].toLowerCase().startsWith("g") ? 1000 : 1);
+const withoutUnits = (s) => s.replace(/^\d{1,2}\s+(?=\D)/u, "");
+
 /** Interpreta las filas: artículos { id, name, quantity, totalCents } y el total impreso, si lo hay. */
 export function parseRows(rows) {
   let items = [], printed = null, ended = false, pendingName = null, skipNext = false;
   for (let index = 0; index < rows.length; index++) {
     if (skipNext) { skipNext = false; continue; }
-    const row = normalize(rows[index]);
-    const upper = stripAccents(row.toUpperCase());
+    const full = normalize(rows[index]);
+    const upper = stripAccents(full.toUpperCase());
+    // Productos al peso ("0,456 kg x 2,99 €/kg 1,36"): el peso y el precio por kilo no son ni unidades
+    // ni el importe. Solo cuenta como peso si va con su precio por kilo; "LECHE 1 L" no lo es.
+    let weighed = full.match(WEIGHT);
+    if (weighed && !(new RegExp(PER_UNIT.source, "iu").test(full) || TIMES_PRICE.test(full.slice(weighed.index + weighed[0].length)))) weighed = null;
+    const row = weighed ? (full.slice(0, weighed.index) + full.slice(weighed.index + weighed[0].length)).replace(PER_UNIT, " ") : full;
     const prices = [...row.matchAll(PRICE)];
 
     if (!ended && !prices.length && COLUMNS.filter((w) => containsWord(upper, w)).length >= 2) { items = []; pendingName = null; continue; }
@@ -139,6 +152,16 @@ export function parseRows(rows) {
       const name = cleanName(row);
       pendingName = letters(name) >= 2 && !HEADER.some((w) => upper.includes(w)) ? name : null;
       continue;
+    }
+
+    // Línea de detalle con solo el precio por kilo: el importe va en la línea del nombre, que puede
+    // ser la anterior (ya leída como artículo) o estar aún pendiente.
+    if (weighed && prices.length === 1) {
+      const computed = Math.round(kilos(weighed) * toCents(prices[0][0]));
+      const l = items[items.length - 1];
+      if (pendingName == null && l && Math.abs(l.totalCents - computed) <= 1) items[items.length - 1] = { ...l, name: l.name + " " + weightLabel(weighed) };
+      else if (pendingName != null && computed > 0) items.push({ id: items.length, name: withoutUnits(pendingName) + " " + weightLabel(weighed), quantity: 1, totalCents: computed });
+      pendingName = null; continue;
     }
 
     const first = prices[0].index, last = prices[prices.length - 1];
@@ -155,22 +178,23 @@ export function parseRows(rows) {
     let quantity = null;
     const lq = description.match(LEADING_QTY);
     if (lq) { quantity = Number(lq[1]); description = description.slice(lq.index + lq[0].length); }
-    if (quantity == null) {
+    if (quantity == null && !weighed) {
       const between = row.slice(first, last.index);
       const m = between.match(COLUMN_QTY) || description.match(COLUMN_QTY);
       if (m) { const q = Number(m[1]); quantity = q >= 1 && q <= 999 ? q : null; description = description.split(m[0]).join(" "); }
     }
-    if (quantity == null && unit != null && unit > 0 && total % unit === 0 && total / unit >= 2 && total / unit <= 99) quantity = total / unit;
+    if (quantity == null && !weighed && unit != null && unit > 0 && total % unit === 0 && total / unit >= 2 && total / unit <= 99) quantity = total / unit;
 
     let name = cleanName(description);
     if (letters(name) < 2) {
       const next = index + 1 < rows.length ? normalize(rows[index + 1]) : null;
-      if (pendingName != null) name = pendingName;
+      if (pendingName != null) name = weighed ? withoutUnits(pendingName) : pendingName;
       else if (next != null && !new RegExp(PRICE.source, "u").test(next)) { name = cleanName(next); skipNext = true; }
     }
     pendingName = null;
     if (letters(name) < 2) { skipNext = false; continue; }
-    items.push({ id: items.length, name, quantity: Math.max(1, quantity || 1), totalCents: total });
+    // Al peso siempre es una sola línea: los kilos no son unidades que repartir.
+    items.push({ id: items.length, name: weighed ? name + " " + weightLabel(weighed) : name, quantity: weighed ? 1 : Math.max(1, quantity || 1), totalCents: total });
   }
   return { items, printedTotalCents: printed };
 }

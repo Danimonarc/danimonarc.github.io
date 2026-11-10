@@ -177,6 +177,28 @@ test("deduce la cantidad sin columna", () => { assert.equal(parseRows(["CERVEZA 
 test("arregla erratas del OCR", () => { assert.equal(parseRows(["1 NESTEA 2, 6O 2,6O"]).items[0].totalCents, 260); });
 test("el descuento se resta del anterior", () => { assert.equal(parseRows(["1 PIZZA 10,00", "DTO. PROMO -2,00"]).items[0].totalCents, 800); });
 
+const pairs = (t) => t.items.map((i) => [i.name, i.totalCents]);
+test("producto al peso en una línea", () => {
+  assert.deepEqual(parseRows(["PLATANO 0,456 kg x 2,99 €/kg 1,36"]).items, [{ id: 0, name: "PLATANO 0,456 kg", quantity: 1, totalCents: 136 }]);
+});
+test("producto al peso con el nombre en la línea de arriba (Mercadona)", () => {
+  const t = parseRows(["1 PLATANO", "0,456 kg 2,99 €/kg 1,36", "1 TOMATE ENSALADA", "1,000 kg 1,50 €/kg 1,50", "2 LECHE ENTERA 1 L 0,89 1,78", "TOTAL 4,64"]);
+  assert.deepEqual(pairs(t), [["PLATANO 0,456 kg", 136], ["TOMATE ENSALADA 1,000 kg", 150], ["LECHE ENTERA 1 L", 178]]);
+  assert.deepEqual(t.items.map((i) => i.quantity), [1, 1, 2]);
+  assert.equal(t.printedTotalCents, 464);
+});
+test("producto al peso con el detalle en la línea de abajo", () => {
+  assert.deepEqual(pairs(parseRows(["TOMATE 1,50", "0,502 kg x 2,99 €/kg", "PAN 0,95"])), [["TOMATE 0,502 kg", 150], ["PAN", 95]]);
+});
+test("un peso con dos decimales no es un precio", () => {
+  assert.deepEqual(parseRows(["UVA BLANCA 0,45 kg x 3,98 1,79"]).items, [{ id: 0, name: "UVA BLANCA 0,45 kg", quantity: 1, totalCents: 179 }]);
+});
+test("un pack de botellas sigue siendo unidades", () => {
+  const i = parseRows(["AGUA 1,5 L x6 3,00"]).items[0];
+  assert.equal(i.quantity, 6);
+  assert.equal(i.totalCents, 300);
+});
+
 test("columnas sueltas y foto girada 4°", () => {
   const a = 4 * Math.PI / 180;
   const at = (text, x, y, w) => ({ text, centerX: x * Math.cos(a) - y * Math.sin(a), centerY: x * Math.sin(a) + y * Math.cos(a), width: w, height: 30, angle: a });
