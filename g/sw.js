@@ -1,7 +1,7 @@
 // Service worker de Distro web: guarda la página para que abra rápido, pero siempre intenta la versión de la red
 // primero (así los cambios llegan al momento). Los datos y Firebase van aparte y no se guardan.
-var CACHE = "distro-web-8";
-var SHELL = ["./", "app.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-180.png"];
+var CACHE = "distro-web-9";
+var SHELL = ["./", "app.js", "boot.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-180.png"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }));
