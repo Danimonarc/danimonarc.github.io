@@ -285,6 +285,7 @@ const TX = {
   act_ticket_closed: ["{0} cerró el ticket «{1}» ({2})", "{0} closed the receipt “{1}” ({2})", "{0} va tancar el tiquet «{1}» ({2})"],
   act_person_added: ["{0} añadió a {1} al grupo", "{0} added {1} to the group", "{0} va afegir {1} al grup"],
   act_person_removed: ["{0} quitó a {1} del grupo", "{0} removed {1} from the group", "{0} va treure {1} del grup"],
+  act_person_renamed: ["{0} cambió un nombre: {1}", "{0} changed a name: {1}", "{0} va canviar un nom: {1}"],
   csv_type: ["Tipo", "Type", "Tipus"],
   csv_orig: ["Original", "Original", "Original"],
   bal_text_title: ["💶 {0} — gasto total {1}", "💶 {0} — total spent {1}", "💶 {0} — despesa total {1}"],
